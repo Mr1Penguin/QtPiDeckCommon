@@ -14,6 +14,7 @@ SOURCES += \
 
 HEADERS += \
     QtPiDeckCommon_global.h \
+    network/messageheader.h \
     qtpideckcommon.h
 
 # Default rules for deployment.
