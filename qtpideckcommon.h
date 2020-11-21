@@ -7,6 +7,7 @@ class QTPIDECKCOMMON_EXPORT QtPiDeckCommon
 {
 public:
     QtPiDeckCommon();
+    void registerTypes();
 };
 
 #endif // QTPIDECKCOMMON_H
