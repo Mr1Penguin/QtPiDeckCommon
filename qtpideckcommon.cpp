@@ -3,3 +3,7 @@
 QtPiDeckCommon::QtPiDeckCommon()
 {
 }
+
+void QtPiDeckCommon::registerTypes()
+{
+}
