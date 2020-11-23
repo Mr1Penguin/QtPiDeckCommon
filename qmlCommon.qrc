@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file>qml/components/Command.qml</file>
-        <file>qml/components/qmldir</file>
+        <file>qml/components/QtPiDeck/Command.qml</file>
+        <file>qml/components/QtPiDeck/qmldir</file>
     </qresource>
 </RCC>
