@@ -1,4 +1,4 @@
-#include "qtpideckcommon.h"
+#include "QtPiDeckCommon.hpp"
 
 QtPiDeckCommon::QtPiDeckCommon()
 {

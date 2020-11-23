@@ -20,9 +20,20 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Cache Qt
+        id: cache-qt
+        uses: actions/cache@v1
+        with:
+          path: ../Qt
+          key: ${{ runner.os }}-QtCache
+
       - uses: actions/checkout@v2
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
+        with:
+          version: '5.15.1'
+          modules: 'qtvirtualkeyboard'
+          cached: ${{ steps.cache-qt.outputs.cache-hit }}
 
       # Runs a single command using the runners shell
       - name: Run qmake
@@ -34,4 +45,4 @@ jobs:
       - name: Build project
         run: |
           cd build
-          make
+          make -j3
