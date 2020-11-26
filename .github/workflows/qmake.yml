@@ -58,4 +58,4 @@ jobs:
       - name: Build project
         run: |
           cd build
-          make -j3 check
+          LD_LIBRARY_PATH=$PWD/QtPiDeckCommon/ make -j3 check TESTARGS="-platform offscreen"

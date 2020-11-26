@@ -5,10 +5,10 @@ TEMPLATE = app
 QT += quick
 
 DISTFILES += \
-    qml\tst_commandtests.qml
+    qml/tst_commandtests.qml
 
 SOURCES += \
-    src\main.cpp
+    src/main.cpp
 
 CONFIG += c++17
 
