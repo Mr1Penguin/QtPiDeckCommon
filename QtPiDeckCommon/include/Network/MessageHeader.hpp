@@ -2,6 +2,7 @@
 
 #include <cstdint>
 
+namespace QtPiDeck::Network {
 enum class MessageId : uint32_t {
     Ping,
     Pong
@@ -12,3 +13,4 @@ struct alignas(64) MessageHeader {
     uint64_t dataSize;
     MessageId messageId;
 };
+}

@@ -12,8 +12,8 @@ Rectangle {
         id: image
         source: ""
         anchors.fill: parent
-        horizontalAlignment: horizontalCenter
-        verticalAlignment: verticalAlignment
+        //horizontalAlignment: horizontalCenter
+        //verticalAlignment: verticalAlignment
     }
     Text {
         text: qsTr("What is this very very long text it can't even be put in one line")
@@ -37,8 +37,8 @@ Rectangle {
         state: "hidden"
         opacity: 0
         anchors.fill: parent
-        horizontalAlignment: horizontalCenter
-        verticalAlignment: verticalAlignment
+        //horizontalAlignment: horizontalCenter
+        //verticalAlignment: verticalAlignment
 
         states: [
             State {

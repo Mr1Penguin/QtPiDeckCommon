@@ -1,7 +1,8 @@
+# QT -= gui
 QT += quick
 
 TEMPLATE = lib
-DEFINES += QTPIDECKCOMMON_LIBRARY
+CONFIG += staticlib
 
 CONFIG += c++17
 
@@ -10,21 +11,15 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    src/QtPiDeckCommon.cpp
+    src/TestHelper.cpp
 
 HEADERS += \
-    include/QtPiDeckCommon_global.hpp \
-    include/Utils.hpp \
-    include/Network/MessageHeader.hpp \
-    include/QtPiDeckCommon.hpp
+    include/TestHelper.hpp
 
 INCLUDEPATH += include
 
 # Default rules for deployment.
 unix {
-    target.path = /usr/lib
+    target.path = $$[QT_INSTALL_PLUGINS]/generic
 }
 !isEmpty(target.path): INSTALLS += target
-
-RESOURCES += \
-    qmlCommon.qrc
