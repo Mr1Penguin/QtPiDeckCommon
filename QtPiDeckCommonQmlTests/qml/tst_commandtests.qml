@@ -9,7 +9,7 @@ Command {
 
         function test_defaultState() {
             var textChild = TestHelper.findFirstChildByTypeName(command, "Text");
-            verify(textChild === null)
+            verify(textChild !== null)
             verify(textChild.visible);
         }
     }
