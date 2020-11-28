@@ -14,7 +14,6 @@ SOURCES += \
 
 HEADERS += \
     include/QtPiDeckCommon_global.hpp \
-    include/Utils.hpp \
     include/Network/MessageHeader.hpp \
     include/QtPiDeckCommon.hpp
 

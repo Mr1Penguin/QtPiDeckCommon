@@ -4,7 +4,6 @@
 #include <QtQml>
 
 #include "QtPiDeckCommon.hpp"
-#include "Utils.hpp"
 #include "TestHelper.hpp"
 
 namespace QtPiDeck::Tests {
@@ -20,7 +19,7 @@ public slots:
     {
         QtPiDeckCommon hack;
         engine->addImportPath("qrc:/qml/components");
-        qmlRegisterSingletonType<TestHelper>("QtPiDeck", 1, 0, "TestHelper", qmlSingletonProvider<TestHelper>);
+        qmlRegisterType<TestHelper>("QtPiDeck.Tests", 1, 0, "TestHelper");
     }
 };
 }
