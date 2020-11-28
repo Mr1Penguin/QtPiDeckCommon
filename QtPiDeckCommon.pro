@@ -1,8 +1,7 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
-    QmlTestsCommon \
     QtPiDeckCommon \
-    QtPiDeckCommonQmlTests
+    Tests
 
-QtPiDeckCommonQmlTests.depends = QtPiDeckCommon QmlTestsCommon
+Tests.QtPiDeckCommonCommandTests.depends += QmlTestsCommon QtPiDeckCommon
