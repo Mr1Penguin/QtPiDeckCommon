@@ -19,6 +19,8 @@ HEADERS += \
 
 INCLUDEPATH += include
 
+include(qmake_modules/vcpkg.pro)
+
 # Default rules for deployment.
 unix {
     target.path = /usr/lib
@@ -27,3 +29,6 @@ unix {
 
 RESOURCES += \
     qmlCommon.qrc
+
+SUBDIRS += \
+    qmake_modules/vcpkg.pro
