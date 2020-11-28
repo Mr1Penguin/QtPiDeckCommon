@@ -13,10 +13,17 @@ jobs:
     steps:
       - name: Cache Qt
         id: cache-qt
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
-          path: ../Qt
-          key: ${{ runner.os }}-QtCache
+          path: ./Qt
+          key: ${{ runner.os }}-QtCache-5.15.1
+
+      - name: Cache vcpkg
+        id: cache-vcpkg
+        uses: actions/cache@v2
+        with:
+          path: ./vcpkg
+          key: ${{ runner.os }}-vcpkg
 
       - uses: actions/checkout@v2
       - name: Install Qt
@@ -24,12 +31,28 @@ jobs:
         with:
           version: '5.15.1'
           modules: 'qtvirtualkeyboard'
+          dir: ./
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
+
+      - name: Clone vcpkg
+        run: git clone https://github.com/microsoft/vcpkg
+        if: steps.cache.outputs.cache-hit != 'true'
+
+      - name: Setup vcpkg
+        run: |
+          cd vcpkg
+          git checkout 896498fdbae91d5f97bfffcadef21b066277fcf2
+          ./bootstrap-vcpkg.sh
+
+      - name: Install dependencies in vcpkg
+        run: ./vcpkg/vcpkg install boost-di:x64-linux
 
       - name: Run qmake
         run: |
           mkdir build && cd build
           qmake ..
+        env:
+          VCPKG_PACKAGES: ${{ GITHUB_WORKSPACE }}/vcpkg/installed/x64-linux
       - name: Build project
         run: |
           cd build
@@ -39,10 +62,17 @@ jobs:
     steps:
       - name: Cache Qt
         id: cache-qt
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
-          path: ../Qt
-          key: ${{ runner.os }}-QtCache
+          path: ./Qt
+          key: ${{ runner.os }}-QtCache-5.15.1
+
+      - name: Cache vcpkg
+        id: cache-vcpkg
+        uses: actions/cache@v2
+        with:
+          path: ./vcpkg
+          key: ${{ runner.os }}-vcpkg
 
       - uses: actions/checkout@v2
       - name: Install Qt
@@ -50,11 +80,28 @@ jobs:
         with:
           version: '5.15.1'
           modules: 'qtvirtualkeyboard'
+          dir: ./
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
+
+      - name: Clone vcpkg
+        run: git clone https://github.com/microsoft/vcpkg
+        if: steps.cache.outputs.cache-hit != 'true'
+
+      - name: Setup vcpkg
+        run: |
+          cd vcpkg
+          git checkout 896498fdbae91d5f97bfffcadef21b066277fcf2
+          ./bootstrap-vcpkg.sh
+
+      - name: Install dependencies in vcpkg
+        run: ./vcpkg/vcpkg install boost-di:x64-linux
+
       - name: Run qmake
         run: |
           mkdir build && cd build
           qmake ..
+        env:
+          VCPKG_PACKAGES: ${{ GITHUB_WORKSPACE }}/vcpkg/installed/x64-linux
       - name: Test project
         run: |
           cd build
