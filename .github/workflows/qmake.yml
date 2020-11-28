@@ -52,7 +52,7 @@ jobs:
           mkdir build && cd build
           qmake ..
         env:
-          VCPKG_PACKAGES: ${{ GITHUB_WORKSPACE }}/vcpkg/installed/x64-linux
+          VCPKG_PACKAGES: ${{ env.GITHUB_WORKSPACE }}/vcpkg/installed/x64-linux
       - name: Build project
         run: |
           cd build
@@ -101,7 +101,7 @@ jobs:
           mkdir build && cd build
           qmake ..
         env:
-          VCPKG_PACKAGES: ${{ GITHUB_WORKSPACE }}/vcpkg/installed/x64-linux
+          VCPKG_PACKAGES: ${{ env.GITHUB_WORKSPACE }}/vcpkg/installed/x64-linux
       - name: Test project
         run: |
           cd build
