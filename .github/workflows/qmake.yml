@@ -12,7 +12,7 @@ jobs:
     
     steps:
       - uses: actions/checkout@v2
-      - uses: deps@1
+      - uses: ./.github/actions/deps
       
       - name: Run qmake
         run: |
@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: deps@1
+      - uses: ./.github/actions/deps
 
       - name: Run qmake
         run: |
