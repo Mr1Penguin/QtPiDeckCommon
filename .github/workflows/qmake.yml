@@ -30,7 +30,7 @@ jobs:
           modules: 'qtvirtualkeyboard'
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
 
-      - name: Run qmake
+      - name: Run cmake
         run: |
           cmake .. -G Ninja
       - name: Build project
@@ -53,9 +53,10 @@ jobs:
           version: '5.15.1'
           modules: 'qtvirtualkeyboard'
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
-      - name: Run qmake
+      - name: Run cmake
         run: |
-          cmake ..
+          pwd
+          cmake .. -G Ninja
       - name: Build project
         run: |
           ninja
