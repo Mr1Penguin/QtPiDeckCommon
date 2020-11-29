@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ master ]
 
+defaults:
+  run:
+    working-directory: build
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -28,12 +32,10 @@ jobs:
 
       - name: Run qmake
         run: |
-          mkdir build && cd build
-          qmake ..
+          cmake .. -G Ninja
       - name: Build project
         run: |
-          cd build
-          make -j3  
+          ninja
   test:
     runs-on: ubuntu-latest
     steps:
@@ -53,9 +55,12 @@ jobs:
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
       - name: Run qmake
         run: |
-          mkdir build && cd build
-          qmake ..
-      - name: Test project
+          cmake ..
+      - name: Build project
         run: |
-          cd build
-          LD_LIBRARY_PATH=$PWD/QtPiDeckCommon/ make -j3 check TESTARGS="-platform offscreen"
+          ninja
+      - name: Test project
+        run: ctest
+        env:
+          LD_LIBRARY_PATH: ./QtPiDeckCommon
+          TESTARGS: -platform offscreen
