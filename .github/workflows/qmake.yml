@@ -19,6 +19,7 @@ jobs:
           key: ${{ runner.os }}-QtCache
 
       - uses: actions/checkout@v2
+      - uses: lukka/get-cmake@latest
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
         with:
@@ -26,14 +27,15 @@ jobs:
           modules: 'qtvirtualkeyboard'
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
 
-      - name: Run qmake
-        run: |
-          mkdir build && cd build
-          qmake ..
+      - name: Make build dir
+        run: mkdir build
+
+      - name: Run cmake
+        run: cmake .. -G Ninja
+        working-directory: build
       - name: Build project
-        run: |
-          cd build
-          make -j3  
+        run: ninja
+        working-directory: build
   test:
     runs-on: ubuntu-latest
     steps:
@@ -45,17 +47,25 @@ jobs:
           key: ${{ runner.os }}-QtCache
 
       - uses: actions/checkout@v2
+      - uses: lukka/get-cmake@latest
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
         with:
           version: '5.15.1'
           modules: 'qtvirtualkeyboard'
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
-      - name: Run qmake
-        run: |
-          mkdir build && cd build
-          qmake ..
+
+      - name: Make build dir
+        run: mkdir build
+
+      - name: Run cmake
+        run: cmake .. -G Ninja
+        working-directory: build
+      - name: Build project
+        run: ninja
+        working-directory: build
       - name: Test project
-        run: |
-          cd build
-          LD_LIBRARY_PATH=$PWD/QtPiDeckCommon/ make -j3 check TESTARGS="-platform offscreen"
+        run: ctest
+        working-directory: build
+        env:
+          LD_LIBRARY_PATH: ./QtPiDeckCommon

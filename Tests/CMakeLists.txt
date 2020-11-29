@@ -1,0 +1,2 @@
+add_subdirectory(QmlTestsCommon)
+add_subdirectory(QtPiDeckCommonCommandTests)
