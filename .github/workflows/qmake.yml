@@ -19,6 +19,7 @@ jobs:
           key: ${{ runner.os }}-QtCache
 
       - uses: actions/checkout@v2
+      - uses: lukka/get-cmake@latest
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
         with:
@@ -48,6 +49,7 @@ jobs:
           key: ${{ runner.os }}-QtCache
 
       - uses: actions/checkout@v2
+      - uses: lukka/get-cmake@latest
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
         with:
