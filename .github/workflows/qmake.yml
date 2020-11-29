@@ -65,8 +65,7 @@ jobs:
         run: ninja
         working-directory: build
       - name: Test project
-        run: ./Tests/QtPiDeckCommonCommandTests/QtPiDeckCommonCommandTests #ctest
+        run: ctest
         working-directory: build
         env:
           LD_LIBRARY_PATH: ./QtPiDeckCommon
-          TESTARGS: -platform offscreen
