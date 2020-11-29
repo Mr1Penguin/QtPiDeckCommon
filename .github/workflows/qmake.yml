@@ -19,6 +19,11 @@ jobs:
           key: ${{ runner.os }}-QtCache
 
       - uses: actions/checkout@v2
+      - name: Checkout submodules
+          run: |
+            git config --global url."https://github.com/".insteadOf "git@github.com:"
+            git submodule sync --recursive
+            git submodule update --init --force --recursive --depth=1
       - uses: lukka/get-cmake@latest
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
@@ -47,6 +52,11 @@ jobs:
           key: ${{ runner.os }}-QtCache
 
       - uses: actions/checkout@v2
+      - name: Checkout submodules
+          run: |
+            git config --global url."https://github.com/".insteadOf "git@github.com:"
+            git submodule sync --recursive
+            git submodule update --init --force --recursive --depth=1
       - uses: lukka/get-cmake@latest
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
