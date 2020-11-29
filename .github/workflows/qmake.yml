@@ -6,10 +6,6 @@ on:
   pull_request:
     branches: [ master ]
 
-defaults:
-  run:
-    working-directory: build
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -30,12 +26,17 @@ jobs:
           modules: 'qtvirtualkeyboard'
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
 
+      - name: Make build dir
+        run: mkdir build
+
       - name: Run cmake
         run: |
           cmake .. -G Ninja
+        working-directory: build
       - name: Build project
         run: |
           ninja
+        working-directory: build
   test:
     runs-on: ubuntu-latest
     steps:
@@ -53,15 +54,22 @@ jobs:
           version: '5.15.1'
           modules: 'qtvirtualkeyboard'
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
+
+      - name: Make build dir
+        run: mkdir build
+
       - name: Run cmake
         run: |
           pwd
           cmake .. -G Ninja
+        working-directory: build
       - name: Build project
         run: |
           ninja
+        working-directory: build
       - name: Test project
         run: ctest
+        working-directory: build
         env:
           LD_LIBRARY_PATH: ./QtPiDeckCommon
           TESTARGS: -platform offscreen
