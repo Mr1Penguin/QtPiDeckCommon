@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.14)
 
 project(QtPiDeckCommon LANGUAGES CXX)
 
+set(ignoreMe ${TARGET_TRIPLET})
+
 if(WIN32)
     set(VCPKG_PATH ${CMAKE_CURRENT_SOURCE_DIR}/ext/vcpkg/vcpkg.exe)
     set(VCPKG_BOOTSTRAP_PATH ${CMAKE_CURRENT_SOURCE_DIR}/ext/vcpkg/bootstrap-vcpkg.bat)
@@ -14,7 +16,7 @@ if(NOT EXISTS ${VCPKG_PATH})
     execute_process(COMMAND ${VCPKG_BOOTSTRAP_PATH} OUTPUT_QUIET)
 endif()
 
-function(requireHeaderVcpkgModule module hint)
+function(requireHeaderVcpkgModule module)
     message(STATUS "Installing " ${module})
     if(WIN32)
         execute_process(COMMAND ${VCPKG_PATH} install --triplet=${TARGET_TRIPLET} ${module} OUTPUT_QUIET)
