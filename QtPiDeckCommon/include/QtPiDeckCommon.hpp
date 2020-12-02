@@ -2,7 +2,6 @@
 #define QTPIDECKCOMMON_H
 
 #include "QtPiDeckCommon_global.hpp"
-#include <boost/di.hpp>
 
 class QTPIDECKCOMMON_EXPORT QtPiDeckCommon
 {
