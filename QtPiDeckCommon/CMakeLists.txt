@@ -18,10 +18,3 @@ target_compile_definitions(QtPiDeckCommon
   PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG> QTPIDECKCOMMON_LIBRARY)
 target_link_libraries(QtPiDeckCommon
   PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Quick)
-
-find_path(BOOST_DI_INCLUDE_DIRS "boost/di.hpp")
-if(NOT BOOST_DI_INCLUDE_DIRS)
-    requireHeaderVcpkgModule(boost-di)
-    find_path(BOOST_DI_INCLUDE_DIRS "boost/di.hpp")
-endif()
-target_include_directories(QtPiDeckCommon PUBLIC ${BOOST_DI_INCLUDE_DIRS})
