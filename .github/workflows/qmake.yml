@@ -75,7 +75,7 @@ jobs:
         run: ninja
         working-directory: build
       - name: Test project
-        run: ctest
+        run: ctest --output-on-failure
         working-directory: build
         env:
           LD_LIBRARY_PATH: ./QtPiDeckCommon
