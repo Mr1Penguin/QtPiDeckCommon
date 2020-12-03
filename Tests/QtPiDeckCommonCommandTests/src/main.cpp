@@ -24,6 +24,6 @@ public slots:
 };
 }
 
-QUICK_TEST_MAIN_WITH_SETUP(CommandControl, QtPiDeck::Tests::Setup)
+QUICK_TEST_MAIN_WITH_SETUP(QtPiDeck::Tests::CommandControl, QtPiDeck::Tests::Setup)
 
 #include "main.moc"

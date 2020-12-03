@@ -5,7 +5,7 @@
 
 namespace QtPiDeck::detail {
 Application::Application() {
-
+    Application::current = this;
 }
 
 Application::~Application() {

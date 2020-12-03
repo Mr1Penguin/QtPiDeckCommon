@@ -36,7 +36,7 @@ jobs:
         run: mkdir build
 
       - name: Run cmake
-        run: cmake .. -G Ninja -DCMAKE_TOOLCHAIN_FILE=../ext/vcpkg/scripts/buildsystems/vcpkg.cmake -DTARGET_TRIPLET=x64-linux
+        run: cmake .. -G Ninja
         working-directory: build
       - name: Build project
         run: ninja
@@ -69,13 +69,13 @@ jobs:
         run: mkdir build
 
       - name: Run cmake
-        run: cmake .. -G Ninja -DCMAKE_TOOLCHAIN_FILE=../ext/vcpkg/scripts/buildsystems/vcpkg.cmake -DTARGET_TRIPLET=x64-linux
+        run: cmake .. -G Ninja
         working-directory: build
       - name: Build project
         run: ninja
         working-directory: build
       - name: Test project
-        run: ctest
+        run: ctest --output-on-failure
         working-directory: build
         env:
           LD_LIBRARY_PATH: ./QtPiDeckCommon
