@@ -1,8 +1,6 @@
 #include "QtPiDeckCommon.hpp"
 
-QtPiDeckCommon::QtPiDeckCommon()
-{
-}
+QtPiDeckCommon::QtPiDeckCommon() = default;
 
 void QtPiDeckCommon::registerTypes()
 {

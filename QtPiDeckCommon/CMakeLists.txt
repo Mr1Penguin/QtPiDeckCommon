@@ -4,6 +4,7 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick REQUIRED)
 add_library(QtPiDeckCommon SHARED
   src/Application.cpp
   src/QtPiDeckCommon.cpp
+  src/Services/ServiceInterface.cpp
   include/Application.hpp
   include/Ioc.hpp
   include/QtPiDeckCommon.hpp

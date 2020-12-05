@@ -12,22 +12,27 @@ namespace detail {
 class QTPIDECKCOMMON_EXPORT Application {
 public:
     Application();
-    virtual ~Application();
+    Application(const Application &) = delete;
+    Application(Application &&) = delete;
+    virtual ~Application() = default;
 
-    int start(int &argc, char **argv);
+    auto operator=(const Application &) -> Application& = delete;
+    auto operator=(Application &&) -> Application& = delete;
 
-    QtPiDeck::Ioc& Ioc() { return m_ioc; }
+    auto start(int &argc, char **argv) -> int;
 
-    static Application* Current() { return current; }
+    auto Ioc() -> QtPiDeck::Ioc& { return m_ioc; }
+
+    static auto Current() -> Application* { return current; }
 
 protected:
-    virtual QUrl mainPage() = 0;
+    virtual auto mainPage() -> QUrl = 0;
     virtual void appStartupPreparations();
     virtual void setupEngine(QQmlApplicationEngine & engine);
 
+private:
     QtPiDeck::Ioc m_ioc;
 
-private:
     inline static Application* current;
 };
 }

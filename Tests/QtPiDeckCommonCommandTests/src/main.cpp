@@ -9,13 +9,14 @@
 namespace QtPiDeck::Tests {
 class Setup : public QObject
 {
+    // NOLINTNEXTLINE
     Q_OBJECT
 
 public:
-    Setup() {}
+    Setup() = default;
 
-public slots:
-    void qmlEngineAvailable(QQmlEngine *engine)
+public slots: // NOLINT(readability-redundant-access-specifiers)
+    void qmlEngineAvailable(QQmlEngine *engine) // NOLINT(readability-convert-member-functions-to-static)
     {
         QtPiDeckCommon hack;
         engine->addImportPath("qrc:/qml/components");
@@ -24,6 +25,6 @@ public slots:
 };
 }
 
-QUICK_TEST_MAIN_WITH_SETUP(QtPiDeck::Tests::CommandControl, QtPiDeck::Tests::Setup)
+QUICK_TEST_MAIN_WITH_SETUP(QtPiDeck::Tests::CommandControl, QtPiDeck::Tests::Setup) // NOLINT
 
 #include "main.moc"

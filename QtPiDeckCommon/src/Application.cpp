@@ -8,29 +8,26 @@ Application::Application() {
     Application::current = this;
 }
 
-Application::~Application() {
-
-}
-
-int Application::start(int &argc, char **argv) {
+auto Application::start(int &argc, char **argv) -> int {
     appStartupPreparations();
     QGuiApplication app{argc, argv};
     QQmlApplicationEngine engine;
     setupEngine(engine);
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url = mainPage()](QObject *obj, const QUrl &objUrl) {
-        if (!obj && url == objUrl)
+        if (obj == nullptr && url == objUrl) {
             QCoreApplication::exit(-1);
+        }
     }, Qt::QueuedConnection);
     engine.load(mainPage());
-    return app.exec();
+    return QGuiApplication::exec();
 }
 
 void Application::appStartupPreparations() {
 
 }
 
-void Application::setupEngine(QQmlApplicationEngine &) {
+void Application::setupEngine(QQmlApplicationEngine & /*engine*/) {
 
 }
 }

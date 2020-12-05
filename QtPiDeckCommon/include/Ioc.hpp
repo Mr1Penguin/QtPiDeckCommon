@@ -12,21 +12,23 @@ namespace QtPiDeck {
 namespace detail {
 struct ServiceStub : Services::ServiceInterface {};
 
-struct ServiceImplementationMetaWrapperBase {
-    virtual ~ServiceImplementationMetaWrapperBase() {}
-    virtual Services::ServiceInterface* getRawImpl() = 0;
+// Ioc might be refactored to use std::any
+
+struct ServiceImplementationMetaWrapperBase { // NOLINT
+    virtual ~ServiceImplementationMetaWrapperBase() = default;
+    virtual Services::ServiceInterface* getRawImpl() = 0; // NOLINT
 };
 
 template<class TImplementation>
 struct ServiceImplementationMetaWrapper : ServiceImplementationMetaWrapperBase {
     using type = TImplementation;
-    TImplementation* getRawImpl() final { return new TImplementation(); }
+    TImplementation* getRawImpl() final { return new TImplementation(); } // NOLINT
 };
 
-struct ServiceMetaWrapperBase {
-    virtual ~ServiceMetaWrapperBase() {}
-    Services::ServiceInterface* getImpl() { return factory->getRawImpl(); }
-    std::unique_ptr<ServiceImplementationMetaWrapperBase> factory;
+struct ServiceMetaWrapperBase { // NOLINT
+    virtual ~ServiceMetaWrapperBase() = default;
+    Services::ServiceInterface* getImpl() { return factory->getRawImpl(); } // NOLINT
+    std::unique_ptr<ServiceImplementationMetaWrapperBase> factory; // NOLINT
 };
 
 template<class TInterface>
@@ -35,7 +37,7 @@ struct ServiceMetaWrapper : ServiceMetaWrapperBase {
     using type = TInterface;
 
     template<class TImplementation>
-    ServiceMetaWrapper(TImplementation *) {
+    ServiceMetaWrapper(TImplementation *) { // NOLINT
         static_assert(std::is_base_of_v<TInterface, TImplementation>);
         factory = std::make_unique<ServiceImplementationMetaWrapper<TImplementation>>();
     }
@@ -76,7 +78,7 @@ public:
     }
 
     template<class TService>
-    std::shared_ptr<TService> ResolveService() {
+    auto ResolveService() -> std::shared_ptr<TService> {
         auto pred = [] (std::shared_ptr<detail::ServiceMetaWrapperBase> & s) {
             using ImplType = std::conditional_t<std::is_abstract_v<TService>, detail::ServiceStub, TService>;
             return dynamic_cast<detail::ServiceMetaWrapper<TService>*>(s.get()) != nullptr ||
@@ -88,7 +90,7 @@ public:
         }
 
         auto singletonPred = [](std::shared_ptr<Services::ServiceInterface> & singleton) {
-            return dynamic_cast<TService*>(singleton.get()) != 0;
+            return dynamic_cast<TService*>(singleton.get()) != nullptr;
         };
         if (auto it = std::find_if(std::begin(m_singletons), std::end(m_singletons), singletonPred);
                 it != std::end(m_singletons)) {
