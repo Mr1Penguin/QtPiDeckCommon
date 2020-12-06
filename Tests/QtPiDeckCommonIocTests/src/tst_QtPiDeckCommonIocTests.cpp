@@ -22,6 +22,11 @@ private slots:
     void replace_singleton();
     void register_two_singletons();
     void resolve_same_singleton();
+
+    void resolve_with_missing_dependency();
+    void resolve_with_dependency();
+    void resolve_with_two_dependencies();
+    void resolve_with_multilevel_dependencies();
 };
 
 struct Interface : QtPiDeck::Services::ServiceInterface {
@@ -231,9 +236,119 @@ void Ioc::resolve_same_singleton() // NOLINT(readability-convert-member-function
     QVERIFY(dynamic_cast<Implementation*>(service2.get()) != nullptr);
     QCOMPARE(service2->getVal(), changedValue);
 }
+
+struct ImplementationWithDeps final : Interface, Services::UseServices<Interface2> {
+    ImplementationWithDeps() = default;
+    ImplementationWithDeps(const ImplementationWithDeps &) = default;
+    ImplementationWithDeps(ImplementationWithDeps &&) = default;
+
+    ~ImplementationWithDeps() final = default;
+    auto operator=(const ImplementationWithDeps&) -> ImplementationWithDeps& = default;
+    auto operator=(ImplementationWithDeps&&) -> ImplementationWithDeps& = default;
+    auto getVal() -> int final { return value; }
+    void setVal(int val) { value = val; }
+
+    auto ResolvedService() -> std::shared_ptr<Interface2>& {
+        return Service<Interface2>();
+    }
+
+private:
+    int value = defaultValue;
+};
+
+void Ioc::resolve_with_missing_dependency() // NOLINT(readability-convert-member-functions-to-static)
+{
+    QtPiDeck::Ioc ioc;
+    ioc.RegisterService<Interface, ImplementationWithDeps>();
+    auto service = ioc.ResolveService<Interface>();
+    QVERIFY(dynamic_cast<ImplementationWithDeps*>(service.get()) != nullptr);
+    QVERIFY(std::dynamic_pointer_cast<ImplementationWithDeps>(service)->ResolvedService() == nullptr);
 }
 
-using Ioc = QtPiDeck::Tests::Ioc;
+void Ioc::resolve_with_dependency() // NOLINT(readability-convert-member-functions-to-static)
+{
+    QtPiDeck::Ioc ioc;
+    ioc.RegisterService<Interface, ImplementationWithDeps>();
+    ioc.RegisterService<Interface2, Implementation2>();
+    auto service = ioc.ResolveService<Interface>();
+    QVERIFY(dynamic_cast<ImplementationWithDeps*>(service.get()) != nullptr);
+    auto resolverService = std::dynamic_pointer_cast<ImplementationWithDeps>(service)->ResolvedService();
+    QVERIFY(resolverService != nullptr);
+    QVERIFY(dynamic_cast<Implementation2*>(resolverService.get()) != nullptr);
+}
+
+struct Interface3 : QtPiDeck::Services::ServiceInterface {
+    Interface3() = default;
+    Interface3(const Interface3 &) = default;
+    Interface3(Interface3 &&) = default;
+    ~Interface3() override = 0;
+
+    auto operator=(const Interface3&) -> Interface3& = default;
+    auto operator=(Interface3&&) -> Interface3& = default;
+};
+
+Interface3::~Interface3() = default;
+
+struct ImplementationWithTwoDeps final : Interface3, Services::UseServices<Interface, Interface2> {
+    ImplementationWithTwoDeps() = default;
+    ImplementationWithTwoDeps(const ImplementationWithTwoDeps &) = default;
+    ImplementationWithTwoDeps(ImplementationWithTwoDeps &&) = default;
+
+    ~ImplementationWithTwoDeps() final = default;
+    auto operator=(const ImplementationWithTwoDeps&) -> ImplementationWithTwoDeps& = default;
+    auto operator=(ImplementationWithTwoDeps&&) -> ImplementationWithTwoDeps& = default;
+
+    template<class TService>
+    auto ResolvedService() -> std::shared_ptr<TService>& {
+        return Service<TService>();
+    }
+};
+
+void Ioc::resolve_with_two_dependencies() { // NOLINT(readability-convert-member-functions-to-static)
+    QtPiDeck::Ioc ioc;
+    ioc.RegisterService<Interface, Implementation>();
+    ioc.RegisterService<Interface2, Implementation2>();
+    ioc.RegisterService<Interface3, ImplementationWithTwoDeps>();
+    auto service = ioc.ResolveService<Interface3>();
+    QVERIFY(dynamic_cast<ImplementationWithTwoDeps*>(service.get()) != nullptr);
+    auto resolverService1 = std::dynamic_pointer_cast<ImplementationWithTwoDeps>(service)->ResolvedService<Interface>();
+    QVERIFY(resolverService1 != nullptr);
+    QVERIFY(dynamic_cast<Implementation*>(resolverService1.get()) != nullptr);
+    auto resolverService2 = std::dynamic_pointer_cast<ImplementationWithTwoDeps>(service)->ResolvedService<Interface2>();
+    QVERIFY(resolverService2 != nullptr);
+    QVERIFY(dynamic_cast<Implementation2*>(resolverService2.get()) != nullptr);
+}
+
+struct ImplementationWithNestedDeps final : Interface3, Services::UseServices<Interface> {
+    ImplementationWithNestedDeps() = default;
+    ImplementationWithNestedDeps(const ImplementationWithNestedDeps &) = default;
+    ImplementationWithNestedDeps(ImplementationWithNestedDeps &&) = default;
+
+    ~ImplementationWithNestedDeps() final = default;
+    auto operator=(const ImplementationWithNestedDeps&) -> ImplementationWithNestedDeps& = default;
+    auto operator=(ImplementationWithNestedDeps&&) -> ImplementationWithNestedDeps& = default;
+
+    auto ResolvedService() -> std::shared_ptr<Interface>& {
+        return Service<Interface>();
+    }
+};
+
+void Ioc::resolve_with_multilevel_dependencies() { // NOLINT(readability-convert-member-functions-to-static)
+    QtPiDeck::Ioc ioc;
+    ioc.RegisterService<Interface, ImplementationWithDeps>();
+    ioc.RegisterService<Interface2, Implementation2>();
+    ioc.RegisterService<Interface3, ImplementationWithNestedDeps>();
+    auto service = ioc.ResolveService<Interface3>();
+    QVERIFY(dynamic_cast<ImplementationWithNestedDeps*>(service.get()) != nullptr);
+    auto resolverService1 = std::dynamic_pointer_cast<ImplementationWithNestedDeps>(service)->ResolvedService();
+    QVERIFY(resolverService1 != nullptr);
+    QVERIFY(dynamic_cast<ImplementationWithDeps*>(resolverService1.get()) != nullptr);
+    auto resolverService2 = std::dynamic_pointer_cast<ImplementationWithDeps>(resolverService1)->ResolvedService();
+    QVERIFY(resolverService2 != nullptr);
+    QVERIFY(dynamic_cast<Implementation2*>(resolverService2.get()) != nullptr);
+}
+}
+
 QTEST_APPLESS_MAIN(QtPiDeck::Tests::Ioc) // NOLINT
 
 #include "tst_QtPiDeckCommonIocTests.moc"

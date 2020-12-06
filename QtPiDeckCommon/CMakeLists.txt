@@ -11,6 +11,7 @@ add_library(QtPiDeckCommon SHARED
   include/QtPiDeckCommon_global.hpp
   include/Network/MessageHeader.hpp
   include/Services/ServiceInterface.hpp
+  include/Services/UseServices.hpp
   qmlCommon.qrc
 )
 
