@@ -12,23 +12,37 @@ namespace QtPiDeck {
 namespace detail {
 struct ServiceStub : Services::ServiceInterface {};
 
-// Ioc might be refactored to use std::any
-
-struct ServiceImplementationMetaWrapperBase { // NOLINT
+struct ServiceImplementationMetaWrapperBase {
+    friend struct ServiceMetaWrapperBase;
+    ServiceImplementationMetaWrapperBase() = default;
+    ServiceImplementationMetaWrapperBase(const ServiceImplementationMetaWrapperBase&) = default;
+    ServiceImplementationMetaWrapperBase(ServiceImplementationMetaWrapperBase&&) = default;
     virtual ~ServiceImplementationMetaWrapperBase() = default;
-    virtual Services::ServiceInterface* getRawImpl() = 0; // NOLINT
+    auto operator=(const ServiceImplementationMetaWrapperBase&) -> ServiceImplementationMetaWrapperBase& = default;
+    auto operator=(ServiceImplementationMetaWrapperBase&&) -> ServiceImplementationMetaWrapperBase& = default;
+private:
+    virtual auto getRawImpl() -> Services::ServiceInterface* = 0;
 };
 
 template<class TImplementation>
 struct ServiceImplementationMetaWrapper : ServiceImplementationMetaWrapperBase {
     using type = TImplementation;
-    TImplementation* getRawImpl() final { return new TImplementation(); } // NOLINT
+private:
+    auto getRawImpl() -> TImplementation* final { return new TImplementation(); } // NOLINT(cppcoreguidelines-owning-memory) unable to use covariance with smart pointers
 };
 
-struct ServiceMetaWrapperBase { // NOLINT
+struct ServiceMetaWrapperBase {
+    ServiceMetaWrapperBase() = default;
+    ServiceMetaWrapperBase(std::unique_ptr<ServiceImplementationMetaWrapperBase> factory) : m_factory(std::move(factory)) {}
+    ServiceMetaWrapperBase(const ServiceMetaWrapperBase&) = delete;
+    ServiceMetaWrapperBase(ServiceMetaWrapperBase&&) = default;
     virtual ~ServiceMetaWrapperBase() = default;
-    Services::ServiceInterface* getImpl() { return factory->getRawImpl(); } // NOLINT
-    std::unique_ptr<ServiceImplementationMetaWrapperBase> factory; // NOLINT
+    auto operator=(const ServiceMetaWrapperBase&) -> ServiceMetaWrapperBase& = delete;
+    auto operator=(ServiceMetaWrapperBase&&) -> ServiceMetaWrapperBase& = default;
+    auto getImpl() -> Services::ServiceInterface* { return m_factory->getRawImpl(); }
+    auto factory() -> std::unique_ptr<ServiceImplementationMetaWrapperBase>& { return m_factory; }
+private:
+    std::unique_ptr<ServiceImplementationMetaWrapperBase> m_factory;
 };
 
 template<class TInterface>
@@ -37,9 +51,9 @@ struct ServiceMetaWrapper : ServiceMetaWrapperBase {
     using type = TInterface;
 
     template<class TImplementation>
-    ServiceMetaWrapper(TImplementation *) { // NOLINT
+    ServiceMetaWrapper(TImplementation * /*implementation*/)
+        : ServiceMetaWrapperBase(std::make_unique<ServiceImplementationMetaWrapper<TImplementation>>()) {
         static_assert(std::is_base_of_v<TInterface, TImplementation>);
-        factory = std::make_unique<ServiceImplementationMetaWrapper<TImplementation>>();
     }
 };
 }
@@ -82,7 +96,7 @@ public:
         auto pred = [] (std::shared_ptr<detail::ServiceMetaWrapperBase> & s) {
             using ImplType = std::conditional_t<std::is_abstract_v<TService>, detail::ServiceStub, TService>;
             return dynamic_cast<detail::ServiceMetaWrapper<TService>*>(s.get()) != nullptr ||
-                    dynamic_cast<detail::ServiceImplementationMetaWrapper<ImplType>*>(s->factory.get()) != nullptr;
+                    dynamic_cast<detail::ServiceImplementationMetaWrapper<ImplType>*>(s->factory().get()) != nullptr;
         };
         if (auto it = std::find_if(std::begin(m_registeredServices), std::end(m_registeredServices), pred);
                 it != std::end(m_registeredServices)) {
