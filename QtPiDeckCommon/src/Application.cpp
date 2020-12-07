@@ -3,7 +3,9 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 
-namespace QtPiDeck::detail {
+#include "Services/QmlService.hpp"
+
+namespace QtPiDeck {
 Application::Application() {
     Application::current = this;
 }
@@ -28,6 +30,5 @@ void Application::appStartupPreparations() {
 }
 
 void Application::setupEngine(QQmlApplicationEngine & /*engine*/) {
-
 }
 }
