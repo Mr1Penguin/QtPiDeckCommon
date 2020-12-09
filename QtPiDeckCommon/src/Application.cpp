@@ -3,7 +3,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 
-namespace QtPiDeck::detail {
+namespace QtPiDeck {
 Application::Application() {
     Application::current = this;
 }

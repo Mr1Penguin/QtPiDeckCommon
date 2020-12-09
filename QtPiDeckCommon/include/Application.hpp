@@ -8,7 +8,6 @@
 #include "Ioc.hpp"
 
 namespace QtPiDeck {
-namespace detail {
 class QTPIDECKCOMMON_EXPORT Application {
 public:
     Application();
@@ -35,5 +34,4 @@ private:
 
     inline static Application* current;
 };
-}
 }
