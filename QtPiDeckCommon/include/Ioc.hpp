@@ -4,7 +4,6 @@
 #include <vector>
 #include <type_traits>
 #include <algorithm>
-#include <stdexcept>
 
 #include "Services/ServiceInterface.hpp"
 #include "Services/UseServices.hpp"
