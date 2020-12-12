@@ -4,12 +4,16 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick REQUIRED)
 add_library(QtPiDeckCommon SHARED
   src/Application.cpp
   src/QtPiDeckCommon.cpp
+  src/Services/MessageBus.cpp
   src/Services/ServiceInterface.cpp
   include/Application.hpp
   include/Ioc.hpp
   include/QtPiDeckCommon.hpp
   include/QtPiDeckCommon_global.hpp
+  include/Bus/Message.hpp
   include/Network/MessageHeader.hpp
+  include/Services/IMessageBus.hpp
+  include/Services/MessageBus.hpp
   include/Services/ServiceInterface.hpp
   include/Services/UseServices.hpp
   qmlCommon.qrc

@@ -1,3 +1,5 @@
 add_subdirectory(QmlTestsCommon)
 add_subdirectory(QtPiDeckCommonCommandTests)
 add_subdirectory(QtPiDeckCommonIocTests)
+
+add_subdirectory(Services)
