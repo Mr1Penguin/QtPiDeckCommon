@@ -16,7 +16,7 @@ private slots:
     void subscribeFiltered();
     void subscribeTwoSubscribers();
 
-private:
+private: // NOLINT(readability-redundant-access-specifiers)
     std::unique_ptr<Services::MessageBus> m_messageBus;
 };
 
@@ -39,7 +39,7 @@ void MessageBus::unsubscribe() {
     std::promise<uint64_t> promise;
     auto connection = m_messageBus->subscribe(this, [&promise](const Bus::Message& mess) { promise.set_value(mess.messageType); });
     m_messageBus->unsubscribe(connection);
-    m_messageBus->newMessage({messageType});
+    m_messageBus->sendMessage({messageType});
     auto future = promise.get_future();
     QCOMPARE(future.wait_for(100ms), std::future_status::timeout);
 }
@@ -49,7 +49,7 @@ void MessageBus::subscribeFiltered() {
     constexpr uint64_t messageType = 1234;
     constexpr uint64_t messageType2 = 1235;
     auto future = promise.get_future();
-    m_messageBus->subscribe(this, [&promise](const Bus::Message& mess) { promise.set_value(mess.messageType); }, 1234);
+    m_messageBus->subscribe(this, [&promise](const Bus::Message& mess) { promise.set_value(mess.messageType); }, messageType);
     m_messageBus->sendMessage({messageType2});
     QCOMPARE(future.wait_for(100ms), std::future_status::timeout);
     m_messageBus->sendMessage({messageType});

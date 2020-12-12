@@ -26,6 +26,6 @@ void MessageBus::unsubscribe(QMetaObject::Connection connection) {
 }
 
 void MessageBus::sendMessage(Bus::Message message) {
-    emit newMessage(std::move(message));
+    emit newMessage(message);
 }
 }
