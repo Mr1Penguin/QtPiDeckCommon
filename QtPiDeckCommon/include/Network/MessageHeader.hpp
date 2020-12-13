@@ -17,6 +17,6 @@ struct MessageHeader {
     MessageId messageId;
 };
 
-QTPIDECKCOMMON_EXPORT QDataStream& operator<<(QDataStream& str, MessageHeader & header);
-QTPIDECKCOMMON_EXPORT QDataStream& operator>>(QDataStream& str, MessageHeader & header);
+QTPIDECKCOMMON_EXPORT auto operator<<(QDataStream& str, MessageHeader & header) -> QDataStream&;
+QTPIDECKCOMMON_EXPORT auto operator>>(QDataStream& str, MessageHeader & header) -> QDataStream&;
 }
