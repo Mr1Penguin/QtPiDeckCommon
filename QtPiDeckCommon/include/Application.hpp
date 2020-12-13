@@ -18,11 +18,11 @@ public:
     auto operator=(const Application &) -> Application& = delete;
     auto operator=(Application &&) -> Application& = delete;
 
-    auto start(int &argc, char **argv) -> int;
+    auto start(int argc, char **argv) -> int;
 
-    auto Ioc() -> QtPiDeck::Ioc& { return m_ioc; }
+    auto ioc() -> QtPiDeck::Ioc& { return m_ioc; }
 
-    static auto Current() -> Application* { return current; }
+    static auto current() -> Application* { return s_current; }
 
 protected:
     virtual auto mainPage() -> QUrl = 0;
@@ -32,6 +32,6 @@ protected:
 private:
     QtPiDeck::Ioc m_ioc;
 
-    inline static Application* current;
+    inline static Application* s_current;
 };
 }

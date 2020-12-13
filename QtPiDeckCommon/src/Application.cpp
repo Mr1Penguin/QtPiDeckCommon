@@ -5,10 +5,10 @@
 
 namespace QtPiDeck {
 Application::Application() {
-    Application::current = this;
+    Application::s_current = this;
 }
 
-auto Application::start(int &argc, char **argv) -> int {
+auto Application::start(int argc, char **argv) -> int {
     appStartupPreparations();
     QGuiApplication app{argc, argv};
     QQmlApplicationEngine engine;
