@@ -74,7 +74,7 @@ struct ServiceMetaWrapper : ServiceMetaWrapperBase {
 class Ioc {
 public:
     template<class TInterface, class TImplementation>
-    void RegisterService() {
+    void registerService() {
         static_assert(std::is_base_of_v<TInterface, TImplementation>);
         static_assert(std::is_base_of_v<Services::ServiceInterface, TInterface>);
         auto pred = [] (std::shared_ptr<detail::ServiceMetaWrapperBase> & s) {
@@ -90,7 +90,7 @@ public:
     }
 
     template<class TInterface>
-    void RegisterSingleton(std::shared_ptr<TInterface> singleton) {
+    void registerSingleton(std::shared_ptr<TInterface> singleton) {
         static_assert(std::is_base_of_v<Services::ServiceInterface, TInterface>);
         auto pred = [](std::shared_ptr<Services::ServiceInterface> & service) {
             return dynamic_cast<TInterface*>(service.get()) != nullptr;
@@ -105,7 +105,7 @@ public:
     }
 
     template<class TService>
-    auto ResolveService() -> std::shared_ptr<TService> {
+    auto resolveService() -> std::shared_ptr<TService> {
         auto pred = [] (std::shared_ptr<detail::ServiceMetaWrapperBase> & s) {
             using ImplType = std::conditional_t<std::is_abstract_v<TService>, detail::ServiceStub, TService>;
             return dynamic_cast<detail::ServiceMetaWrapper<TService>*>(s.get()) != nullptr ||
@@ -137,7 +137,7 @@ private:
 namespace detail {
 template<class TService>
 void SetService(Services::ServiceUser<TService> & service, Ioc & ioc) {
-   service.SetService(ioc.ResolveService<TService>());
+   service.SetService(ioc.resolveService<TService>());
 }
 }
 }
