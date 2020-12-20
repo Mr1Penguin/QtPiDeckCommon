@@ -32,6 +32,6 @@ protected:
 private:
     QtPiDeck::Ioc m_ioc;
 
-    inline static Application* s_current;
+    inline static Application* s_current; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 };
 }

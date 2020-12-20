@@ -13,7 +13,7 @@ auto operator<<(QDataStream& str, TNum& number) -> QDataStream& {
 
 template <class TNum, typename = addOverload<TNum>>
 auto operator>>(QDataStream& str, TNum& number) -> QDataStream& {
-    quint64 tmp;
+    quint64 tmp{};
     str >> tmp;
     number = static_cast<uint64_t>(tmp);
     return str;
