@@ -53,8 +53,8 @@ jobs:
         run: cmake .. -G Ninja
         working-directory: build
         env:
-          CC: gcc-${{ gcc }}
-          CXX: g++-${{ gcc }}
+          CC: gcc-${{ matrix.gcc }}
+          CXX: g++-${{ matrix.gcc }}
       - name: Build project
         run: ninja
         working-directory: build
