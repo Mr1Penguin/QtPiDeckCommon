@@ -30,4 +30,18 @@ auto operator>>(QDataStream& str, MessageHeader & header) -> QDataStream& {
     str >> header.messageId;
     return str;
 }
+
+#if (QT_VERSION == QTPI4_VERSION)
+auto operator<<(QDataStream& str, MessageId & messageId) -> QDataStream& {
+    uint32_t v;
+    str >> v;
+    messageId = static_cast<MessageId>(v);
+    return str;
+}
+
+auto operator>>(QDataStream& str, MessageId & messageId) -> QDataStream& {
+    str << static_cast<uint32_t>(messageId);
+    return str;
+}
+#endif
 }
