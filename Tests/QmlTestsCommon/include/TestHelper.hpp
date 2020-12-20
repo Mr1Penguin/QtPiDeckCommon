@@ -9,7 +9,6 @@ class TestHelper : public QObject
 {
     // NOLINTNEXTLINE
     Q_OBJECT
-    QML_ELEMENT
 
 public:
     explicit TestHelper(QObject *parent = nullptr);
