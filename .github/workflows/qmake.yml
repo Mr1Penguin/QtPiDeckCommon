@@ -10,13 +10,15 @@ jobs:
   build:
     runs-on: ubuntu-20.04
     strategy:
-      fail-fast: false
       matrix:
         qt: [5.11.3, 5.15.2]
         gcc: [8, 10]
         experimental: [false]
         include:
           - qt: 6.0.0
+            gcc: 10
+            experimental: true
+          - qt: 5.11.3
             gcc: 10
             experimental: true
 
