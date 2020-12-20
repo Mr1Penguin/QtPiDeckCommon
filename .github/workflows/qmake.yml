@@ -11,7 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        qt: [5.11.3, 5.15.2, 6.0.0]
+        qt: [5.11.3, 5.15.2]
+        include:
+          -  qt: 6.0.0
+             experimental: true
 
     steps:
       - name: Cache Qt
@@ -28,6 +31,12 @@ jobs:
           git submodule sync --recursive
           git submodule update --init --force --recursive --depth=1
       - uses: lukka/get-cmake@latest
+      - name: Check gcc
+        run: gcc -v
+      - name: Check ldd
+        run: ldd --version
+      - name: Check gcc-8
+        run: gcc-8 -v
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
         with:
