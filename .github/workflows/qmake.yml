@@ -9,6 +9,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        qt: [5.11.3, 5.15.2, 6.0.0]
 
     steps:
       - name: Cache Qt
@@ -16,7 +19,7 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ../Qt
-          key: ${{ runner.os }}-QtCache
+          key: ${{ runner.os }}-QtCache-${{ matrix.qt }}
 
       - uses: actions/checkout@v2
       - name: Checkout submodules
@@ -28,40 +31,7 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
         with:
-          version: '5.15.1'
-          modules: 'qtvirtualkeyboard'
-          cached: ${{ steps.cache-qt.outputs.cache-hit }}
-
-      - name: Make build dir
-        run: mkdir build
-
-      - name: Run cmake
-        run: cmake .. -G Ninja
-        working-directory: build
-      - name: Build project
-        run: ninja
-        working-directory: build
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Cache Qt
-        id: cache-qt
-        uses: actions/cache@v1
-        with:
-          path: ../Qt
-          key: ${{ runner.os }}-QtCache
-
-      - uses: actions/checkout@v2
-      - name: Checkout submodules
-        run: |
-          git config --global url."https://github.com/".insteadOf "git@github.com:"
-          git submodule sync --recursive
-          git submodule update --init --force --recursive --depth=1
-      - uses: lukka/get-cmake@latest
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v2
-        with:
-          version: '5.15.1'
+          version: '${{ matrix.qt }}'
           modules: 'qtvirtualkeyboard'
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
 
