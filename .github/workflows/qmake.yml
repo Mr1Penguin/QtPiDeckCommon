@@ -8,20 +8,19 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-20.04
     strategy:
       matrix:
-        qt: [5.11.3, 5.15.2, 6.0.0]
+        qt: [5.15.2]
         gcc: [8, 10]
         experimental: [false]
         include:
           - qt: 6.0.0
+            gcc: 10
             experimental: true
-        exclude:
           - qt: 5.11.3
-          - gcc: 10
-          - qt: 6.0.0
-          - gcc: 8
+            gcc: 8
+            experimental: false
 
     continue-on-error: ${{ matrix.experimental }}
 
