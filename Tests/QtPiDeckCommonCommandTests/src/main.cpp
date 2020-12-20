@@ -6,6 +6,10 @@
 #include "QtPiDeckCommon.hpp"
 #include "TestHelper.hpp"
 
+void initStaticResources() {
+    Q_INIT_RESOURCE(qmlCommon);
+}
+
 namespace QtPiDeck::Tests {
 class Setup : public QObject
 {
@@ -18,9 +22,10 @@ public:
 public slots: // NOLINT(readability-redundant-access-specifiers)
     void qmlEngineAvailable(QQmlEngine *engine) // NOLINT(readability-convert-member-functions-to-static)
     {
-        QtPiDeckCommon hack;
+        initStaticResources();
         engine->addImportPath("qrc:/qml/components");
         qmlRegisterType<TestHelper>("QtPiDeck.Tests", 1, 0, "TestHelper");
+        qDebug() << "Registered types";
     }
 };
 }
