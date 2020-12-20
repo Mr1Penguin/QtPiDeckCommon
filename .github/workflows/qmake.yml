@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         qt: [5.11.3, 5.15.2, 6.0.0]
-        gcc: [8 10]
+        gcc: [8, 10]
         experimental: [false]
         include:
           - qt: 6.0.0
