@@ -6,7 +6,10 @@
 #include "QtPiDeckCommon.hpp"
 #include "TestHelper.hpp"
 
+//int Q_DECL_IMPORT qInitResources_qmlCommon();
+
 void initStaticResources() {
+    //qInitResources_qmlCommon();
     //Q_INIT_RESOURCE(qmlCommon);
 }
 
@@ -17,15 +20,17 @@ class Setup : public QObject
     Q_OBJECT
 
 public:
-    Setup() = default;
+    Setup() { qWarning() << "Setup created"; }
 
 public slots: // NOLINT(readability-redundant-access-specifiers)
     void qmlEngineAvailable(QQmlEngine *engine) // NOLINT(readability-convert-member-functions-to-static)
     {
-        initStaticResources();
+        //Q_INIT_RESOURCE(qmlCommon);
+        QtPiDeckCommon hack;
+        hack.registerTypes();
         engine->addImportPath("qrc:/qml/components");
         qmlRegisterType<TestHelper>("QtPiDeck.Tests", 1, 0, "TestHelper");
-        qWarning() << "Registered types";
+        qWarning() << "Loaded";
     }
 };
 }
