@@ -26,7 +26,7 @@ jobs:
             gcc: 10
             experimental: true
 
-    name: Qt${{ matrix.qt }} - gcc-${{ matrix.qt }}
+    name: Qt${{ matrix.qt }} - gcc-${{ matrix.gcc }}
     continue-on-error: ${{ matrix.experimental }}
 
     steps:
