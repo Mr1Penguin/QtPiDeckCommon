@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
@@ -26,6 +26,7 @@ jobs:
             gcc: 10
             experimental: true
 
+    name: Qt${{ matrix.qt }} - gcc-${{ matrix.qt }}
     continue-on-error: ${{ matrix.experimental }}
 
     steps:
