@@ -25,12 +25,16 @@ public:
 public slots: // NOLINT(readability-redundant-access-specifiers)
     void qmlEngineAvailable(QQmlEngine *engine) // NOLINT(readability-convert-member-functions-to-static)
     {
+        qWarning() << "I";
         //Q_INIT_RESOURCE(qmlCommon);
         QtPiDeckCommon hack;
+        qWarning() << "really";
         hack.registerTypes();
+        qWarning() << "need";
         engine->addImportPath("qrc:/qml/components");
+        qWarning() << "these";
         qmlRegisterType<TestHelper>("QtPiDeck.Tests", 1, 0, "TestHelper");
-        qWarning() << "Loaded";
+        qWarning() << "logs";
     }
 };
 }
