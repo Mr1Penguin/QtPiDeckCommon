@@ -7,7 +7,7 @@
 #include "TestHelper.hpp"
 
 void initStaticResources() {
-    Q_INIT_RESOURCE(qmlCommon);
+    //Q_INIT_RESOURCE(qmlCommon);
 }
 
 namespace QtPiDeck::Tests {
@@ -25,7 +25,7 @@ public slots: // NOLINT(readability-redundant-access-specifiers)
         initStaticResources();
         engine->addImportPath("qrc:/qml/components");
         qmlRegisterType<TestHelper>("QtPiDeck.Tests", 1, 0, "TestHelper");
-        qDebug() << "Registered types";
+        qWarning() << "Registered types";
     }
 };
 }
