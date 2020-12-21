@@ -47,6 +47,8 @@
 #define MAYBE_UNUSED [[maybe_unused]]
 #endif
 
+#include <QQmlEngine>
+
 template<class T>
 void addImports15(MAYBE_UNUSED QQmlEngine *engine, MAYBE_UNUSED T makeImports) noexcept {
     if constexpr(QT_VERSION >= QT_MIN_TESTED_VERSION) {
