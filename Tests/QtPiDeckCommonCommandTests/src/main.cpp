@@ -5,40 +5,41 @@
 
 #include "QtPiDeckCommon.hpp"
 #include "TestHelper.hpp"
-
-//int Q_DECL_IMPORT qInitResources_qmlCommon();
-
-void initStaticResources() {
-    //qInitResources_qmlCommon();
-    //Q_INIT_RESOURCE(qmlCommon);
-}
+#include "TestSetup.hpp"
 
 namespace QtPiDeck::Tests {
+auto makeImports() {
+    return std::array<std::string, 1> {"qrc:/qml/components"};
+}
+
+void registerTypes() {
+    qmlRegisterType<QtPiDeck::Tests::TestHelper>("QtPiDeck.Tests", 1, 0, "TestHelper");
+}
+
 class Setup : public QObject
 {
     // NOLINTNEXTLINE
     Q_OBJECT
 
 public:
-    Setup() { qWarning() << "Setup created"; }
+    Setup() { hack.registerTypes(); }
 
 public slots: // NOLINT(readability-redundant-access-specifiers)
-    void qmlEngineAvailable(QQmlEngine *engine) // NOLINT(readability-convert-member-functions-to-static)
+    void qmlEngineAvailable(MAYBE_UNUSED QQmlEngine *engine) // NOLINT(readability-convert-member-functions-to-static)
     {
-        qWarning() << "I";
-        //Q_INIT_RESOURCE(qmlCommon);
-        QtPiDeckCommon hack;
-        qWarning() << "really";
-        hack.registerTypes();
-        qWarning() << "need";
-        engine->addImportPath("qrc:/qml/components");
-        qWarning() << "these";
-        qmlRegisterType<TestHelper>("QtPiDeck.Tests", 1, 0, "TestHelper");
-        qWarning() << "logs";
+        addImports15(engine, makeImports);
+        callRegisterTypes15(registerTypes);
     }
+
+private:
+    QtPiDeckCommon hack;
 };
 }
 
+#if QT_VERSION == QTPI4_VERSION
+QTPIDECK_QUICK_TEST_MAIN_WITH_SETUP(QtPiDeck::Tests::CommandControl, QtPiDeck::Tests::Setup, QtPiDeck::Tests::makeImports, QtPiDeck::Tests::registerTypes) // NOLINT
+#else
 QUICK_TEST_MAIN_WITH_SETUP(QtPiDeck::Tests::CommandControl, QtPiDeck::Tests::Setup) // NOLINT
+#endif
 
 #include "main.moc"

@@ -5,6 +5,7 @@
 #include <QQuickItem>
 
 namespace QtPiDeck::Tests {
+//TODO: rename to something like "QmlTreeExplorer"
 class TestHelper : public QObject
 {
     // NOLINTNEXTLINE

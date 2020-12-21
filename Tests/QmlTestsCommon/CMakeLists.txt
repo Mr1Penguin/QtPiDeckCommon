@@ -4,6 +4,7 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick REQUIRED)
 add_library(QmlTestsCommon STATIC
   src/TestHelper.cpp
   include/TestHelper.hpp
+  include/TestSetup.hpp
 )
 
 target_include_directories(QmlTestsCommon
