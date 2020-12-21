@@ -1,4 +1,4 @@
-name: qmake
+name: Run tests
 
 on:
   push:
