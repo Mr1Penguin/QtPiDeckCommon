@@ -26,8 +26,9 @@ public:
 
 protected:
     virtual auto mainPage() -> QUrl = 0;
-    virtual void appStartupPreparations();
-    virtual void setupEngine(QQmlApplicationEngine & engine);
+    virtual void initialPreparations();
+    virtual void appCreated();
+    virtual void engineCreated(QQmlApplicationEngine & engine);
 
 private:
     QtPiDeck::Ioc m_ioc;
