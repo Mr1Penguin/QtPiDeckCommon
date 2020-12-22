@@ -9,10 +9,11 @@ Application::Application() {
 }
 
 auto Application::start(int argc, char **argv) -> int {
-    appStartupPreparations();
+    initialPreparations();
     QGuiApplication app{argc, argv};
+    appCreated();
     QQmlApplicationEngine engine;
-    setupEngine(engine);
+    engineCreated(engine);
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated, // clazy:exclude=connect-non-signal
                      &app, [url = mainPage()](QObject *obj, const QUrl &objUrl) {
         if (obj == nullptr && url == objUrl) {
@@ -23,11 +24,15 @@ auto Application::start(int argc, char **argv) -> int {
     return QGuiApplication::exec();
 }
 
-void Application::appStartupPreparations() {
+void Application::initialPreparations() {
 
 }
 
-void Application::setupEngine(QQmlApplicationEngine & /*engine*/) {
+void Application::appCreated() {
+
+}
+
+void Application::engineCreated(QQmlApplicationEngine & /*engine*/) {
 
 }
 }
