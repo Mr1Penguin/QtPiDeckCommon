@@ -1,18 +1,19 @@
 #include <QtQuickTest/quicktest.h>
 #include <QQmlEngine>
-
 #include <QtQml>
+
+#include <array>
 
 #include "QtPiDeckCommon.hpp"
 #include "TestHelper.hpp"
 #include "TestSetup.hpp"
 
 namespace QtPiDeck::Tests {
-auto makeImports() {
+auto makeImports() noexcept {
     return std::array<std::string, 1> {"qrc:/qml/components"};
 }
 
-void registerTypes() {
+void registerTypes() noexcept {
     qmlRegisterType<QtPiDeck::Tests::TestHelper>("QtPiDeck.Tests", 1, 0, "TestHelper");
 }
 
