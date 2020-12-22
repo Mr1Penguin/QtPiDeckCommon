@@ -5,11 +5,11 @@
 #include <QQuickItem>
 
 namespace QtPiDeck::Tests {
+//TODO: rename to something like "QmlTreeExplorer"
 class TestHelper : public QObject
 {
     // NOLINTNEXTLINE
     Q_OBJECT
-    QML_ELEMENT
 
 public:
     explicit TestHelper(QObject *parent = nullptr);
