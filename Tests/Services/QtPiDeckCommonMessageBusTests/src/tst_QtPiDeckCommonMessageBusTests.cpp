@@ -15,6 +15,9 @@ private slots:
     void unsubscribe();
     void subscribeFiltered();
     void subscribeTwoSubscribers();
+    void subscribeMember();
+    void subscribeMemberFiltered();
+    void subscribeMemberFilteredWithType();
 
 private: // NOLINT(readability-redundant-access-specifiers)
     std::unique_ptr<Services::MessageBus> m_messageBus;
@@ -70,6 +73,57 @@ void MessageBus::subscribeTwoSubscribers() {
     QCOMPARE(future.get(), messageType);
     QCOMPARE(future2.wait_for(100ms), std::future_status::ready);
     QCOMPARE(future2.get(), messageType);
+}
+
+class Listener : public QObject {
+    Q_OBJECT // NOLINT
+public:
+    Listener(uint64_t expectedMessageType) : m_expectedMessageType(expectedMessageType) {}
+
+    void callMe() noexcept {
+        m_promise.set_value(m_expectedMessageType);
+    }
+
+    void callMe(const Bus::Message & message) noexcept {
+        m_promise.set_value(message.messageType);
+    }
+
+    auto getFuture() noexcept -> std::future<uint64_t> {
+        return m_promise.get_future();
+    }
+private:
+    std::promise<uint64_t> m_promise{};
+    const uint64_t m_expectedMessageType;
+};
+
+void MessageBus::subscribeMember() {
+    constexpr uint64_t messageType = 1234;
+    Listener listener(messageType);
+    Services::subscribe(*m_messageBus, &listener, &Listener::callMe);
+    auto future = listener.getFuture();
+    m_messageBus->sendMessage({messageType});
+    QCOMPARE(future.wait_for(100ms), std::future_status::ready);
+    QCOMPARE(future.get(), messageType);
+}
+
+void MessageBus::subscribeMemberFiltered() {
+    constexpr uint64_t messageType = 1234;
+    Listener listener(messageType);
+    Services::subscribe(*m_messageBus, &listener, static_cast<void(Listener::*)()>(&Listener::callMe), messageType);
+    auto future = listener.getFuture();
+    m_messageBus->sendMessage({messageType});
+    QCOMPARE(future.wait_for(100ms), std::future_status::ready);
+    QCOMPARE(future.get(), messageType);
+}
+
+void MessageBus::subscribeMemberFilteredWithType() {
+    constexpr uint64_t messageType = 1234;
+    Listener listener(messageType);
+    Services::subscribe(*m_messageBus, &listener, static_cast<void(Listener::*)(const Bus::Message &)>(&Listener::callMe), messageType);
+    auto future = listener.getFuture();
+    m_messageBus->sendMessage({messageType});
+    QCOMPARE(future.wait_for(100ms), std::future_status::ready);
+    QCOMPARE(future.get(), messageType);
 }
 }
 
