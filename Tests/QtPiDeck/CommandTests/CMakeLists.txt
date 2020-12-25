@@ -14,7 +14,7 @@ target_link_libraries(${EXE_NAME}
     Qt${QT_VERSION_MAJOR}::QuickTest
     Qt${QT_VERSION_MAJOR}::Quick
     QtPiDeckCommon
-    QmlTestsCommon)
+    QmlTestsUtils)
 target_compile_definitions(${EXE_NAME} PRIVATE -DQUICK_TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
 get_target_property(QtPiDeckCommon_SOURCE_DIR QtPiDeckCommon SOURCE_DIR)
