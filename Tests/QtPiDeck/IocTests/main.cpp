@@ -34,7 +34,7 @@ private:
 };
 
 void IocTests::init() {
-    m_ioc = std::make_unique<Ioc>(nullptr);
+    m_ioc = std::make_unique<Ioc>();
 }
 
 struct Interface : QtPiDeck::Services::ServiceInterface {
