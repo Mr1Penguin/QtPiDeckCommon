@@ -71,6 +71,9 @@ struct ServiceMetaWrapper : ServiceMetaWrapperBase {
 };
 }
 
+/*
+ * @todo: Move Ioc class to Services namespace
+ * */
 class Ioc {
 public:
     template<class TInterface, class TImplementation>

@@ -3,12 +3,13 @@
 #include "Ioc.hpp"
 
 namespace QtPiDeck::Tests {
-class Ioc : public QObject
+class IocTests : public QObject
 {
     // NOLINTNEXTLINE
     Q_OBJECT
 
 private slots:
+    void init();
     void no_service();
     void register_service();
     void register_two_services();
@@ -27,7 +28,14 @@ private slots:
     void resolve_with_dependency();
     void resolve_with_two_dependencies();
     void resolve_with_multilevel_dependencies();
+
+private:
+    std::unique_ptr<Ioc> m_ioc;
 };
+
+void IocTests::init() {
+    m_ioc = std::make_unique<Ioc>(nullptr);
+}
 
 struct Interface : QtPiDeck::Services::ServiceInterface {
     ~Interface() override = 0;
@@ -99,140 +107,127 @@ struct Implementation2 final : Interface2 {
     auto operator=(Implementation2&&) -> Implementation2& = default;
 };
 
-void Ioc::no_service() // NOLINT(readability-convert-member-functions-to-static)
+void IocTests::no_service() // NOLINT(readability-convert-member-functions-to-static)
 {
-    QtPiDeck::Ioc ioc;
-    auto service = ioc.resolveService<Interface>();
+    auto service = m_ioc->resolveService<Interface>();
     QVERIFY(service == nullptr);
 }
 
-void Ioc::register_service() // NOLINT(readability-convert-member-functions-to-static)
+void IocTests::register_service() // NOLINT(readability-convert-member-functions-to-static)
 {
-    QtPiDeck::Ioc ioc;
-    ioc.registerService<Interface, Implementation>();
-    auto service = ioc.resolveService<Interface>();
+    m_ioc->registerService<Interface, Implementation>();
+    auto service = m_ioc->resolveService<Interface>();
     QVERIFY(dynamic_cast<Implementation*>(service.get()) != nullptr);
 }
 
-void Ioc::register_two_services() // NOLINT(readability-convert-member-functions-to-static)
+void IocTests::register_two_services() // NOLINT(readability-convert-member-functions-to-static)
 {
-    QtPiDeck::Ioc ioc;
-    ioc.registerService<Interface, Implementation>();
-    auto service = ioc.resolveService<Interface>();
+    m_ioc->registerService<Interface, Implementation>();
+    auto service = m_ioc->resolveService<Interface>();
     QVERIFY(dynamic_cast<Implementation*>(service.get()) != nullptr);
-    ioc.registerService<Interface2, Implementation2>();
-    auto service2 = ioc.resolveService<Interface2>();
+    m_ioc->registerService<Interface2, Implementation2>();
+    auto service2 = m_ioc->resolveService<Interface2>();
     QVERIFY(dynamic_cast<Implementation2*>(service2.get()) != nullptr);
 }
 
-void Ioc::replace_service() // NOLINT(readability-convert-member-functions-to-static)
+void IocTests::replace_service() // NOLINT(readability-convert-member-functions-to-static)
 {
-    QtPiDeck::Ioc ioc;
-    ioc.registerService<Interface, Implementation>();
-    auto service = ioc.resolveService<Interface>();
+    m_ioc->registerService<Interface, Implementation>();
+    auto service = m_ioc->resolveService<Interface>();
     QVERIFY(dynamic_cast<Implementation*>(service.get()) != nullptr);
-    ioc.registerService<Interface, ImplementationB>();
-    auto service2 = ioc.resolveService<Interface>();
+    m_ioc->registerService<Interface, ImplementationB>();
+    auto service2 = m_ioc->resolveService<Interface>();
     QVERIFY(dynamic_cast<ImplementationB*>(service2.get()) != nullptr);
 }
 
-void Ioc::resolve_by_impl() // NOLINT(readability-convert-member-functions-to-static)
+void IocTests::resolve_by_impl() // NOLINT(readability-convert-member-functions-to-static)
 {
-    QtPiDeck::Ioc ioc;
-    ioc.registerService<Interface, Implementation>();
-    auto service = ioc.resolveService<Implementation>();
+    m_ioc->registerService<Interface, Implementation>();
+    auto service = m_ioc->resolveService<Implementation>();
     QVERIFY(service != nullptr);
 }
 
-void Ioc::register_impl() // NOLINT(readability-convert-member-functions-to-static)
+void IocTests::register_impl() // NOLINT(readability-convert-member-functions-to-static)
 {
-    QtPiDeck::Ioc ioc;
-    ioc.registerService<Implementation, Implementation>();
-    auto service = ioc.resolveService<Implementation>();
+    m_ioc->registerService<Implementation, Implementation>();
+    auto service = m_ioc->resolveService<Implementation>();
     QVERIFY(service != nullptr);
 }
 
-void Ioc::register_specialization() // NOLINT(readability-convert-member-functions-to-static)
+void IocTests::register_specialization() // NOLINT(readability-convert-member-functions-to-static)
 {
-    QtPiDeck::Ioc ioc;
-    ioc.registerService<Interface, Implementation>();
-    ioc.registerService<Implementation, Implementation>();
-    auto service = ioc.resolveService<Interface>();
+    m_ioc->registerService<Interface, Implementation>();
+    m_ioc->registerService<Implementation, Implementation>();
+    auto service = m_ioc->resolveService<Interface>();
     QVERIFY(dynamic_cast<Implementation*>(service.get()) != nullptr);
-    auto service2 = ioc.resolveService<Implementation>();
+    auto service2 = m_ioc->resolveService<Implementation>();
     QVERIFY(service2 != nullptr);
 }
 
-void Ioc::register_specialization_different() // NOLINT(readability-convert-member-functions-to-static)
+void IocTests::register_specialization_different() // NOLINT(readability-convert-member-functions-to-static)
 {
-    QtPiDeck::Ioc ioc;
-    ioc.registerService<Interface, Implementation>();
-    ioc.registerService<ImplementationB, ImplementationB>();
-    auto service = ioc.resolveService<Interface>();
+    m_ioc->registerService<Interface, Implementation>();
+    m_ioc->registerService<ImplementationB, ImplementationB>();
+    auto service = m_ioc->resolveService<Interface>();
     QVERIFY(dynamic_cast<Implementation*>(service.get()) != nullptr);
-    auto service2 = ioc.resolveService<ImplementationB>();
+    auto service2 = m_ioc->resolveService<ImplementationB>();
     QVERIFY(service2 != nullptr);
-    auto service3 = ioc.resolveService<Implementation>();
+    auto service3 = m_ioc->resolveService<Implementation>();
     QVERIFY(service3 != nullptr);
 }
 
-void Ioc::resolve_not_same() // NOLINT(readability-convert-member-functions-to-static)
+void IocTests::resolve_not_same() // NOLINT(readability-convert-member-functions-to-static)
 {
-    QtPiDeck::Ioc ioc;
-    ioc.registerService<Interface, Implementation>();
-    auto service = ioc.resolveService<Interface>();
+    m_ioc->registerService<Interface, Implementation>();
+    auto service = m_ioc->resolveService<Interface>();
     QVERIFY(dynamic_cast<Implementation*>(service.get()) != nullptr);
     QCOMPARE(service->getVal(), defaultValue);
     std::dynamic_pointer_cast<Implementation>(service)->setVal(changedValue);
     QCOMPARE(service->getVal(), changedValue);
-    auto service2 = ioc.resolveService<Interface>();
+    auto service2 = m_ioc->resolveService<Interface>();
     QVERIFY(dynamic_cast<Implementation*>(service2.get()) != nullptr);
     QCOMPARE(service2->getVal(), defaultValue);
 }
 
-void Ioc::register_singleton() // NOLINT(readability-convert-member-functions-to-static)
+void IocTests::register_singleton() // NOLINT(readability-convert-member-functions-to-static)
 {
-    QtPiDeck::Ioc ioc;
-    ioc.registerSingleton<Interface>(std::make_shared<Implementation>());
-    auto service = ioc.resolveService<Interface>();
+    m_ioc->registerSingleton<Interface>(std::make_shared<Implementation>());
+    auto service = m_ioc->resolveService<Interface>();
     QCOMPARE(service.use_count(), 2);
     QVERIFY(dynamic_cast<Implementation*>(service.get()) != nullptr);
 }
 
-void Ioc::replace_singleton() // NOLINT(readability-convert-member-functions-to-static)
+void IocTests::replace_singleton() // NOLINT(readability-convert-member-functions-to-static)
 {
-    QtPiDeck::Ioc ioc;
-    ioc.registerSingleton<Interface>(std::make_shared<Implementation>());
-    auto service = ioc.resolveService<Interface>();
+    m_ioc->registerSingleton<Interface>(std::make_shared<Implementation>());
+    auto service = m_ioc->resolveService<Interface>();
     QVERIFY(dynamic_cast<Implementation*>(service.get()) != nullptr);
-    ioc.registerSingleton<Interface>(std::make_shared<ImplementationB>());
+    m_ioc->registerSingleton<Interface>(std::make_shared<ImplementationB>());
     QCOMPARE(service.use_count(), 1);
-    auto service2 = ioc.resolveService<Interface>();
+    auto service2 = m_ioc->resolveService<Interface>();
     QVERIFY(dynamic_cast<Implementation*>(service2.get()) == nullptr);
     QVERIFY(dynamic_cast<ImplementationB*>(service2.get()) != nullptr);
 }
 
-void Ioc::register_two_singletons() // NOLINT(readability-convert-member-functions-to-static)
+void IocTests::register_two_singletons() // NOLINT(readability-convert-member-functions-to-static)
 {
-    QtPiDeck::Ioc ioc;
-    ioc.registerSingleton<Interface>(std::make_shared<Implementation>());
-    auto service = ioc.resolveService<Interface>();
+    m_ioc->registerSingleton<Interface>(std::make_shared<Implementation>());
+    auto service = m_ioc->resolveService<Interface>();
     QVERIFY(dynamic_cast<Implementation*>(service.get()) != nullptr);
-    ioc.registerSingleton<Interface2>(std::make_shared<Implementation2>());
-    auto service2 = ioc.resolveService<Interface2>();
+    m_ioc->registerSingleton<Interface2>(std::make_shared<Implementation2>());
+    auto service2 = m_ioc->resolveService<Interface2>();
     QVERIFY(dynamic_cast<Implementation2*>(service2.get()) != nullptr);
 }
 
-void Ioc::resolve_same_singleton() // NOLINT(readability-convert-member-functions-to-static)
+void IocTests::resolve_same_singleton() // NOLINT(readability-convert-member-functions-to-static)
 {
-    QtPiDeck::Ioc ioc;
-    ioc.registerSingleton<Interface>(std::make_shared<Implementation>());
-    auto service = ioc.resolveService<Interface>();
+    m_ioc->registerSingleton<Interface>(std::make_shared<Implementation>());
+    auto service = m_ioc->resolveService<Interface>();
     QVERIFY(dynamic_cast<Implementation*>(service.get()) != nullptr);
     QCOMPARE(service->getVal(), defaultValue);
     std::dynamic_pointer_cast<Implementation>(service)->setVal(changedValue);
     QCOMPARE(service->getVal(), changedValue);
-    auto service2 = ioc.resolveService<Interface>();
+    auto service2 = m_ioc->resolveService<Interface>();
     QVERIFY(dynamic_cast<Implementation*>(service2.get()) != nullptr);
     QCOMPARE(service2->getVal(), changedValue);
 }
@@ -256,21 +251,19 @@ private:
     int value = defaultValue;
 };
 
-void Ioc::resolve_with_missing_dependency() // NOLINT(readability-convert-member-functions-to-static)
+void IocTests::resolve_with_missing_dependency() // NOLINT(readability-convert-member-functions-to-static)
 {
-    QtPiDeck::Ioc ioc;
-    ioc.registerService<Interface, ImplementationWithDeps>();
-    auto service = ioc.resolveService<Interface>();
+    m_ioc->registerService<Interface, ImplementationWithDeps>();
+    auto service = m_ioc->resolveService<Interface>();
     QVERIFY(dynamic_cast<ImplementationWithDeps*>(service.get()) != nullptr);
     QVERIFY(std::dynamic_pointer_cast<ImplementationWithDeps>(service)->ResolvedService() == nullptr);
 }
 
-void Ioc::resolve_with_dependency() // NOLINT(readability-convert-member-functions-to-static)
+void IocTests::resolve_with_dependency() // NOLINT(readability-convert-member-functions-to-static)
 {
-    QtPiDeck::Ioc ioc;
-    ioc.registerService<Interface, ImplementationWithDeps>();
-    ioc.registerService<Interface2, Implementation2>();
-    auto service = ioc.resolveService<Interface>();
+    m_ioc->registerService<Interface, ImplementationWithDeps>();
+    m_ioc->registerService<Interface2, Implementation2>();
+    auto service = m_ioc->resolveService<Interface>();
     QVERIFY(dynamic_cast<ImplementationWithDeps*>(service.get()) != nullptr);
     auto resolverService = std::dynamic_pointer_cast<ImplementationWithDeps>(service)->ResolvedService();
     QVERIFY(resolverService != nullptr);
@@ -304,12 +297,11 @@ struct ImplementationWithTwoDeps final : Interface3, Services::UseServices<Inter
     }
 };
 
-void Ioc::resolve_with_two_dependencies() { // NOLINT(readability-convert-member-functions-to-static)
-    QtPiDeck::Ioc ioc;
-    ioc.registerService<Interface, Implementation>();
-    ioc.registerService<Interface2, Implementation2>();
-    ioc.registerService<Interface3, ImplementationWithTwoDeps>();
-    auto service = ioc.resolveService<Interface3>();
+void IocTests::resolve_with_two_dependencies() { // NOLINT(readability-convert-member-functions-to-static)
+    m_ioc->registerService<Interface, Implementation>();
+    m_ioc->registerService<Interface2, Implementation2>();
+    m_ioc->registerService<Interface3, ImplementationWithTwoDeps>();
+    auto service = m_ioc->resolveService<Interface3>();
     QVERIFY(dynamic_cast<ImplementationWithTwoDeps*>(service.get()) != nullptr);
     auto resolverService1 = std::dynamic_pointer_cast<ImplementationWithTwoDeps>(service)->ResolvedService<Interface>();
     QVERIFY(resolverService1 != nullptr);
@@ -333,12 +325,11 @@ struct ImplementationWithNestedDeps final : Interface3, Services::UseServices<In
     }
 };
 
-void Ioc::resolve_with_multilevel_dependencies() { // NOLINT(readability-convert-member-functions-to-static)
-    QtPiDeck::Ioc ioc;
-    ioc.registerService<Interface, ImplementationWithDeps>();
-    ioc.registerService<Interface2, Implementation2>();
-    ioc.registerService<Interface3, ImplementationWithNestedDeps>();
-    auto service = ioc.resolveService<Interface3>();
+void IocTests::resolve_with_multilevel_dependencies() { // NOLINT(readability-convert-member-functions-to-static)
+    m_ioc->registerService<Interface, ImplementationWithDeps>();
+    m_ioc->registerService<Interface2, Implementation2>();
+    m_ioc->registerService<Interface3, ImplementationWithNestedDeps>();
+    auto service = m_ioc->resolveService<Interface3>();
     QVERIFY(dynamic_cast<ImplementationWithNestedDeps*>(service.get()) != nullptr);
     auto resolverService1 = std::dynamic_pointer_cast<ImplementationWithNestedDeps>(service)->ResolvedService();
     QVERIFY(resolverService1 != nullptr);
@@ -349,6 +340,6 @@ void Ioc::resolve_with_multilevel_dependencies() { // NOLINT(readability-convert
 }
 }
 
-QTEST_APPLESS_MAIN(QtPiDeck::Tests::Ioc) // NOLINT
+QTEST_APPLESS_MAIN(QtPiDeck::Tests::IocTests) // NOLINT
 
-#include "tst_QtPiDeckCommonIocTests.moc"
+#include "main.moc"
