@@ -38,9 +38,9 @@ private:
 }
 
 #if QT_VERSION == QTPI4_VERSION
-QTPIDECK_QUICK_TEST_MAIN_WITH_SETUP(QtPiDeck::Tests::CommandControl, QtPiDeck::Tests::Setup, QtPiDeck::Tests::makeImports, QtPiDeck::Tests::registerTypes) // NOLINT
+QTPIDECK_QUICK_TEST_MAIN_WITH_SETUP(QtPiDeck::Tests::CommandTests, QtPiDeck::Tests::Setup, QtPiDeck::Tests::makeImports, QtPiDeck::Tests::registerTypes) // NOLINT
 #else
-QUICK_TEST_MAIN_WITH_SETUP(QtPiDeck::Tests::CommandControl, QtPiDeck::Tests::Setup) // NOLINT
+QUICK_TEST_MAIN_WITH_SETUP(QtPiDeck::Tests::CommandTests, QtPiDeck::Tests::Setup) // NOLINT
 #endif
 
 #include "main.moc"
