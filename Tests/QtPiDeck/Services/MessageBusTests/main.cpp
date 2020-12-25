@@ -6,7 +6,7 @@
 
 namespace QtPiDeck::Services::Tests {
 using namespace std::chrono_literals;
-class MessageBus : public QObject {
+class MessageBusTests : public QObject {
     Q_OBJECT // NOLINT
 
 private slots:
@@ -20,24 +20,24 @@ private slots:
     void subscribeMemberFilteredWithType();
 
 private: // NOLINT(readability-redundant-access-specifiers)
-    std::unique_ptr<Services::MessageBus> m_messageBus;
+    std::unique_ptr<MessageBus> m_messageBus;
 };
 
-void MessageBus::init() {
-    m_messageBus = std::make_unique<Services::MessageBus>(nullptr);
+void MessageBusTests::init() {
+    m_messageBus = std::make_unique<MessageBus>(nullptr);
 }
 
-void MessageBus::subscribe() {
+void MessageBusTests::subscribe() {
     std::promise<uint64_t> promise;
     constexpr uint64_t messageType = 1234;
     auto future = promise.get_future();
-    m_messageBus->subscribe(this, [&promise](const Bus::Message& mess) { promise.set_value(mess.messageType); });
+    auto subscription = m_messageBus->subscribe(this, [&promise](const Bus::Message& mess) { promise.set_value(mess.messageType); });
     m_messageBus->sendMessage({messageType});
     QCOMPARE(future.wait_for(100ms), std::future_status::ready);
     QCOMPARE(future.get(), messageType);
 }
 
-void MessageBus::unsubscribe() {
+void MessageBusTests::unsubscribe() {
     constexpr uint64_t messageType = 1234;
     std::promise<uint64_t> promise;
     auto connection = m_messageBus->subscribe(this, [&promise](const Bus::Message& mess) { promise.set_value(mess.messageType); });
@@ -47,7 +47,7 @@ void MessageBus::unsubscribe() {
     QCOMPARE(future.wait_for(100ms), std::future_status::timeout);
 }
 
-void MessageBus::subscribeFiltered() {
+void MessageBusTests::subscribeFiltered() {
     std::promise<uint64_t> promise;
     constexpr uint64_t messageType = 1234;
     constexpr uint64_t messageType2 = 1235;
@@ -60,7 +60,7 @@ void MessageBus::subscribeFiltered() {
     QCOMPARE(future.get(), messageType);
 }
 
-void MessageBus::subscribeTwoSubscribers() {
+void MessageBusTests::subscribeTwoSubscribers() {
     std::promise<uint64_t> promise;
     std::promise<uint64_t> promise2;
     constexpr uint64_t messageType = 1234;
@@ -96,7 +96,7 @@ private:
     const uint64_t m_expectedMessageType;
 };
 
-void MessageBus::subscribeMember() {
+void MessageBusTests::subscribeMember() {
     constexpr uint64_t messageType = 1234;
     Listener listener(messageType);
     Services::subscribe(*m_messageBus, &listener, &Listener::callMe);
@@ -106,7 +106,7 @@ void MessageBus::subscribeMember() {
     QCOMPARE(future.get(), messageType);
 }
 
-void MessageBus::subscribeMemberFiltered() {
+void MessageBusTests::subscribeMemberFiltered() {
     constexpr uint64_t messageType = 1234;
     Listener listener(messageType);
     Services::subscribe(*m_messageBus, &listener, static_cast<void(Listener::*)()>(&Listener::callMe), messageType);
@@ -116,7 +116,7 @@ void MessageBus::subscribeMemberFiltered() {
     QCOMPARE(future.get(), messageType);
 }
 
-void MessageBus::subscribeMemberFilteredWithType() {
+void MessageBusTests::subscribeMemberFilteredWithType() {
     constexpr uint64_t messageType = 1234;
     Listener listener(messageType);
     Services::subscribe(*m_messageBus, &listener, static_cast<void(Listener::*)(const Bus::Message &)>(&Listener::callMe), messageType);
@@ -127,6 +127,6 @@ void MessageBus::subscribeMemberFilteredWithType() {
 }
 }
 
-QTEST_APPLESS_MAIN(QtPiDeck::Services::Tests::MessageBus) // NOLINT
+QTEST_APPLESS_MAIN(QtPiDeck::Services::Tests::MessageBusTests) // NOLINT
 
-#include "tst_QtPiDeckCommonMessageBusTests.moc"
+#include "main.moc"
