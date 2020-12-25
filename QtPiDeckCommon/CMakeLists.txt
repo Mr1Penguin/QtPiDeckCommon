@@ -8,13 +8,13 @@ add_library(QtPiDeckCommon SHARED
   src/Services/MessageBus.cpp
   src/Services/ServiceInterface.cpp
   include/Application.hpp
-  include/Ioc.hpp
   include/QtPiDeckCommon.hpp
   include/QtPiDeckCommon_global.hpp
   include/Bus/Message.hpp
   include/Network/DeckDataStream.hpp
   include/Network/MessageHeader.hpp
   include/Services/IMessageBus.hpp
+  include/Services/Ioc.hpp
   include/Services/MessageBus.hpp
   include/Services/ServiceInterface.hpp
   include/Services/UseServices.hpp

@@ -1,8 +1,8 @@
 #include <QtTest>
 
-#include "Ioc.hpp"
+#include "Services/Ioc.hpp"
 
-namespace QtPiDeck::Tests {
+namespace QtPiDeck::Services::Tests {
 class IocTests : public QObject
 {
     // NOLINTNEXTLINE
@@ -37,7 +37,7 @@ void IocTests::init() {
     m_ioc = std::make_unique<Ioc>();
 }
 
-struct Interface : QtPiDeck::Services::ServiceInterface {
+struct Interface : ServiceInterface {
     ~Interface() override = 0;
     virtual auto getVal() -> int = 0;
 
@@ -83,7 +83,7 @@ private:
     int value = defaultValue;
 };
 
-struct Interface2 : QtPiDeck::Services::ServiceInterface {
+struct Interface2 : ServiceInterface {
     ~Interface2() override = 0;
 
 protected:
@@ -232,7 +232,7 @@ void IocTests::resolve_same_singleton() // NOLINT(readability-convert-member-fun
     QCOMPARE(service2->getVal(), changedValue);
 }
 
-struct ImplementationWithDeps final : Interface, Services::UseServices<Interface2> {
+struct ImplementationWithDeps final : Interface, UseServices<Interface2> {
     ImplementationWithDeps() = default;
     ImplementationWithDeps(const ImplementationWithDeps &) = default;
     ImplementationWithDeps(ImplementationWithDeps &&) = default;
@@ -270,7 +270,7 @@ void IocTests::resolve_with_dependency() // NOLINT(readability-convert-member-fu
     QVERIFY(dynamic_cast<Implementation2*>(resolverService.get()) != nullptr);
 }
 
-struct Interface3 : QtPiDeck::Services::ServiceInterface {
+struct Interface3 : ServiceInterface {
     Interface3() = default;
     Interface3(const Interface3 &) = default;
     Interface3(Interface3 &&) = default;
@@ -282,7 +282,7 @@ struct Interface3 : QtPiDeck::Services::ServiceInterface {
 
 Interface3::~Interface3() = default;
 
-struct ImplementationWithTwoDeps final : Interface3, Services::UseServices<Interface, Interface2> {
+struct ImplementationWithTwoDeps final : Interface3, UseServices<Interface, Interface2> {
     ImplementationWithTwoDeps() = default;
     ImplementationWithTwoDeps(const ImplementationWithTwoDeps &) = default;
     ImplementationWithTwoDeps(ImplementationWithTwoDeps &&) = default;
@@ -311,7 +311,7 @@ void IocTests::resolve_with_two_dependencies() { // NOLINT(readability-convert-m
     QVERIFY(dynamic_cast<Implementation2*>(resolverService2.get()) != nullptr);
 }
 
-struct ImplementationWithNestedDeps final : Interface3, Services::UseServices<Interface> {
+struct ImplementationWithNestedDeps final : Interface3, UseServices<Interface> {
     ImplementationWithNestedDeps() = default;
     ImplementationWithNestedDeps(const ImplementationWithNestedDeps &) = default;
     ImplementationWithNestedDeps(ImplementationWithNestedDeps &&) = default;
@@ -340,6 +340,6 @@ void IocTests::resolve_with_multilevel_dependencies() { // NOLINT(readability-co
 }
 }
 
-QTEST_APPLESS_MAIN(QtPiDeck::Tests::IocTests) // NOLINT
+QTEST_APPLESS_MAIN(QtPiDeck::Services::Tests::IocTests) // NOLINT
 
 #include "main.moc"
