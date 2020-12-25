@@ -10,13 +10,13 @@ class Ioc;
 
 namespace detail {
 template<class T>
-void SetService(QtPiDeck::Services::ServiceUser<T> & service, Ioc & ioc) noexcept;
+void SetService(QtPiDeck::Services::ServiceUser<T> & service, const Ioc & ioc) noexcept;
 }
 
 template <class TService>
 class ServiceUser {
     template<class T>
-    friend void detail::SetService(ServiceUser<T> & service, Ioc & ioc) noexcept; // NOLINT(readability-redundant-declaration)
+    friend void detail::SetService(ServiceUser<T> & service, const Ioc & ioc) noexcept; // NOLINT(readability-redundant-declaration)
 protected:
     void SetService(std::shared_ptr<TService> service) {
         m_service = std::move(service);
