@@ -2,24 +2,21 @@
 
 #include <memory>
 
-namespace QtPiDeck {
-namespace Services {
+namespace QtPiDeck::Services {
 template <class TService>
 class ServiceUser;
-}
 
 class Ioc;
 
 namespace detail {
 template<class T>
-void SetService(QtPiDeck::Services::ServiceUser<T> & service, Ioc & ioc);
+void SetService(QtPiDeck::Services::ServiceUser<T> & service, Ioc & ioc) noexcept;
 }
 
-namespace Services {
 template <class TService>
 class ServiceUser {
     template<class T>
-    friend void QtPiDeck::detail::SetService(ServiceUser<T> & service, Ioc & ioc); // NOLINT(readability-redundant-declaration)
+    friend void detail::SetService(ServiceUser<T> & service, Ioc & ioc) noexcept; // NOLINT(readability-redundant-declaration)
 protected:
     void SetService(std::shared_ptr<TService> service) {
         m_service = std::move(service);
@@ -43,5 +40,4 @@ protected:
         return ServiceUser<TService>::Service();
     }
 };
-}
 }

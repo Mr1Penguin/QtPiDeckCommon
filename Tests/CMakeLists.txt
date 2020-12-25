@@ -33,5 +33,5 @@ endmacro()
 add_subdirectory(QmlTestsCommon)
 
 add_subdirectory(QtPiDeck/CommandTests)
-add_subdirectory(QtPiDeck/IocTests)
+add_subdirectory(QtPiDeck/Services/IocTests)
 add_subdirectory(QtPiDeck/Services/MessageBusTests)

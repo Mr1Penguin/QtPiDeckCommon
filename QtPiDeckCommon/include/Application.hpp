@@ -5,7 +5,7 @@
 #include <QQmlApplicationEngine>
 #include <QUrl>
 
-#include "Ioc.hpp"
+#include "Services/Ioc.hpp"
 
 namespace QtPiDeck {
 class QTPIDECKCOMMON_EXPORT Application {
@@ -20,7 +20,7 @@ public:
 
     auto start(int argc, char **argv) -> int;
 
-    auto ioc() -> QtPiDeck::Ioc& { return m_ioc; }
+    auto ioc() -> Services::Ioc& { return m_ioc; }
 
     static auto current() -> Application* { return s_current; }
 
@@ -31,7 +31,7 @@ protected:
     virtual void engineCreated(QQmlApplicationEngine & engine);
 
 private:
-    QtPiDeck::Ioc m_ioc;
+    Services::Ioc m_ioc;
 
     inline static Application* s_current; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 };

@@ -8,16 +8,16 @@
 #include "Services/ServiceInterface.hpp"
 #include "Services/UseServices.hpp"
 
-namespace QtPiDeck {
+namespace QtPiDeck::Services {
 class Ioc;
 
 namespace detail {
 template<class... TServices>
-void SetServices(Services::UseServices<TServices...> & service, Ioc & ioc) {
+void SetServices(UseServices<TServices...> & service, Ioc & ioc) noexcept {
    (detail::SetService<TServices>(service, ioc),...);
 }
 
-struct ServiceStub : Services::ServiceInterface {};
+struct ServiceStub : ServiceInterface {};
 
 struct ServiceImplementationMetaWrapperBase {
     friend struct ServiceMetaWrapperBase;
@@ -28,16 +28,16 @@ struct ServiceImplementationMetaWrapperBase {
     auto operator=(const ServiceImplementationMetaWrapperBase&) -> ServiceImplementationMetaWrapperBase& = default;
     auto operator=(ServiceImplementationMetaWrapperBase&&) -> ServiceImplementationMetaWrapperBase& = default;
 private:
-    virtual auto getRawImpl(Ioc & ioc) -> Services::ServiceInterface* = 0;
+    virtual auto getRawImpl(Ioc & ioc) noexcept -> ServiceInterface* = 0;
 };
 
 template<class TImplementation>
 struct ServiceImplementationMetaWrapper : ServiceImplementationMetaWrapperBase {
     using type = TImplementation;
 private:
-    auto getRawImpl(Ioc & ioc) -> TImplementation* final {
+    auto getRawImpl(Ioc & ioc) noexcept -> TImplementation* final {
         auto* ptr = new TImplementation(); // NOLINT(cppcoreguidelines-owning-memory) unable to use covariance with smart pointers
-        if constexpr (std::is_base_of_v<Services::detail::HasDependecies, TImplementation>) {
+        if constexpr (std::is_base_of_v<detail::HasDependecies, TImplementation>) {
             SetServices(*ptr, ioc);
         }
         return ptr;
@@ -52,15 +52,15 @@ struct ServiceMetaWrapperBase {
     virtual ~ServiceMetaWrapperBase() = default;
     auto operator=(const ServiceMetaWrapperBase&) -> ServiceMetaWrapperBase& = delete;
     auto operator=(ServiceMetaWrapperBase&&) -> ServiceMetaWrapperBase& = default;
-    auto getImpl(Ioc & ioc) -> Services::ServiceInterface* { return m_factory->getRawImpl(ioc); }
-    auto factory() -> std::unique_ptr<ServiceImplementationMetaWrapperBase>& { return m_factory; }
+    auto getImpl(Ioc & ioc) noexcept -> ServiceInterface* { return m_factory->getRawImpl(ioc); }
+    auto factory() noexcept -> std::unique_ptr<ServiceImplementationMetaWrapperBase>& { return m_factory; }
 private:
     std::unique_ptr<ServiceImplementationMetaWrapperBase> m_factory;
 };
 
 template<class TInterface>
 struct ServiceMetaWrapper : ServiceMetaWrapperBase {
-    static_assert(std::is_base_of_v<Services::ServiceInterface, TInterface>);
+    static_assert(std::is_base_of_v<ServiceInterface, TInterface>);
     using type = TInterface;
 
     template<class TImplementation>
@@ -71,15 +71,12 @@ struct ServiceMetaWrapper : ServiceMetaWrapperBase {
 };
 }
 
-/*
- * @todo: Move Ioc class to Services namespace
- * */
 class Ioc {
 public:
     template<class TInterface, class TImplementation>
-    void registerService() {
+    void registerService() noexcept {
         static_assert(std::is_base_of_v<TInterface, TImplementation>);
-        static_assert(std::is_base_of_v<Services::ServiceInterface, TInterface>);
+        static_assert(std::is_base_of_v<ServiceInterface, TInterface>);
         auto pred = [] (std::shared_ptr<detail::ServiceMetaWrapperBase> & s) {
             return dynamic_cast<detail::ServiceMetaWrapper<TInterface>*>(s.get()) != nullptr;
         };
@@ -93,9 +90,9 @@ public:
     }
 
     template<class TInterface>
-    void registerSingleton(std::shared_ptr<TInterface> singleton) {
-        static_assert(std::is_base_of_v<Services::ServiceInterface, TInterface>);
-        auto pred = [](std::shared_ptr<Services::ServiceInterface> & service) {
+    void registerSingleton(std::shared_ptr<TInterface> singleton) noexcept {
+        static_assert(std::is_base_of_v<ServiceInterface, TInterface>);
+        auto pred = [](std::shared_ptr<ServiceInterface> & service) {
             return dynamic_cast<TInterface*>(service.get()) != nullptr;
         };
         if (auto it = std::find_if(std::begin(m_singletons), std::end(m_singletons), pred);
@@ -108,7 +105,7 @@ public:
     }
 
     template<class TService>
-    auto resolveService() -> std::shared_ptr<TService> {
+    auto resolveService() const noexcept -> std::shared_ptr<TService> {
         auto pred = [] (std::shared_ptr<detail::ServiceMetaWrapperBase> & s) {
             using ImplType = std::conditional_t<std::is_abstract_v<TService>, detail::ServiceStub, TService>;
             return dynamic_cast<detail::ServiceMetaWrapper<TService>*>(s.get()) != nullptr ||
@@ -120,7 +117,7 @@ public:
             return service;
         }
 
-        auto singletonPred = [](std::shared_ptr<Services::ServiceInterface> & singleton) {
+        auto singletonPred = [](std::shared_ptr<ServiceInterface> & singleton) {
             return dynamic_cast<TService*>(singleton.get()) != nullptr;
         };
         if (auto it = std::find_if(std::begin(m_singletons), std::end(m_singletons), singletonPred);
@@ -133,13 +130,13 @@ public:
     }
 
 private:
-    std::vector<std::shared_ptr<Services::ServiceInterface>> m_singletons;
+    std::vector<std::shared_ptr<ServiceInterface>> m_singletons;
     std::vector<std::shared_ptr<detail::ServiceMetaWrapperBase>> m_registeredServices;
 };
 
 namespace detail {
 template<class TService>
-void SetService(Services::ServiceUser<TService> & service, Ioc & ioc) {
+void SetService(ServiceUser<TService> & service, Ioc & ioc) noexcept {
    service.SetService(ioc.resolveService<TService>());
 }
 }
