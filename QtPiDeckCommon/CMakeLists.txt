@@ -15,6 +15,7 @@ add_library(QtPiDeckCommon SHARED
   include/Network/MessageHeader.hpp
   include/Services/IMessageBus.hpp
   include/Services/Ioc.hpp
+  include/Services/ISettingsStorage.hpp
   include/Services/MessageBus.hpp
   include/Services/ServiceInterface.hpp
   include/Services/UseServices.hpp
