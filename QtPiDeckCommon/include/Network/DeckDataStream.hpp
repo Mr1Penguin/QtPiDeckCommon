@@ -9,6 +9,7 @@ public:
     using OpenModeFlags = OpenMode;
 #else
     using OpenModeFlags = QIODevice::OpenMode;
+    using OpenModeFlag = QIODevice::OpenModeFlag;
 #endif
 
     DeckDataStream() { setStreamParams(); }
