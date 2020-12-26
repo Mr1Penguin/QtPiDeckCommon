@@ -6,7 +6,7 @@ template<class TNum>
 using addOverload = std::enable_if_t<std::is_same_v<TNum, uint64_t> && !std::is_same_v<quint64, uint64_t>>;
 
 template <class TNum, typename = addOverload<TNum>>
-auto operator<<(QDataStream& str, TNum& number) -> QDataStream& {
+auto operator<<(QDataStream& str, const TNum& number) -> QDataStream& {
     str << static_cast<quint64>(number);
     return str;
 }
@@ -32,7 +32,7 @@ auto operator>>(QDataStream& str, MessageHeader & header) -> QDataStream& {
 }
 
 #if (QT_VERSION == QTPI4_VERSION)
-auto operator<<(QDataStream& str, MessageId & messageId) -> QDataStream& {
+auto operator<<(QDataStream& str, const MessageId & messageId) -> QDataStream& {
     uint32_t v;
     str >> v;
     messageId = static_cast<MessageId>(v);

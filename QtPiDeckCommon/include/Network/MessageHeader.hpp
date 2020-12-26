@@ -20,7 +20,7 @@ struct MessageHeader {
 QTPIDECKCOMMON_EXPORT auto operator<<(QDataStream& str, const MessageHeader & header) -> QDataStream&;
 QTPIDECKCOMMON_EXPORT auto operator>>(QDataStream& str, MessageHeader & header) -> QDataStream&;
 #if (QT_VERSION == QTPI4_VERSION)
-QTPIDECKCOMMON_EXPORT auto operator<<(QDataStream& str, MessageId & messageId) -> QDataStream&;
+QTPIDECKCOMMON_EXPORT auto operator<<(QDataStream& str, const MessageId & messageId) -> QDataStream&;
 QTPIDECKCOMMON_EXPORT auto operator>>(QDataStream& str, MessageId & messageId) -> QDataStream&;
 #endif
 }
