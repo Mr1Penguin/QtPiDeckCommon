@@ -19,7 +19,7 @@ auto operator>>(QDataStream& str, TNum& number) -> QDataStream& {
     return str;
 }
 
-auto operator<<(QDataStream& str, MessageHeader & header) -> QDataStream& {
+auto operator<<(QDataStream& str, const MessageHeader & header) -> QDataStream& {
     str << header.dataSize;
     str << header.messageId;
     return str;
