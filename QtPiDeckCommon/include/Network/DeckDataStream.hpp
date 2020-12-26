@@ -4,13 +4,13 @@
 
 namespace QtPiDeck::Network {
 class DeckDataStream : public QDataStream {
+public:
 #if QT_VERSION_MAJOR == 6
     using OpenModeFlags = OpenMode;
 #else
     using OpenModeFlags = QIODevice::OpenMode;
 #endif
 
-public:
     DeckDataStream() { setStreamParams(); }
     explicit DeckDataStream(QIODevice * device) : QDataStream(device) { setStreamParams(); }
     DeckDataStream(QByteArray * array, OpenModeFlags flags) : QDataStream(array, flags) { setStreamParams(); }
