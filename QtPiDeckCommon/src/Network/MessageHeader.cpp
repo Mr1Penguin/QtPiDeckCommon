@@ -40,7 +40,7 @@ auto operator>>(QDataStream& str, MessageId & messageId) -> QDataStream& {
 }
 
 auto operator<<(QDataStream& str, const MessageId & messageId) -> QDataStream& {
-    str << static_cast<const uint32_t>(messageId);
+    str << static_cast<uint32_t>(messageId);
     return str;
 }
 #endif
