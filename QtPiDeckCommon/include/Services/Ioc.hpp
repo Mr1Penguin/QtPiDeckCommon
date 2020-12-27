@@ -73,7 +73,7 @@ struct ServiceMetaWrapper : ServiceMetaWrapperBase {
 
 class Ioc {
 public:
-    template<class TInterface, class TImplementation>
+    template<class TInterface, class TImplementation = TInterface>
     void registerService() noexcept {
         static_assert(std::is_base_of_v<TInterface, TImplementation>);
         static_assert(std::is_base_of_v<ServiceInterface, TInterface>);
@@ -105,7 +105,7 @@ public:
     }
 
     template<class TService>
-    auto resolveService() const noexcept -> std::shared_ptr<TService> {
+    [[nodiscard]] auto resolveService() const noexcept -> std::shared_ptr<TService> {
         auto pred = [] (const std::shared_ptr<detail::ServiceMetaWrapperBase> & s) {
             using ImplType = std::conditional_t<std::is_abstract_v<TService>, detail::ServiceStub, TService>;
             return dynamic_cast<detail::ServiceMetaWrapper<TService>*>(s.get()) != nullptr ||
