@@ -4,5 +4,5 @@ QtPiDeckCommon::QtPiDeckCommon() = default;
 
 void QtPiDeckCommon::registerTypes()
 {
-    Q_INIT_RESOURCE(qmlCommon);
+    Q_INIT_RESOURCE(qmlCommon); // NOLINT
 }

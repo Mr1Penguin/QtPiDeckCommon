@@ -29,7 +29,7 @@ private slots:
     void resolve_with_two_dependencies();
     void resolve_with_multilevel_dependencies();
 
-private:
+private: // NOLINT(readability-redundant-access-specifiers)
     std::unique_ptr<Ioc> m_ioc;
 };
 
