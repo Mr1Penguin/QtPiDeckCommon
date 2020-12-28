@@ -244,7 +244,7 @@ struct ImplementationWithDeps final : Interface, UseServices<Interface2> {
     void setVal(int val) { value = val; }
 
     auto ResolvedService() -> std::shared_ptr<Interface2>& {
-        return Service<Interface2>();
+        return service<Interface2>();
     }
 
 private:
@@ -293,7 +293,7 @@ struct ImplementationWithTwoDeps final : Interface3, UseServices<Interface, Inte
 
     template<class TService>
     auto ResolvedService() -> std::shared_ptr<TService>& {
-        return Service<TService>();
+        return service<TService>();
     }
 };
 
@@ -321,7 +321,7 @@ struct ImplementationWithNestedDeps final : Interface3, UseServices<Interface> {
     auto operator=(ImplementationWithNestedDeps&&) -> ImplementationWithNestedDeps& = default;
 
     auto ResolvedService() -> std::shared_ptr<Interface>& {
-        return Service<Interface>();
+        return service<Interface>();
     }
 };
 
