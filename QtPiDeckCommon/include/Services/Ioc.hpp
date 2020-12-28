@@ -11,12 +11,12 @@
 namespace QtPiDeck::Services {
 class Ioc;
 
-namespace detail {
 template<class... TServices>
-void SetServices(UseServices<TServices...> & service, const Ioc & ioc) noexcept {
-   (detail::SetService<TServices>(service, ioc),...);
+void setServices(UseServices<TServices...> & service, const Ioc & ioc) noexcept {
+    (detail::SetService<TServices>(service, ioc),...);
 }
 
+namespace detail {
 struct ServiceStub : ServiceInterface {};
 
 struct ServiceImplementationMetaWrapperBase {
@@ -38,7 +38,7 @@ private:
     auto getRawImpl(const Ioc & ioc) noexcept -> TImplementation* final {
         auto* ptr = new TImplementation(); // NOLINT(cppcoreguidelines-owning-memory) unable to use covariance with smart pointers
         if constexpr (std::is_base_of_v<detail::HasDependecies, TImplementation>) {
-            SetServices(*ptr, ioc);
+            setServices(*ptr, ioc);
         }
         return ptr;
     }

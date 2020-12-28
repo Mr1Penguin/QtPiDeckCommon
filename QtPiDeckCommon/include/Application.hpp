@@ -21,6 +21,7 @@ public:
     auto start(int argc, char **argv) -> int;
 
     auto ioc() -> Services::Ioc& { return m_ioc; }
+    auto ioc() const -> const Services::Ioc& { return m_ioc; }
 
     static auto current() -> Application* { return s_current; }
 
