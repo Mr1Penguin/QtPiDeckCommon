@@ -13,7 +13,7 @@ class Ioc;
 
 template<class... TServices>
 void setServices(UseServices<TServices...> & service, const Ioc & ioc) noexcept {
-    (detail::SetService<TServices>(service, ioc),...);
+    (detail::setService<TServices>(service, ioc),...);
 }
 
 namespace detail {
@@ -136,8 +136,8 @@ private:
 
 namespace detail {
 template<class TService>
-void SetService(ServiceUser<TService> & service, const Ioc & ioc) noexcept {
-   service.SetService(ioc.resolveService<TService>());
+void setService(ServiceUser<TService> & service, const Ioc & ioc) noexcept {
+   service.setService(ioc.resolveService<TService>());
 }
 }
 }
