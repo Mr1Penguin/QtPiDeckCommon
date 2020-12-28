@@ -10,18 +10,21 @@ class Ioc;
 
 namespace detail {
 template<class T>
-void SetService(QtPiDeck::Services::ServiceUser<T> & service, const Ioc & ioc) noexcept;
+void setService(QtPiDeck::Services::ServiceUser<T> & service, const Ioc & ioc) noexcept;
 }
 
 template <class TService>
 class ServiceUser {
     template<class T>
-    friend void detail::SetService(ServiceUser<T> & service, const Ioc & ioc) noexcept; // NOLINT(readability-redundant-declaration)
+    friend void detail::setService(ServiceUser<T> & service, const Ioc & ioc) noexcept; // NOLINT(readability-redundant-declaration)
 protected:
-    void SetService(std::shared_ptr<TService> service) {
+    void setService(std::shared_ptr<TService> service) noexcept {
         m_service = std::move(service);
     }
-    auto Service() -> std::shared_ptr<TService>&  {
+    auto service() noexcept -> std::shared_ptr<TService>&  {
+        return m_service;
+    }
+    auto service() const noexcept -> const std::shared_ptr<TService>&  {
         return m_service;
     }
 private:
@@ -36,8 +39,8 @@ template <class... TServices>
 class UseServices : public detail::HasDependecies, public ServiceUser<TServices>... {
 protected:
     template<class TService>
-    auto Service() -> std::shared_ptr<TService> & {
-        return ServiceUser<TService>::Service();
+    auto service() -> std::shared_ptr<TService> & {
+        return ServiceUser<TService>::service();
     }
 };
 }
