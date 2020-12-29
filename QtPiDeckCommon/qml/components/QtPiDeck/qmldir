@@ -1,2 +1,3 @@
 module QtPiDeck
 Command 1.0 Command.qml
+PortField 1.0 PortField.qml
