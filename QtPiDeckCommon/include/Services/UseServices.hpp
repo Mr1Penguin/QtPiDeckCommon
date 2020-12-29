@@ -24,7 +24,7 @@ protected:
     auto service() noexcept -> std::shared_ptr<TService>&  {
         return m_service;
     }
-    auto service() const noexcept -> const std::shared_ptr<TService>&  {
+    [[nodiscard]] auto service() const noexcept -> const std::shared_ptr<TService>&  {
         return m_service;
     }
 private:

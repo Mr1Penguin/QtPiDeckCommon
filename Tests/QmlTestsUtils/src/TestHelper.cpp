@@ -10,11 +10,11 @@ TestHelper::TestHelper(QObject *parent) : QObject(parent) {
 }
 
 namespace {
-QString operator "" _q(const char* text, size_t) {
+auto operator "" _q(const char* text, size_t /*unused*/) -> QString {
     return QString{text};
 }
 
-QString getQtQmlTypeName(const QString& name) noexcept {
+auto getQtQmlTypeName(const QString& name) noexcept -> QString {
     const std::array qQuickTypes{"Text"_q};
     const std::array qmlTypeTypes{"TextField"_q};
     auto getTypeName = [&name](
