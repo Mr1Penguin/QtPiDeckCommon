@@ -34,7 +34,7 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ../Qt
-          key: ${{ runner.os }}-QtCache-${{ matrix.cfg.qt }}
+          key: ${{ runner.os }}-QtCache-${{ matrix.cfg.qt }}-until-7feb
 
       - uses: actions/checkout@v2
 
@@ -98,7 +98,7 @@ jobs:
         working-directory: build
 
       - name: Set path to QtPiDeckCommon library(windows)
-        run: Get-Location | % { echo "$_\QtPiDeckCommon\QtPiDeckCommon" } | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        run: Get-Location | % { echo "$_\QtPiDeckCommon" } | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
         working-directory: build
         if: matrix.cfg.os == 'windows-latest'
 
@@ -106,4 +106,4 @@ jobs:
         run: ctest --output-on-failure
         working-directory: build
         env:
-          LD_LIBRARY_PATH: ./QtPiDeckCommon/QtPiDeckCommon
+          LD_LIBRARY_PATH: ./QtPiDeckCommon
