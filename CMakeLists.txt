@@ -24,4 +24,5 @@ endif()
 
 
 add_subdirectory(QtPiDeckCommon)
+add_subdirectory(QtChecker)
 add_subdirectory(Tests)

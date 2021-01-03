@@ -5,6 +5,7 @@
 #include <QDataStream>
 
 #include "QtPiDeckCommon_global.hpp"
+#include "QtVersion.hpp"
 
 namespace QtPiDeck::Network {
 enum class MessageId : uint32_t {
