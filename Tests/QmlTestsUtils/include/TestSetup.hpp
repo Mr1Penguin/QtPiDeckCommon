@@ -37,7 +37,7 @@
 
 template<class T>
 void addImports15(MAYBE_UNUSED QQmlEngine *engine, MAYBE_UNUSED T makeImports) noexcept {
-    if constexpr(QT_VERSION >= QT_MIN_TESTED_VERSION) {
+    if constexpr(QT_VERSION >= QT5_15_LTS_VERSION) {
         auto imports = makeImports();
         for (auto & str : imports) {
             engine->addImportPath(str.data());
@@ -47,7 +47,7 @@ void addImports15(MAYBE_UNUSED QQmlEngine *engine, MAYBE_UNUSED T makeImports) n
 
 template<class T>
 void callRegisterTypes15(MAYBE_UNUSED T registerTypes) noexcept {
-    if constexpr(QT_VERSION >= QT_MIN_TESTED_VERSION) {
+    if constexpr(QT_VERSION >= QT5_15_LTS_VERSION) {
         registerTypes();
     }
 }
