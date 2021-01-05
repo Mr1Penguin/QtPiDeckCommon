@@ -1,3 +1,5 @@
+#include <array>
+
 #include <QtTest>
 
 #include "Services/Ioc.hpp"
