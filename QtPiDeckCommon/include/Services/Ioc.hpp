@@ -108,7 +108,7 @@ private:
 
     template<class TImplementation, CreationType creationType, class... TDeps>
     auto makeWithDependencies(Services::UseServices<TDeps...>* /*deductor*/,
-                              [[maybe_unused]] void* memory = nullptr) const noexcept
+                              void* memory = nullptr) const noexcept
     {
         if constexpr (std::is_constructible_v<TImplementation, std::shared_ptr<TDeps>...>) {
             return createImpl<TImplementation, creationType>(memory, resolveService<TDeps>()...);
@@ -117,7 +117,7 @@ private:
             return createImpl<TImplementation, creationType>(memory, nullptr, resolveService<TDeps>()...);
         }
         else {
-            auto p = createImpl<TImplementation, creationType>(); // NOLINT(readability-qualified-auto)
+            auto p = createImpl<TImplementation, creationType>(memory); // NOLINT(readability-qualified-auto)
             if constexpr (creationType == CreationType::Copy) {
                 setServices(p);
             }
@@ -130,7 +130,7 @@ private:
     }
 
     template<class TImplementation, CreationType creationType, class... TArgs>
-    auto createImpl([[maybe_unused]] void* memory = nullptr, TArgs... args) const noexcept {
+    auto createImpl([[maybe_unused]] void* memory, TArgs... args) const noexcept {
         if constexpr (creationType == CreationType::SharedPointer) {
             return std::make_shared<TImplementation>(args...);
         }
