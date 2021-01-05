@@ -29,6 +29,42 @@ private slots:
     void resolve_with_two_dependencies();
     void resolve_with_multilevel_dependencies();
 
+    void make_unique_pointer_without_dependencies();
+    void make_shared_pointer_without_dependencies();
+    void make_copy_without_dependencies();
+    void make_raw_in_memory_without_dependencies();
+    void make_raw_without_dependencies();
+
+    void make_unique_pointer_with_one_dependency_constructor();
+    void make_shared_pointer_with_one_dependency_constructor();
+    void make_copy_with_one_dependency_constructor();
+    void make_raw_in_memory_with_one_dependency_constructor();
+    void make_raw_with_one_dependency_constructor();
+
+    void make_unique_pointer_with_one_dependency_constructor_qobject();
+    void make_shared_pointer_with_one_dependency_constructor_qobject();
+    void make_copy_with_one_dependency_constructor_qobject();
+    void make_raw_in_memory_with_one_dependency_constructor_qobject();
+    void make_raw_with_one_dependency_constructor_qobject();
+
+    void make_unique_pointer_with_one_dependency_no_constructor();
+    void make_shared_pointer_with_one_dependency_no_constructor();
+    void make_copy_with_one_dependency_no_constructor();
+    void make_raw_in_memory_with_one_dependency_no_constructor();
+    void make_raw_with_one_dependency_no_constructor();
+
+    void make_unique_pointer_with_two_dependencies_constructor();
+    void make_shared_pointer_with_two_dependencies_constructor();
+    void make_copy_with_two_dependencies_constructor();
+    void make_raw_in_memory_with_two_dependencies_constructor();
+    void make_raw_with_two_dependencies_constructor();
+
+    void make_unique_pointer_with_nested_dependencies_constructor();
+    void make_shared_pointer_with_nested_dependencies_constructor();
+    void make_copy_with_nested_dependencies_constructor();
+    void make_raw_in_memory_with_nested_dependencies_constructor();
+    void make_raw_with_nested_dependencies_constructor();
+
 private: // NOLINT(readability-redundant-access-specifiers)
     std::unique_ptr<Ioc> m_ioc;
 };
@@ -337,6 +373,373 @@ void IocTests::resolve_with_multilevel_dependencies() { // NOLINT(readability-co
     auto resolverService2 = std::dynamic_pointer_cast<ImplementationWithDeps>(resolverService1)->ResolvedService();
     QVERIFY(resolverService2 != nullptr);
     QVERIFY(dynamic_cast<Implementation2*>(resolverService2.get()) != nullptr);
+}
+
+class ClassWithoutDependencies {};
+
+void IocTests::make_unique_pointer_without_dependencies() { // NOLINT(readability-convert-member-functions-to-static)
+    auto result = m_ioc->make<ClassWithoutDependencies, CreationType::UniquePointer>();
+    static_assert(std::is_same_v<std::unique_ptr<ClassWithoutDependencies>, decltype(result)>);
+    QVERIFY(result != nullptr);
+}
+
+void IocTests::make_shared_pointer_without_dependencies() { // NOLINT(readability-convert-member-functions-to-static)
+    auto result = m_ioc->make<ClassWithoutDependencies, CreationType::SharedPointer>();
+    static_assert(std::is_same_v<std::shared_ptr<ClassWithoutDependencies>, decltype(result)>);
+    QVERIFY(result != nullptr);
+}
+
+void IocTests::make_copy_without_dependencies() { // NOLINT(readability-convert-member-functions-to-static)
+    [[maybe_unused]] auto result = m_ioc->make<ClassWithoutDependencies, CreationType::Copy>();
+    static_assert(std::is_same_v<ClassWithoutDependencies, decltype(result)>);
+}
+
+void IocTests::make_raw_in_memory_without_dependencies() { // NOLINT(readability-convert-member-functions-to-static)
+    alignas(ClassWithoutDependencies) std::array<std::byte, sizeof(ClassWithoutDependencies)> buffer{std::byte{}};
+    auto* result = m_ioc->make<ClassWithoutDependencies, CreationType::RawInMemory>(buffer.data());
+    static_assert(std::is_same_v<ClassWithoutDependencies*, decltype(result)>);
+    QVERIFY(result != nullptr);
+    result->~ClassWithoutDependencies();
+}
+
+void IocTests::make_raw_without_dependencies() { // NOLINT(readability-convert-member-functions-to-static)
+    auto* result = m_ioc->make<ClassWithoutDependencies, CreationType::Raw>();
+    static_assert(std::is_same_v<ClassWithoutDependencies*, decltype(result)>);
+    auto wrapper = std::unique_ptr<ClassWithoutDependencies>(result);
+    QVERIFY(result != nullptr);
+}
+
+class ClassWithOneDependencyConstructor : public Services::UseServices<Interface> {
+public:
+    ClassWithOneDependencyConstructor(std::shared_ptr<Interface> interface) {
+        setService(std::move(interface));
+    }
+
+    auto getInterface() -> std::shared_ptr<Interface> {
+        return service<Interface>();
+    }
+};
+
+void IocTests::make_unique_pointer_with_one_dependency_constructor() { // NOLINT(readability-convert-member-functions-to-static)
+    m_ioc->registerService<Interface, Implementation>();
+    auto result = m_ioc->make<ClassWithOneDependencyConstructor, CreationType::UniquePointer>();
+    QVERIFY(result != nullptr);
+    QVERIFY(result->getInterface() != nullptr);
+    QCOMPARE(result->getInterface()->getVal(), defaultValue);
+}
+
+void IocTests::make_shared_pointer_with_one_dependency_constructor() { // NOLINT(readability-convert-member-functions-to-static)
+    m_ioc->registerService<Interface, Implementation>();
+    auto result = m_ioc->make<ClassWithOneDependencyConstructor, CreationType::SharedPointer>();
+    QVERIFY(result != nullptr);
+    QVERIFY(result->getInterface() != nullptr);
+    QCOMPARE(result->getInterface()->getVal(), defaultValue);
+}
+
+void IocTests::make_copy_with_one_dependency_constructor() { // NOLINT(readability-convert-member-functions-to-static)
+    m_ioc->registerService<Interface, Implementation>();
+    auto result = m_ioc->make<ClassWithOneDependencyConstructor, CreationType::Copy>();
+    QVERIFY(result.getInterface() != nullptr);
+    QCOMPARE(result.getInterface()->getVal(), defaultValue);
+}
+
+void IocTests::make_raw_in_memory_with_one_dependency_constructor() { // NOLINT(readability-convert-member-functions-to-static)
+    m_ioc->registerService<Interface, Implementation>();
+    using classType = ClassWithOneDependencyConstructor;
+    alignas(classType) std::array<std::byte, sizeof(classType)> buffer {std::byte{}};
+    auto* result = m_ioc->make<classType, CreationType::RawInMemory>(buffer.data());
+    QVERIFY(result != nullptr);
+    QVERIFY(result->getInterface() != nullptr);
+    QCOMPARE(result->getInterface()->getVal(), defaultValue);
+    result->~ClassWithOneDependencyConstructor();
+}
+
+void IocTests::make_raw_with_one_dependency_constructor() { // NOLINT(readability-convert-member-functions-to-static)
+    m_ioc->registerService<Interface, Implementation>();
+    using classType = ClassWithOneDependencyConstructor;
+    auto result = std::unique_ptr<classType>(m_ioc->make<classType, CreationType::Raw>());
+    QVERIFY(result != nullptr);
+    QVERIFY(result->getInterface() != nullptr);
+    QCOMPARE(result->getInterface()->getVal(), defaultValue);
+}
+
+class ClassWithOneDependencyConstructorQobject : public Services::UseServices<Interface> {
+public:
+    ClassWithOneDependencyConstructorQobject(QObject* /*parent*/, std::shared_ptr<Interface> interface) {
+        setService(std::move(interface));
+    }
+
+    auto getInterface() -> std::shared_ptr<Interface> {
+        return service<Interface>();
+    }
+};
+
+void IocTests::make_unique_pointer_with_one_dependency_constructor_qobject() { // NOLINT(readability-convert-member-functions-to-static)
+    m_ioc->registerService<Interface, Implementation>();
+    auto result = m_ioc->make<ClassWithOneDependencyConstructorQobject, CreationType::UniquePointer>();
+    QVERIFY(result != nullptr);
+    QVERIFY(result->getInterface() != nullptr);
+    QCOMPARE(result->getInterface()->getVal(), defaultValue);
+}
+
+void IocTests::make_shared_pointer_with_one_dependency_constructor_qobject() { // NOLINT(readability-convert-member-functions-to-static)
+    m_ioc->registerService<Interface, Implementation>();
+    auto result = m_ioc->make<ClassWithOneDependencyConstructorQobject, CreationType::SharedPointer>();
+    QVERIFY(result != nullptr);
+    QVERIFY(result->getInterface() != nullptr);
+    QCOMPARE(result->getInterface()->getVal(), defaultValue);
+}
+
+void IocTests::make_copy_with_one_dependency_constructor_qobject() { // NOLINT(readability-convert-member-functions-to-static)
+    m_ioc->registerService<Interface, Implementation>();
+    auto result = m_ioc->make<ClassWithOneDependencyConstructorQobject, CreationType::Copy>();
+    QVERIFY(result.getInterface() != nullptr);
+    QCOMPARE(result.getInterface()->getVal(), defaultValue);
+}
+
+void IocTests::make_raw_in_memory_with_one_dependency_constructor_qobject() { // NOLINT(readability-convert-member-functions-to-static)
+    m_ioc->registerService<Interface, Implementation>();
+    using classType = ClassWithOneDependencyConstructorQobject;
+    alignas(classType) std::array<std::byte, sizeof(classType)> buffer{std::byte{}};
+    auto* result = m_ioc->make<ClassWithOneDependencyConstructorQobject, CreationType::RawInMemory>(buffer.data());
+    QVERIFY(result != nullptr);
+    QVERIFY(result->getInterface() != nullptr);
+    QCOMPARE(result->getInterface()->getVal(), defaultValue);
+    result->~ClassWithOneDependencyConstructorQobject();
+}
+
+void IocTests::make_raw_with_one_dependency_constructor_qobject() { // NOLINT(readability-convert-member-functions-to-static)
+    m_ioc->registerService<Interface, Implementation>();
+    using classType = ClassWithOneDependencyConstructorQobject;
+    auto result = std::unique_ptr<classType>(m_ioc->make<classType, CreationType::Raw>());
+    QVERIFY(result != nullptr);
+    QVERIFY(result->getInterface() != nullptr);
+    QCOMPARE(result->getInterface()->getVal(), defaultValue);
+}
+
+class ClassWithOneDependencyNoConstructor : public Services::UseServices<Interface> { // NOLINT(readability-convert-member-functions-to-static)
+public:
+    ClassWithOneDependencyNoConstructor(std::shared_ptr<Interface> interface) {
+        ServiceUser<Interface>::setService(std::move(interface));
+    }
+
+    auto getInterface() -> std::shared_ptr<Interface> {
+        return service<Interface>();
+    }
+};
+
+void IocTests::make_unique_pointer_with_one_dependency_no_constructor() { // NOLINT(readability-convert-member-functions-to-static)
+    m_ioc->registerService<Interface, Implementation>();
+    auto result = m_ioc->make<ClassWithOneDependencyNoConstructor, CreationType::UniquePointer>();
+    QVERIFY(result != nullptr);
+    QVERIFY(result->getInterface() != nullptr);
+    QCOMPARE(result->getInterface()->getVal(), defaultValue);
+}
+
+void IocTests::make_shared_pointer_with_one_dependency_no_constructor() { // NOLINT(readability-convert-member-functions-to-static)
+    m_ioc->registerService<Interface, Implementation>();
+    auto result = m_ioc->make<ClassWithOneDependencyNoConstructor, CreationType::SharedPointer>();
+    QVERIFY(result != nullptr);
+    QVERIFY(result->getInterface() != nullptr);
+    QCOMPARE(result->getInterface()->getVal(), defaultValue);
+}
+
+void IocTests::make_copy_with_one_dependency_no_constructor() { // NOLINT(readability-convert-member-functions-to-static)
+    m_ioc->registerService<Interface, Implementation>();
+    auto result = m_ioc->make<ClassWithOneDependencyNoConstructor, CreationType::Copy>();
+    QVERIFY(result.getInterface() != nullptr);
+    QCOMPARE(result.getInterface()->getVal(), defaultValue);
+}
+
+void IocTests::make_raw_in_memory_with_one_dependency_no_constructor() { // NOLINT(readability-convert-member-functions-to-static)
+    m_ioc->registerService<Interface, Implementation>();
+    using classType = ClassWithOneDependencyNoConstructor;
+    alignas(classType) std::array<std::byte, sizeof(classType)> buffer{std::byte{}};
+    auto* result = m_ioc->make<classType, CreationType::RawInMemory>(buffer.data());
+    QVERIFY(result != nullptr);
+    QVERIFY(result->getInterface() != nullptr);
+    QCOMPARE(result->getInterface()->getVal(), defaultValue);
+    result->~ClassWithOneDependencyNoConstructor();
+}
+
+void IocTests::make_raw_with_one_dependency_no_constructor() { // NOLINT(readability-convert-member-functions-to-static)
+    m_ioc->registerService<Interface, Implementation>();
+    using classType = ClassWithOneDependencyNoConstructor;
+    auto result = std::unique_ptr<classType>(m_ioc->make<classType, CreationType::Raw>());
+    QVERIFY(result != nullptr);
+    QVERIFY(result->getInterface() != nullptr);
+    QCOMPARE(result->getInterface()->getVal(), defaultValue);
+}
+
+class ClassWithTwoDependenciesConstructor : public Services::UseServices<Interface, Interface2> { // NOLINT(readability-convert-member-functions-to-static)
+public:
+    ClassWithTwoDependenciesConstructor(std::shared_ptr<Interface> interface, std::shared_ptr<Interface2> interface2) {
+        setService(std::move(interface));
+        setService(std::move(interface2));
+    }
+
+    template<class TInterface>
+    auto getInterface() -> std::shared_ptr<TInterface> {
+        return service<TInterface>();
+    }
+};
+
+void IocTests::make_unique_pointer_with_two_dependencies_constructor() { // NOLINT(readability-convert-member-functions-to-static)
+    m_ioc->registerService<Interface, Implementation>();
+    m_ioc->registerService<Interface2, Implementation2>();
+    auto result = m_ioc->make<ClassWithTwoDependenciesConstructor, CreationType::UniquePointer>();
+    QVERIFY(result != nullptr);
+    QVERIFY(result->getInterface<Interface>() != nullptr);
+    QVERIFY(result->getInterface<Interface2>() != nullptr);
+    QCOMPARE(result->getInterface<Interface>()->getVal(), defaultValue);
+}
+
+void IocTests::make_shared_pointer_with_two_dependencies_constructor() { // NOLINT(readability-convert-member-functions-to-static)
+    m_ioc->registerService<Interface, Implementation>();
+    m_ioc->registerService<Interface2, Implementation2>();
+    auto result = m_ioc->make<ClassWithTwoDependenciesConstructor, CreationType::SharedPointer>();
+    QVERIFY(result != nullptr);
+    QVERIFY(result->getInterface<Interface>() != nullptr);
+    QVERIFY(result->getInterface<Interface2>() != nullptr);
+    QCOMPARE(result->getInterface<Interface>()->getVal(), defaultValue);
+}
+
+void IocTests::make_copy_with_two_dependencies_constructor() { // NOLINT(readability-convert-member-functions-to-static)
+    m_ioc->registerService<Interface, Implementation>();
+    m_ioc->registerService<Interface2, Implementation2>();
+    auto result = m_ioc->make<ClassWithTwoDependenciesConstructor, CreationType::Copy>();
+    QVERIFY(result.getInterface<Interface>() != nullptr);
+    QVERIFY(result.getInterface<Interface2>() != nullptr);
+    QCOMPARE(result.getInterface<Interface>()->getVal(), defaultValue);
+}
+
+void IocTests::make_raw_in_memory_with_two_dependencies_constructor() { // NOLINT(readability-convert-member-functions-to-static)
+    m_ioc->registerService<Interface, Implementation>();
+    m_ioc->registerService<Interface2, Implementation2>();
+    using classType = ClassWithTwoDependenciesConstructor;
+    alignas(classType) std::array<std::byte, sizeof(classType)> buffer{std::byte{}};
+    auto* result = m_ioc->make<classType, CreationType::RawInMemory>(buffer.data());
+    QVERIFY(result != nullptr);
+    QVERIFY(result->getInterface<Interface>() != nullptr);
+    QVERIFY(result->getInterface<Interface2>() != nullptr);
+    QCOMPARE(result->getInterface<Interface>()->getVal(), defaultValue);
+    result->~ClassWithTwoDependenciesConstructor();
+}
+
+void IocTests::make_raw_with_two_dependencies_constructor() { // NOLINT(readability-convert-member-functions-to-static)
+    m_ioc->registerService<Interface, Implementation>();
+    m_ioc->registerService<Interface2, Implementation2>();
+    using classType = ClassWithTwoDependenciesConstructor;
+    auto result = std::unique_ptr<classType>(m_ioc->make<classType, CreationType::Raw>());
+    QVERIFY(result != nullptr);
+    QVERIFY(result->getInterface<Interface>() != nullptr);
+    QVERIFY(result->getInterface<Interface2>() != nullptr);
+    QCOMPARE(result->getInterface<Interface>()->getVal(), defaultValue);
+}
+
+class ClassWithNestedDependenciesConstructor : public Services::UseServices<Interface3, Interface2> {
+public:
+    ClassWithNestedDependenciesConstructor(std::shared_ptr<Interface3> interface3,
+                                           std::shared_ptr<Interface2> interface2) {
+        setService(std::move(interface3));
+        setService(std::move(interface2));
+    }
+
+    template<class TInterface>
+    auto getInterface() -> std::shared_ptr<TInterface> {
+        return service<TInterface>();
+    }
+};
+
+struct ImplementationWithTwoDepsContructor final : Interface3, UseServices<Interface, Interface2> {
+    ImplementationWithTwoDepsContructor(std::shared_ptr<Interface> interface, std::shared_ptr<Interface2> interface2) {
+        setService(std::move(interface));
+        setService(std::move(interface2));
+    }
+    ImplementationWithTwoDepsContructor(const ImplementationWithTwoDepsContructor &) = default;
+    ImplementationWithTwoDepsContructor(ImplementationWithTwoDepsContructor &&) = default;
+
+    ~ImplementationWithTwoDepsContructor() final = default;
+    auto operator=(const ImplementationWithTwoDepsContructor&) -> ImplementationWithTwoDepsContructor& = default;
+    auto operator=(ImplementationWithTwoDepsContructor&&) -> ImplementationWithTwoDepsContructor& = default;
+
+    template<class TService>
+    auto ResolvedService() -> std::shared_ptr<TService>& {
+        return service<TService>();
+    }
+};
+
+void IocTests::make_unique_pointer_with_nested_dependencies_constructor() { // NOLINT(readability-convert-member-functions-to-static)
+    m_ioc->registerService<Interface, Implementation>();
+    m_ioc->registerService<Interface2, Implementation2>();
+    m_ioc->registerService<Interface3, ImplementationWithTwoDepsContructor>();
+    auto result = m_ioc->make<ClassWithNestedDependenciesConstructor, CreationType::UniquePointer>();
+    QVERIFY(result != nullptr);
+    QVERIFY(result->getInterface<Interface2>() != nullptr);
+    QVERIFY(result->getInterface<Interface3>() != nullptr);
+    auto castedInterface = std::dynamic_pointer_cast<ImplementationWithTwoDepsContructor>(result->getInterface<Interface3>());
+    QVERIFY(castedInterface != nullptr);
+    QVERIFY(castedInterface->ResolvedService<Interface>() != nullptr);
+    QVERIFY(castedInterface->ResolvedService<Interface2>() != nullptr);
+}
+
+void IocTests::make_shared_pointer_with_nested_dependencies_constructor() { // NOLINT(readability-convert-member-functions-to-static)
+    m_ioc->registerService<Interface, Implementation>();
+    m_ioc->registerService<Interface2, Implementation2>();
+    m_ioc->registerService<Interface3, ImplementationWithTwoDepsContructor>();
+    auto result = m_ioc->make<ClassWithNestedDependenciesConstructor, CreationType::SharedPointer>();
+    QVERIFY(result != nullptr);
+    QVERIFY(result->getInterface<Interface2>() != nullptr);
+    QVERIFY(result->getInterface<Interface3>() != nullptr);
+    auto castedInterface = std::dynamic_pointer_cast<ImplementationWithTwoDepsContructor>(result->getInterface<Interface3>());
+    QVERIFY(castedInterface != nullptr);
+    QVERIFY(castedInterface->ResolvedService<Interface>() != nullptr);
+    QVERIFY(castedInterface->ResolvedService<Interface2>() != nullptr);
+}
+
+void IocTests::make_copy_with_nested_dependencies_constructor() { // NOLINT(readability-convert-member-functions-to-static)
+    m_ioc->registerService<Interface, Implementation>();
+    m_ioc->registerService<Interface2, Implementation2>();
+    m_ioc->registerService<Interface3, ImplementationWithTwoDepsContructor>();
+    auto result = m_ioc->make<ClassWithNestedDependenciesConstructor, CreationType::Copy>();
+    QVERIFY(result.getInterface<Interface2>() != nullptr);
+    QVERIFY(result.getInterface<Interface3>() != nullptr);
+    auto castedInterface = std::dynamic_pointer_cast<ImplementationWithTwoDepsContructor>(result.getInterface<Interface3>());
+    QVERIFY(castedInterface != nullptr);
+    QVERIFY(castedInterface->ResolvedService<Interface>() != nullptr);
+    QVERIFY(castedInterface->ResolvedService<Interface2>() != nullptr);
+}
+
+void IocTests::make_raw_in_memory_with_nested_dependencies_constructor() { // NOLINT(readability-convert-member-functions-to-static)
+    m_ioc->registerService<Interface, Implementation>();
+    m_ioc->registerService<Interface2, Implementation2>();
+    m_ioc->registerService<Interface3, ImplementationWithTwoDepsContructor>();
+    using classType = ClassWithNestedDependenciesConstructor;
+    alignas(classType) std::array<std::byte, sizeof(classType)> buffer{std::byte{}};
+    auto* result = m_ioc->make<classType, CreationType::RawInMemory>(buffer.data());
+    QVERIFY(result != nullptr);
+    QVERIFY(result->getInterface<Interface2>() != nullptr);
+    QVERIFY(result->getInterface<Interface3>() != nullptr);
+    auto castedInterface = std::dynamic_pointer_cast<ImplementationWithTwoDepsContructor>(result->getInterface<Interface3>());
+    QVERIFY(castedInterface != nullptr);
+    QVERIFY(castedInterface->ResolvedService<Interface>() != nullptr);
+    QVERIFY(castedInterface->ResolvedService<Interface2>() != nullptr);
+    result->~ClassWithNestedDependenciesConstructor();
+}
+
+void IocTests::make_raw_with_nested_dependencies_constructor() { // NOLINT(readability-convert-member-functions-to-static)
+    m_ioc->registerService<Interface, Implementation>();
+    m_ioc->registerService<Interface2, Implementation2>();
+    m_ioc->registerService<Interface3, ImplementationWithTwoDepsContructor>();
+    using classType = ClassWithNestedDependenciesConstructor;
+    auto result = std::unique_ptr<classType>(m_ioc->make<classType, CreationType::Raw>());
+    QVERIFY(result != nullptr);
+    QVERIFY(result->getInterface<Interface2>() != nullptr);
+    QVERIFY(result->getInterface<Interface3>() != nullptr);
+    auto castedInterface = std::dynamic_pointer_cast<ImplementationWithTwoDepsContructor>(result->getInterface<Interface3>());
+    QVERIFY(castedInterface != nullptr);
+    QVERIFY(castedInterface->ResolvedService<Interface>() != nullptr);
+    QVERIFY(castedInterface->ResolvedService<Interface2>() != nullptr);
 }
 }
 

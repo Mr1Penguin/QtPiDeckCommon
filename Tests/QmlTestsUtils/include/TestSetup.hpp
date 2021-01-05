@@ -6,7 +6,6 @@
 #include "QtVersion.hpp"
 
 #if QT_VERSION == QTPI4_VERSION
-
 #define QTPIDECK_QUICK_TEST_MAIN_WITH_SETUP(name, setupType, imports, registration) \
     int main(int argc, char **argv) \
     { \
