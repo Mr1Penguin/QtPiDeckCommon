@@ -4,26 +4,17 @@
 
 namespace QtPiDeck::Services {
 template <class TService>
-class ServiceUser;
-
-class Ioc;
-
-namespace detail {
-template<class T>
-void setService(QtPiDeck::Services::ServiceUser<T> & service, const Ioc & ioc) noexcept;
-}
-
-template <class TService>
 class ServiceUser {
-    template<class T>
-    friend void detail::setService(ServiceUser<T> & service, const Ioc & ioc) noexcept; // NOLINT(readability-redundant-declaration)
+    friend class Ioc;
 protected:
     void setService(std::shared_ptr<TService> service) noexcept {
         m_service = std::move(service);
     }
-    auto service() noexcept -> std::shared_ptr<TService>&  {
+
+    [[nodiscard]] auto service() noexcept -> std::shared_ptr<TService>&  {
         return m_service;
     }
+
     [[nodiscard]] auto service() const noexcept -> const std::shared_ptr<TService>&  {
         return m_service;
     }
@@ -37,10 +28,21 @@ class HasDependecies {};
 
 template <class... TServices>
 class UseServices : public detail::HasDependecies, public ServiceUser<TServices>... {
+    friend class Ioc;
 protected:
     template<class TService>
-    auto service() -> std::shared_ptr<TService> & {
+    [[nodiscard]] auto service() const noexcept -> const std::shared_ptr<TService>& {
         return ServiceUser<TService>::service();
+    }
+
+    template<class TService>
+    auto service() noexcept -> std::shared_ptr<TService>& {
+        return ServiceUser<TService>::service();
+    }
+
+    template<class TService>
+    void setService(std::shared_ptr<TService> service) noexcept {
+        ServiceUser<TService>::setService(std::move(service));
     }
 };
 }
