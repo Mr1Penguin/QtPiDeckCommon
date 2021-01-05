@@ -5,7 +5,7 @@
 #include <array>
 
 #include "QtPiDeckCommon.hpp"
-#include "TestHelper.hpp"
+#include "QmlTreeExplorer.hpp"
 #include "TestSetup.hpp"
 
 namespace QtPiDeck::Tests {
@@ -14,7 +14,7 @@ auto makeImports() noexcept {
 }
 
 void registerTypes() noexcept {
-    qmlRegisterType<QtPiDeck::Tests::TestHelper>("QtPiDeck.Tests", 1, 0, "TestHelper");
+    qmlRegisterType<QtPiDeck::Tests::QmlTreeExplorer>("QtPiDeck.Tests", 1, 0, "QmlTreeExplorer");
 }
 
 class Setup : public QObject

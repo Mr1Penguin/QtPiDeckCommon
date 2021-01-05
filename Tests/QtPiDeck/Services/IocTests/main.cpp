@@ -148,7 +148,7 @@ struct Implementation2 final : Interface2 {
 void IocTests::no_service() // NOLINT(readability-convert-member-functions-to-static)
 {
     auto service = m_ioc->resolveService<Interface>();
-    QVERIFY(service == nullptr);
+    QCOMPARE(service, nullptr);
 }
 
 void IocTests::register_service() // NOLINT(readability-convert-member-functions-to-static)
@@ -243,7 +243,7 @@ void IocTests::replace_singleton() // NOLINT(readability-convert-member-function
     m_ioc->registerSingleton<Interface>(std::make_shared<ImplementationB>());
     QCOMPARE(service.use_count(), 1);
     auto service2 = m_ioc->resolveService<Interface>();
-    QVERIFY(dynamic_cast<Implementation*>(service2.get()) == nullptr);
+    QCOMPARE(dynamic_cast<Implementation*>(service2.get()), nullptr);
     QVERIFY(dynamic_cast<ImplementationB*>(service2.get()) != nullptr);
 }
 
@@ -294,7 +294,7 @@ void IocTests::resolve_with_missing_dependency() // NOLINT(readability-convert-m
     m_ioc->registerService<Interface, ImplementationWithDeps>();
     auto service = m_ioc->resolveService<Interface>();
     QVERIFY(dynamic_cast<ImplementationWithDeps*>(service.get()) != nullptr);
-    QVERIFY(std::dynamic_pointer_cast<ImplementationWithDeps>(service)->ResolvedService() == nullptr);
+    QCOMPARE(std::dynamic_pointer_cast<ImplementationWithDeps>(service)->ResolvedService(), nullptr);
 }
 
 void IocTests::resolve_with_dependency() // NOLINT(readability-convert-member-functions-to-static)

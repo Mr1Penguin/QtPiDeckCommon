@@ -1,4 +1,4 @@
-#include "TestHelper.hpp"
+#include "QmlTreeExplorer.hpp"
 
 #include <algorithm>
 #include <array>
@@ -6,7 +6,7 @@
 #include <utility>
 
 namespace QtPiDeck::Tests {
-TestHelper::TestHelper(QObject *parent) : QObject(parent) {
+QmlTreeExplorer::QmlTreeExplorer(QObject *parent) : QObject(parent) {
 }
 
 namespace {
@@ -54,7 +54,7 @@ auto getQtQmlTypeName(const QString& name) noexcept -> QString {
 }
 }
 
-QList<QObject*> TestHelper::findChildrenByTypeName(QQuickItem* parent, const QString & typeName) const noexcept { // NOLINT(readability-convert-member-functions-to-static, modernize-use-trailing-return-type)
+QList<QObject*> QmlTreeExplorer::findChildrenByTypeName(QQuickItem* parent, const QString & typeName) const noexcept { // NOLINT(readability-convert-member-functions-to-static, modernize-use-trailing-return-type)
     QList<QObject*> children;
     std::copy_if(std::begin(parent->childItems()), std::end(parent->childItems()), std::back_inserter(children), [&typeName](QQuickItem * child) {
         auto className = QString::fromLatin1(child->metaObject()->className());
@@ -65,7 +65,7 @@ QList<QObject*> TestHelper::findChildrenByTypeName(QQuickItem* parent, const QSt
     return children;
 }
 
-QObject* TestHelper::findFirstChildByTypeName(QQuickItem* parent, const QString & typeName) const noexcept { // NOLINT(readability-convert-member-functions-to-static, modernize-use-trailing-return-type)
+QObject* QmlTreeExplorer::findFirstChildByTypeName(QQuickItem* parent, const QString & typeName) const noexcept { // NOLINT(readability-convert-member-functions-to-static, modernize-use-trailing-return-type)
     auto list = findChildrenByTypeName(parent, typeName);
     return list.empty() ? nullptr : list.first();
 }
