@@ -12,14 +12,14 @@ function(get_test_exe_name OUT TEST_NAME)
     set(${OUT} ${TMP} PARENT_SCOPE)
 endfunction()
 
-macro(add_cpp_test PATH)
+macro(add_cpp_test)
     find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Test REQUIRED)
     find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Test REQUIRED)
 
-    get_test_name(TEST_NAME ${PATH})
+    get_test_name(TEST_NAME ${CMAKE_CURRENT_SOURCE_DIR})
     get_test_exe_name(EXE_NAME ${TEST_NAME})
 
-    add_executable(${EXE_NAME} ${PATH}/main.cpp)
+    add_executable(${EXE_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
     add_test(NAME ${TEST_NAME} COMMAND ${EXE_NAME})
 
     target_link_libraries(${EXE_NAME}

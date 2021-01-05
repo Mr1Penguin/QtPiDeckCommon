@@ -8,12 +8,12 @@ Command {
     TestCase {
         name: "CommandTests"
 
-        TestHelper {
-            id: testHelper
+        QmlTreeExplorer {
+            id: qmlTreeExplorer
         }
 
         function test_defaultState() {
-            var textChild = testHelper.findFirstChildByTypeName(command, "Text");
+            var textChild = qmlTreeExplorer.findFirstChildByTypeName(command, "Text");
             verify(textChild !== null)
             verify(textChild.visible);
         }

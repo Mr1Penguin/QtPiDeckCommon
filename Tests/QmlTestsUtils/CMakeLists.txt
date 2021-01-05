@@ -2,9 +2,9 @@ find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Quick REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick REQUIRED)
 
 add_library(QmlTestsUtils STATIC
-  src/TestHelper.cpp
-  include/TestHelper.hpp
+  src/QmlTreeExplorer.cpp
   include/TestSetup.hpp
+  include/QmlTreeExplorer.hpp
 )
 
 target_include_directories(QmlTestsUtils
