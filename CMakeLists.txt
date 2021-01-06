@@ -22,7 +22,11 @@ if(NOT FLAGS_SET_BY_PARENT)
     endif()
 endif()
 
+option(BUILD_COMMON_TESTS "" ON)
 
 add_subdirectory(QtPiDeckCommon)
 add_subdirectory(QtChecker)
-add_subdirectory(Tests)
+if(BUILD_COMMON_TESTS)
+  message(STATUS "Common tests enabled")
+  add_subdirectory(Tests)
+endif()
