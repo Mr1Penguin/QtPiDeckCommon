@@ -24,7 +24,6 @@ void MessageHeaderTests::serialize_and_deserialize() { // NOLINT(readability-con
     QCOMPARE(outMessageHeader.dataSize, messageHeader.dataSize);
     QCOMPARE(outMessageHeader.messageId, messageHeader.messageId);
 }
-
 }
 
 QTEST_APPLESS_MAIN(QtPiDeck::Network::Tests::MessageHeaderTests) // NOLINT
