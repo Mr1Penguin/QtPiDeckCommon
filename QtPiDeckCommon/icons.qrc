@@ -1,0 +1,17 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/maintheme/index.theme</file>
+        <file>icons/maintheme/16x16/close.png</file>
+        <file>icons/maintheme/16x16/dropdown.png</file>
+        <file>icons/maintheme/16x16/dropup.png</file>
+        <file>icons/maintheme/24x24/close.png</file>
+        <file>icons/maintheme/24x24/dropdown.png</file>
+        <file>icons/maintheme/24x24/dropup.png</file>
+        <file>icons/maintheme/32x32/close.png</file>
+        <file>icons/maintheme/32x32/dropdown.png</file>
+        <file>icons/maintheme/32x32/dropup.png</file>
+        <file>icons/maintheme/64x64/close.png</file>
+        <file>icons/maintheme/64x64/dropdown.png</file>
+        <file>icons/maintheme/64x64/dropup.png</file>
+    </qresource>
+</RCC>
