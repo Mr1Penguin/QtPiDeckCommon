@@ -5,6 +5,7 @@ add_library(QtPiDeckCommon SHARED
   src/Application.cpp
   src/QtPiDeckCommon.cpp
   src/Network/MessageHeader.cpp
+  src/Services/Ioc.cpp
   src/Services/MessageBus.cpp
   src/Services/ServiceInterface.cpp
   include/Application.hpp

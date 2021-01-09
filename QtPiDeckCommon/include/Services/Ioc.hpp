@@ -6,10 +6,12 @@
 #include <unordered_map>
 
 #include <QObject>
-#include <QDebug>
+#include <QLoggingCategory>
 
 #include "Services/ServiceInterface.hpp"
 #include "Services/UseServices.hpp"
+
+QTPIDECKCOMMON_EXPORT Q_DECLARE_LOGGING_CATEGORY(Ioc)
 
 namespace QtPiDeck::Services {
 enum class CreationType {
@@ -36,13 +38,13 @@ public:
                 it != std::cend(m_services)) {
             m_typeReferences.erase(it->second.second);
             it->second = std::move(record);
-            qDebug("Replaced implementation for service '%s' with '%s'", std::type_index{typeid(TInterface)}.name(),
-                   std::type_index{typeid(TImplementation)}.name());
+            qCDebug(::Ioc, "Replaced implementation for service '%s' with '%s'", std::type_index{typeid(TInterface)}.name(),
+                    std::type_index{typeid(TImplementation)}.name());
         }
         else {
             m_services.emplace(std::type_index{typeid(TInterface)}, std::move(record));
-            qDebug("Added service '%s' with implementation '%s'", std::type_index{typeid(TInterface)}.name(),
-                   std::type_index{typeid(TImplementation)}.name());
+            qCDebug(::Ioc, "Added service '%s' with implementation '%s'", std::type_index{typeid(TInterface)}.name(),
+                    std::type_index{typeid(TImplementation)}.name());
         }
 
         m_typeReferences.emplace(std::type_index{typeid(TImplementation)}, std::type_index{typeid(TInterface)});
@@ -55,11 +57,11 @@ public:
         if (auto it = m_singletons.find({typeid(TInterface)});
                 it != std::cend(m_singletons)) {
             it->second = std::move(singleton);
-            qDebug("Replaced implementation for singleton '%s'", std::type_index{typeid(TInterface)}.name());
+            qCDebug(::Ioc, "Replaced implementation for singleton '%s'", std::type_index{typeid(TInterface)}.name());
         }
         else {
             m_singletons.emplace(std::type_index{typeid(TInterface)}, std::move(singleton));
-            qDebug("Add singleton '%s'", std::type_index{typeid(TInterface)}.name());
+            qCDebug(::Ioc, "Add singleton '%s'", std::type_index{typeid(TInterface)}.name());
         }
     }
 
@@ -81,7 +83,7 @@ public:
             return std::dynamic_pointer_cast<TService>(it->second);
         }
 
-        qDebug("Service or singleton '%s' not found", std::type_index{typeid(TService)}.name());
+        qCDebug(::Ioc, "Service or singleton '%s' not found", std::type_index{typeid(TService)}.name());
 
         return nullptr;
     }
