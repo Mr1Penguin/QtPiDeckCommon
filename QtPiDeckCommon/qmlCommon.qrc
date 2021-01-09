@@ -3,5 +3,6 @@
         <file>qml/components/QtPiDeck/Command.qml</file>
         <file>qml/components/QtPiDeck/qmldir</file>
         <file>qml/components/QtPiDeck/PortField.qml</file>
+        <file>qml/components/QtPiDeck/GroupTitle.qml</file>
     </qresource>
 </RCC>

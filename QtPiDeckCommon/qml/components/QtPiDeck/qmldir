@@ -1,3 +1,4 @@
 module QtPiDeck
 Command 1.0 Command.qml
+GroupTitle 1.0 GroupTitle.qml
 PortField 1.0 PortField.qml
