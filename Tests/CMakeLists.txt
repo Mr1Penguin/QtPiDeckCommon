@@ -1,4 +1,5 @@
 set(TESTS_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(TESTED_TARGET QtPiDeckCommon)
 
 function(get_test_name OUT PATH)
     string(REPLACE ${TESTS_ROOT_DIR} "" TMP ${PATH})
@@ -25,7 +26,7 @@ macro(add_cpp_test)
     target_link_libraries(${EXE_NAME}
         PRIVATE
         Qt${QT_VERSION_MAJOR}::Test
-        QtPiDeckCommon)
+        ${TESTED_TARGET})
 endmacro()
 
 macro(add_qml_test QML_FILE)
@@ -44,7 +45,7 @@ macro(add_qml_test QML_FILE)
         PRIVATE
         Qt${QT_VERSION_MAJOR}::QuickTest
         Qt${QT_VERSION_MAJOR}::Quick
-        QtPiDeckCommon
+        ${TESTED_TARGET}
         QmlTestsUtils)
     target_compile_definitions(${EXE_NAME} PRIVATE -DQUICK_TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
