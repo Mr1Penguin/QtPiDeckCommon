@@ -1,6 +1,7 @@
 #include <future>
 
 #include <QtTest>
+#include <QDataStream>
 
 #include "Services/MessageBus.hpp"
 
@@ -18,6 +19,7 @@ private slots:
     void subscribeMember();
     void subscribeMemberFiltered();
     void subscribeMemberFilteredWithType();
+    void sendMessageWithPayload();
 
 private: // NOLINT(readability-redundant-access-specifiers)
     std::unique_ptr<MessageBus> m_messageBus;
@@ -124,6 +126,33 @@ void MessageBusTests::subscribeMemberFilteredWithType() {
     m_messageBus->sendMessage({messageType});
     QCOMPARE(future.wait_for(100ms), std::future_status::ready);
     QCOMPARE(future.get(), messageType);
+}
+
+void MessageBusTests::sendMessageWithPayload() {
+    constexpr uint64_t messageType = 1234;
+    const QString payloadData = "Some random data";
+    std::promise<std::pair<uint64_t, QByteArray>> messagePromise;
+    auto messageFuture = messagePromise.get_future();
+    m_messageBus->subscribe(this, [&messagePromise](const Bus::Message& mess) {
+        messagePromise.set_value({mess.messageType, mess.payload});
+    });
+    m_messageBus->sendMessage({messageType,
+                               [&payloadData]() {
+                                   QByteArray qba;
+                                   QDataStream qds{&qba, QIODevice::WriteOnly};
+                                   qds << payloadData;
+                                   return qba;
+                               }()});
+    QCOMPARE(messageFuture.wait_for(100ms), std::future_status::ready);
+    const auto message = messageFuture.get();
+    QCOMPARE(message.first, messageType);
+    const QString receivedPayloadData = [&message] {
+        QDataStream qds{message.second};
+        QString data;
+        qds >> data;
+        return data;
+    }();
+    QCOMPARE(receivedPayloadData, payloadData);
 }
 }
 
