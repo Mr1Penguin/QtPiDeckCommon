@@ -19,7 +19,7 @@ void MessageHeaderTests::serialize_and_deserialize() { // NOLINT(readability-con
     QDataStream in{&qba, QIODevice::WriteOnly};
     in << messageHeader;
     QDataStream out{&qba, QIODevice::ReadOnly};
-    MessageHeader outMessageHeader;
+    MessageHeader outMessageHeader{};
     out >> outMessageHeader;
     QCOMPARE(outMessageHeader.dataSize, messageHeader.dataSize);
     QCOMPARE(outMessageHeader.messageId, messageHeader.messageId);
