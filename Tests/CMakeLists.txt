@@ -54,9 +54,12 @@ macro(add_qml_test QML_FILE)
 
 endmacro()
 
-add_subdirectory(QmlTestsUtils)
+if(BUILD_COMMON_TESTS)
+  message(STATUS "Common tests enabled")
+  add_subdirectory(QmlTestsUtils)
 
-add_subdirectory(QtPiDeck/CommandTests)
-add_subdirectory(QtPiDeck/Network/MessageHeaderTests)
-add_subdirectory(QtPiDeck/Services/IocTests)
-add_subdirectory(QtPiDeck/Services/MessageBusTests)
+  add_subdirectory(QtPiDeck/CommandTests)
+  add_subdirectory(QtPiDeck/Network/MessageHeaderTests)
+  add_subdirectory(QtPiDeck/Services/IocTests)
+  add_subdirectory(QtPiDeck/Services/MessageBusTests)
+endif()

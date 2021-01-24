@@ -26,7 +26,4 @@ option(BUILD_COMMON_TESTS "" ON)
 
 add_subdirectory(QtPiDeckCommon)
 add_subdirectory(QtChecker)
-if(BUILD_COMMON_TESTS)
-  message(STATUS "Common tests enabled")
-  add_subdirectory(Tests)
-endif()
+add_subdirectory(Tests)
