@@ -8,20 +8,18 @@
 #include "QtVersion.hpp"
 
 namespace QtPiDeck::Network {
-enum class MessageId : uint32_t {
-    Ping,
-    Pong
-};
+enum class MessageType : uint32_t { Ping, Pong };
 
 struct MessageHeader {
-    uint64_t dataSize;
-    MessageId messageId;
+  uint64_t dataSize;
+  MessageType messageType;
+  QString RequestId;
 };
 
-QTPIDECKCOMMON_EXPORT auto operator<<(QDataStream& str, const MessageHeader & header) -> QDataStream&;
-QTPIDECKCOMMON_EXPORT auto operator>>(QDataStream& str, MessageHeader & header) -> QDataStream&;
+QTPIDECKCOMMON_EXPORT auto operator<<(QDataStream& str, const MessageHeader& header) -> QDataStream&;
+QTPIDECKCOMMON_EXPORT auto operator>>(QDataStream& str, MessageHeader& header) -> QDataStream&;
 #if (QT_VERSION == QTPI4_VERSION)
-QTPIDECKCOMMON_EXPORT auto operator<<(QDataStream& str, const MessageId & messageId) -> QDataStream&;
-QTPIDECKCOMMON_EXPORT auto operator>>(QDataStream& str, MessageId & messageId) -> QDataStream&;
+QTPIDECKCOMMON_EXPORT auto operator<<(QDataStream& str, const MessageType& messageType) -> QDataStream&;
+QTPIDECKCOMMON_EXPORT auto operator>>(QDataStream& str, MessageType& messageType) -> QDataStream&;
 #endif
 }
