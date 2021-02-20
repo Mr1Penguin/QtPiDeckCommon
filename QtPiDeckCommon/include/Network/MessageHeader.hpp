@@ -3,6 +3,9 @@
 #include <cstdint>
 
 #include <QDataStream>
+#if QT_VERSION_MAJOR == 6
+#include <QString>
+#endif
 
 #include "QtPiDeckCommon_global.hpp"
 #include "QtVersion.hpp"
