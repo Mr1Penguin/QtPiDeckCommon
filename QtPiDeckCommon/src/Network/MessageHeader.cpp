@@ -37,12 +37,12 @@ auto operator>>(QDataStream& str, MessageHeader& header) -> QDataStream& {
 auto operator>>(QDataStream& str, MessageType& messageType) -> QDataStream& {
   uint32_t v;
   str >> v;
-  messageId = static_cast<MessageId>(v);
+  messageType = static_cast<MessageType>(v);
   return str;
 }
 
 auto operator<<(QDataStream& str, const MessageType& messageType) -> QDataStream& {
-  str << static_cast<uint32_t>(messageId);
+  str << static_cast<uint32_t>(messageType);
   return str;
 }
 #endif
