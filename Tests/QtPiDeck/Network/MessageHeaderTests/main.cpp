@@ -1,28 +1,27 @@
-#include <QtTest>
 #include <QDataStream>
+#include <QtTest>
 
 #include "Network/MessageHeader.hpp"
 
 namespace QtPiDeck::Network::Tests {
-class MessageHeaderTests : public QObject
-{
-    // NOLINTNEXTLINE
-    Q_OBJECT
+class MessageHeaderTests : public QObject {
+  Q_OBJECT // NOLINT
 
 private slots:
-    void serialize_and_deserialize();
+  void serialize_and_deserialize();
 };
 
 void MessageHeaderTests::serialize_and_deserialize() { // NOLINT(readability-convert-member-functions-to-static)
-    const MessageHeader messageHeader{0, MessageId::Pong};
-    QByteArray qba;
-    QDataStream in{&qba, QIODevice::WriteOnly};
-    in << messageHeader;
-    QDataStream out{&qba, QIODevice::ReadOnly};
-    MessageHeader outMessageHeader{};
-    out >> outMessageHeader;
-    QCOMPARE(outMessageHeader.dataSize, messageHeader.dataSize);
-    QCOMPARE(outMessageHeader.messageId, messageHeader.messageId);
+  const MessageHeader messageHeader{0, MessageType::Pong, QStringLiteral("a-random-id")};
+  QByteArray qba;
+  QDataStream in{&qba, QIODevice::WriteOnly};
+  in << messageHeader;
+  QDataStream out{&qba, QIODevice::ReadOnly};
+  MessageHeader outMessageHeader{};
+  out >> outMessageHeader;
+  QCOMPARE(outMessageHeader.dataSize, messageHeader.dataSize);
+  QCOMPARE(outMessageHeader.messageType, messageHeader.messageType);
+  QCOMPARE(outMessageHeader.RequestId, messageHeader.RequestId);
 }
 }
 
