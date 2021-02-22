@@ -16,8 +16,12 @@ enum class MessageType : uint32_t { Ping, Pong };
 struct MessageHeader {
   uint64_t dataSize;
   MessageType messageType;
-  QString RequestId;
+  QString requestId;
 };
+
+inline auto GetEmptyMessageHeader(MessageType messageType, QString requestId) {
+  return MessageHeader{0, messageType, requestId};
+}
 
 QTPIDECKCOMMON_EXPORT auto operator<<(QDataStream& str, const MessageHeader& header) -> QDataStream&;
 QTPIDECKCOMMON_EXPORT auto operator>>(QDataStream& str, MessageHeader& header) -> QDataStream&;

@@ -21,7 +21,7 @@ void MessageHeaderTests::serialize_and_deserialize() { // NOLINT(readability-con
   out >> outMessageHeader;
   QCOMPARE(outMessageHeader.dataSize, messageHeader.dataSize);
   QCOMPARE(outMessageHeader.messageType, messageHeader.messageType);
-  QCOMPARE(outMessageHeader.RequestId, messageHeader.RequestId);
+  QCOMPARE(outMessageHeader.requestId, messageHeader.requestId);
 }
 }
 

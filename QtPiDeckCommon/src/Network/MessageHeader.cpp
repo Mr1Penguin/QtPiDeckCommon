@@ -22,14 +22,14 @@ auto operator>>(QDataStream& str, TNum& number) -> QDataStream& {
 auto operator<<(QDataStream& str, const MessageHeader& header) -> QDataStream& {
   str << header.dataSize;
   str << header.messageType;
-  str << header.RequestId;
+  str << header.requestId;
   return str;
 }
 
 auto operator>>(QDataStream& str, MessageHeader& header) -> QDataStream& {
   str >> header.dataSize;
   str >> header.messageType;
-  str >> header.RequestId;
+  str >> header.requestId;
   return str;
 }
 
