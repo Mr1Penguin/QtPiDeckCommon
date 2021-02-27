@@ -19,7 +19,7 @@ struct MessageHeader {
   QString requestId;
 };
 
-inline auto GetEmptyMessageHeader(MessageType messageType, QString requestId) {
+inline auto getEmptyMessageHeader(MessageType messageType, QString requestId) {
   return MessageHeader{0, messageType, requestId};
 }
 
