@@ -25,6 +25,12 @@ std::ostream& boost_test_print_type(std::ostream& ostr, const QtPiDeck::Network:
 }
 }
 
+std::ostream& operator<<(std::ostream& ostr, const QtPiDeck::Network::MessageHeader& right) {
+  ostr << "MessageHeader{ dataSize: " << right.dataSize << ", messageType: " << static_cast<uint32_t>(right.messageType)
+       << ", RequestId: " << right.requestId.toStdString().c_str() << " }";
+  return ostr;
+}
+
 BOOST_AUTO_TEST_SUITE(MessageHeaderTests)
 using namespace QtPiDeck::Network;
 
