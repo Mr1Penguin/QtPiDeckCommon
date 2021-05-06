@@ -25,7 +25,6 @@ jobs:
         - { os: macos-latest, qt: 5.15.2, cc: clang, cxx: clang++, experimental: false, dependencies: ["boost-test"], vcpkgtriplet: x64-osx }
         - { os: macos-latest, qt: 6.1.0, cc: clang, cxx: clang++, experimental: true, dependencies: ["boost-test"], vcpkgtriplet: x64-osx }
 
-
     name: Qt${{ matrix.cfg.qt }} - ${{ matrix.cfg.cc }}[${{ matrix.cfg.os }}]
     continue-on-error: ${{ matrix.cfg.experimental }}
 
@@ -101,7 +100,7 @@ jobs:
         working-directory: build
         env:
           CC: ${{ matrix.cfg.cc }}
-          CXX: ${{ matrix.cfg.cxx }}
+          #CXX: ${{ matrix.cfg.cxx }}
 
       - name: Build project
         run: ninja
