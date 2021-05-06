@@ -19,7 +19,7 @@ enum class CreationType { SharedPointer, UniquePointer, Copy, RawInMemory, Raw }
 class Ioc {
 public:
   template <class TInterface, class TImplementation = TInterface>
-  void registerService() noexcept {
+  void registerService() {
     static_assert(std::is_base_of_v<TInterface, TImplementation>);
     static_assert(std::is_base_of_v<ServiceInterface, TInterface>);
 

@@ -3,6 +3,26 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 
+#ifdef A1
+#error A1
+#endif
+
+#ifdef A2
+#error A2
+#endif
+
+#ifdef A3
+#error A3
+#endif
+
+#ifdef A4
+#error A4
+#endif
+
+#ifdef A5
+#error A5
+#endif
+
 namespace QtPiDeck {
 Application::Application() {
     Application::s_current = this;
