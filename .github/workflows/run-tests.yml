@@ -65,7 +65,7 @@ jobs:
           sudo apt update
           sudo apt install
           sudo apt install vulkan-sdk libxkbcommon-dev -y
-        if: matrix.cfg.os == 'ubuntu-20.04' && matrix.cfg.qt == '6.0.0'
+        if: matrix.cfg.os == 'ubuntu-20.04' && matrix.cfg.qt == '6.1.0'
 
       - name: Cache Vulkan(windows)
         id: cache-vulkan
@@ -73,25 +73,22 @@ jobs:
         with:
           path: C:\VulkanSDK\${{ env.VULKAN_VER_FULL }}
           key: vulkan-${{ env.VULKAN_VER_FULL }}
-        if: matrix.cfg.os == 'windows-latest' && matrix.cfg.qt == '6.0.0'
+        if: matrix.cfg.os == 'windows-latest' && matrix.cfg.qt == '6.1.0'
 
       - name: Setup Vulkan(windows)
         run: |
            Invoke-WebRequest -Uri "https://sdk.lunarg.com/sdk/download/${env:VULKAN_VER_FULL}/windows/VulkanSDK-${env:VULKAN_VER_FULL}-Installer.exe" -OutFile VulkanSDK.exe
            $installer = Start-Process -FilePath VulkanSDK.exe -Wait -PassThru -ArgumentList @("/S");
            $installer.WaitForExit();
-        if: matrix.cfg.os == 'windows-latest' && matrix.cfg.qt == '6.0.0' && !steps.cache-vulkan.outputs.cache-hit
+        if: matrix.cfg.os == 'windows-latest' && matrix.cfg.qt == '6.1.0' && !steps.cache-vulkan.outputs.cache-hit
 
       - name: Set vulkan sdk variable(windows)
         run: echo "VULKAN_SDK=C:\VulkanSDK\${env:VULKAN_VER_FULL}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-        if: matrix.cfg.os == 'windows-latest' && matrix.cfg.qt == '6.0.0'
-
-      - run: pwd
-        working-directory: ${{ github.workspace }}
+        if: matrix.cfg.os == 'windows-latest' && matrix.cfg.qt == '6.1.0'
 
       - uses: lukka/run-vcpkg@v7.3
         with:
-          vcpkgDirectory: ${{ github.workspace }}/QtPiDeckCommon/ext/vcpkg
+          vcpkgDirectory: ${{ github.workspace }}/ext/vcpkg
           appendedCacheKey: ${{ join(matrix.cfg.dependencies, '-') }}
           vcpkgTriplet: ${{ matrix.cfg.vcpkgtriplet }}
           vcpkgArguments: ${{ join(matrix.cfg.dependencies, ' ') }}
