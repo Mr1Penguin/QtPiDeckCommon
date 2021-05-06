@@ -86,6 +86,9 @@ jobs:
         run: echo "VULKAN_SDK=C:\VulkanSDK\${env:VULKAN_VER_FULL}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
         if: matrix.cfg.os == 'windows-latest' && matrix.cfg.qt == '6.0.0'
 
+      - run: ls
+        working-directory: ${{ github.workspace }}/QtPiDeckCommon/ext/vcpkg
+
       - uses: lukka/run-vcpkg@v7.3
         with:
           vcpkgDirectory: ${{ github.workspace }}/QtPiDeckCommon/ext/vcpkg
