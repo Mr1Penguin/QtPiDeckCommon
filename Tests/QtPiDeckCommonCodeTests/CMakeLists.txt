@@ -16,8 +16,8 @@ target_link_libraries(QtPiDeckCommonCodeTests
 
 target_compile_definitions(
     QtPiDeckCommonCodeTests 
-    PRIVATE
-    -DBOOST_TEST_DYN_LINK)
+    PUBLIC
+    BOOST_TEST_DYN_LINK)
 
 # visual studio test manager requires to have these libs in PATH
 # so we just copy required libs to test binary
