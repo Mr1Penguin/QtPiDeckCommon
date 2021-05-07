@@ -10,11 +10,9 @@
 #include <QDataStream>
 
 #include "Network/MessageHeader.hpp"
+#include "Network/DeckDataStream.hpp"
 
 namespace boost {
-bool operator==(const QtPiDeck::Network::MessageHeader& left, const QtPiDeck::Network::MessageHeader& right) {
-  return left.dataSize == right.dataSize && left.messageType == right.messageType && left.requestId == right.requestId;
-}
 }
 
 namespace QtPiDeck::Network {
@@ -22,6 +20,10 @@ std::ostream& operator<<(std::ostream& ostr, const MessageHeader& right) {
   ostr << "MessageHeader{ dataSize: " << right.dataSize << ", messageType: " << static_cast<uint32_t>(right.messageType)
        << ", RequestId: " << right.requestId.toStdString().c_str() << " }";
   return ostr;
+}
+
+bool operator==(const QtPiDeck::Network::MessageHeader& left, const QtPiDeck::Network::MessageHeader& right) {
+  return left.dataSize == right.dataSize && left.messageType == right.messageType && left.requestId == right.requestId;
 }
 }
 
@@ -42,9 +44,9 @@ BOOST_AUTO_TEST_CASE(serialize_and_deserialize)
 {
   const MessageHeader messageHeader{0, MessageType::Pong, QStringLiteral("a-random-id")};
   QByteArray qba;
-  QDataStream in{&qba, QIODevice::WriteOnly};
+  QDataStream in{&qba, DeckDataStream::OpenModeFlag::WriteOnly};
   in << messageHeader;
-  QDataStream out{&qba, QIODevice::ReadOnly};
+  QDataStream out{&qba, DeckDataStream::OpenModeFlag::ReadOnly};
   MessageHeader outMessageHeader{};
   out >> outMessageHeader;
   BOOST_TEST(outMessageHeader == messageHeader);

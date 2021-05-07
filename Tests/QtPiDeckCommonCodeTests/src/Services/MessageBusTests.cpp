@@ -9,6 +9,7 @@
 #include <QDataStream>
 
 #include "Services/MessageBus.hpp"
+#include "Network/DeckDataStream.hpp"
 
 struct MessageBusFixture {
   MessageBusFixture() : messageBus(std::make_unique<QtPiDeck::Services::MessageBus>(nullptr)) {}
@@ -144,7 +145,7 @@ BOOST_AUTO_TEST_CASE(sendMessageWithPayload)
       });
   messageBus->sendMessage({messageType, [&payloadData]() {
                              QByteArray qba;
-                             QDataStream qds{&qba, QIODevice::WriteOnly};
+                             QDataStream qds{&qba, QtPiDeck::Network::DeckDataStream::OpenModeFlag::WriteOnly};
                              qds << payloadData;
                              return qba;
                            }()});
