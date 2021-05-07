@@ -27,8 +27,15 @@ add_library(QtPiDeckCommon SHARED
 target_include_directories(QtPiDeckCommon
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-target_compile_definitions(QtPiDeckCommon
-  PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG> QTPIDECKCOMMON_LIBRARY)
+target_compile_definitions(
+    QtPiDeckCommon
+    PRIVATE 
+    QTPIDECKCOMMON_LIBRARY
+    $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>
+    # Warning from test applications makes it unable for visual studio to detect tests
+    $<$<AND:$<BOOL:${VISUAL_STUDIO}>,$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>>:QT_QML_DEBUG_NO_WARNING>
+)
+
 target_link_libraries(QtPiDeckCommon
   PUBLIC
   Qt${QT_VERSION_MAJOR}::Core

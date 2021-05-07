@@ -13,22 +13,6 @@ function(get_test_exe_name OUT TEST_NAME)
     set(${OUT} ${TMP} PARENT_SCOPE)
 endfunction()
 
-macro(add_cpp_test)
-    find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Test REQUIRED)
-    find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Test REQUIRED)
-
-    get_test_name(TEST_NAME ${CMAKE_CURRENT_SOURCE_DIR})
-    get_test_exe_name(EXE_NAME ${TEST_NAME})
-
-    add_executable(${EXE_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
-    add_test(NAME ${TEST_NAME} COMMAND ${EXE_NAME})
-
-    target_link_libraries(${EXE_NAME}
-        PRIVATE
-        Qt${QT_VERSION_MAJOR}::Test
-        ${TESTED_TARGET})
-endmacro()
-
 macro(add_qml_test QML_FILE)
     find_package(QT NAMES Qt6 Qt5 COMPONENTS Quick QuickTest REQUIRED)
     find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Quick QuickTest REQUIRED)
@@ -52,14 +36,42 @@ macro(add_qml_test QML_FILE)
     get_target_property(QtPiDeckCommon_SOURCE_DIR QtPiDeckCommon SOURCE_DIR)
     set(QML_IMPORT_PATH ${QtPiDeckCommon_SOURCE_DIR}/qml/components CACHE STRING "Qt Creator qml import paths" FORCE)
 
+    if(VISUAL_STUDIO)    
+        find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Quick Gui Network Widgets QmlModels Qml Test REQUIRED)
+        message(${QT_DIR})
+        if (false)
+        add_custom_command(
+            TARGET ${EXE_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            $<TARGET_FILE:QtPiDeckCommon>
+            $<TARGET_FILE:Qt${QT_VERSION_MAJOR}::Core>
+            $<TARGET_FILE:Qt${QT_VERSION_MAJOR}::Test>
+            $<TARGET_FILE:Qt${QT_VERSION_MAJOR}::Quick>
+            $<TARGET_FILE:Qt${QT_VERSION_MAJOR}::QuickTest>
+            $<TARGET_FILE:Qt${QT_VERSION_MAJOR}::Widgets>
+            $<TARGET_FILE:Qt${QT_VERSION_MAJOR}::Gui>
+            $<TARGET_FILE:Qt${QT_VERSION_MAJOR}::Network>
+            $<TARGET_FILE:Qt${QT_VERSION_MAJOR}::QmlModels>
+            $<TARGET_FILE:Qt${QT_VERSION_MAJOR}::Qml>
+            $<TARGET_FILE_DIR:${EXE_NAME}>)
+        add_custom_command(
+            TARGET ${EXE_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${QT_DIR}/../../../plugins
+            $<TARGET_FILE_DIR:${EXE_NAME}>)
+        endif()
+    endif()
+
 endmacro()
 
 if(BUILD_COMMON_TESTS)
   message(STATUS "Common tests enabled")
   add_subdirectory(QmlTestsUtils)
 
+  add_subdirectory(QtPiDeckCommonCodeTests)
+
   add_subdirectory(QtPiDeck/CommandTests)
-  add_subdirectory(QtPiDeck/Network/MessageHeaderTests)
-  add_subdirectory(QtPiDeck/Services/IocTests)
-  add_subdirectory(QtPiDeck/Services/MessageBusTests)
+  #add_subdirectory(QtPiDeck/Network/MessageHeaderTests)
+  #add_subdirectory(QtPiDeck/Services/IocTests)
+  #add_subdirectory(QtPiDeck/Services/MessageBusTests)
 endif()

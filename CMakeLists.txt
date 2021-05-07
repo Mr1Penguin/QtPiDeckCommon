@@ -1,6 +1,8 @@
-cmake_minimum_required(VERSION 3.15)
+﻿cmake_minimum_required (VERSION 3.15)
 
-project(QtPiDeckCommon LANGUAGES CXX)
+project("QtPiDeckCommon" LANGUAGES CXX)
+
+option(VISUAL_STUDIO "" OFF)
 
 include(CTest)
 
@@ -15,7 +17,7 @@ if(NOT FLAGS_SET_BY_PARENT)
         # warning level 4 and all warnings as errors
         # waiting for /external to be fixed
         # add_compile_options(/W4 /WX)
-        add_compile_options(/WX)
+        # add_compile_options(/WX)
     else()
         # lots of warnings and all warnings as errors
         add_compile_options(-Wall -Wextra -pedantic -Werror)
