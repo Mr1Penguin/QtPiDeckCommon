@@ -244,6 +244,11 @@ BOOST_AUTO_TEST_CASE(resolve_with_multilevel_dependencies)
 
 class ClassWithoutDependencies {};
 
+std::ostream& operator<<(std::ostream& ostr, const std::unique_ptr<ClassWithoutDependencies>& right) {
+  ostr << "ClassWithoutDependencies {" << right.get() << "}";
+  return ostr;
+}
+
 BOOST_AUTO_TEST_CASE(make_unique_pointer_without_dependencies)
 {
   auto result = ioc->make<ClassWithoutDependencies, CreationType::UniquePointer>();
@@ -288,6 +293,11 @@ public:
 
   auto getInterface() -> std::shared_ptr<Interface0> { return service<Interface0>(); }
 };
+
+std::ostream& operator<<(std::ostream& ostr, const std::unique_ptr<ClassWithOneDependencyConstructor>& right) {
+  ostr << "ClassWithOneDependencyConstructor {" << right.get() << "}";
+  return ostr;
+}
 
 BOOST_AUTO_TEST_CASE(make_unique_pointer_with_one_dependency_constructor)
 {
@@ -346,6 +356,11 @@ public:
   auto getInterface() -> std::shared_ptr<Interface0> { return service<Interface0>(); }
 };
 
+std::ostream& operator<<(std::ostream& ostr, const std::unique_ptr<ClassWithOneDependencyConstructorQobject>& right) {
+  ostr << "ClassWithOneDependencyConstructorQobject {" << right.get() << "}";
+  return ostr;
+}
+
 BOOST_AUTO_TEST_CASE(make_unique_pointer_with_one_dependency_constructor_qobject)
 {
   ioc->registerService<Interface0, Implementation0>();
@@ -398,6 +413,11 @@ class ClassWithOneDependencyNoConstructor : public UseServices<Interface0> {
 public:
   auto getInterface() -> std::shared_ptr<Interface0> { return service<Interface0>(); }
 };
+
+std::ostream& operator<<(std::ostream& ostr, const std::unique_ptr<ClassWithOneDependencyNoConstructor>& right) {
+  ostr << "ClassWithOneDependencyNoConstructor {" << right.get() << "}";
+  return ostr;
+}
 
 BOOST_AUTO_TEST_CASE(make_unique_pointer_with_one_dependency_no_constructor)
 {
@@ -459,6 +479,11 @@ public:
     return service<TInterface>();
   }
 };
+
+std::ostream& operator<<(std::ostream& ostr, const std::unique_ptr<ClassWithTwoDependenciesConstructor>& right) {
+  ostr << "ClassWithTwoDependenciesConstructor {" << right.get() << "}";
+  return ostr;
+}
 
 BOOST_AUTO_TEST_CASE(make_unique_pointer_with_two_dependencies_constructor)
 {
