@@ -1,6 +1,6 @@
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
-find_package(Boost REQUIRED unit_test_framework)
+find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 
 add_executable(QtPiDeckCommonCodeTests 
                src/main.cpp
@@ -16,7 +16,7 @@ target_link_libraries(QtPiDeckCommonCodeTests
 
 target_compile_definitions(
     QtPiDeckCommonCodeTests 
-    PUBLIC
+    PRIVATE
     BOOST_TEST_DYN_LINK)
 
 # visual studio test manager requires to have these libs in PATH
