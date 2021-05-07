@@ -91,7 +91,7 @@ jobs:
           vcpkgDirectory: ${{ github.workspace }}/ext/vcpkg
           appendedCacheKey: ${{ join(matrix.cfg.dependencies, '-') }}
           vcpkgTriplet: ${{ matrix.cfg.vcpkgtriplet }}
-          vcpkgArguments: ${{ join(matrix.cfg.dependencies, ' ') }}
+          vcpkgArguments: ${{ join(matrix.cfg.dependencies, ' ') }} --overlay-triplets=${{ github.workspace }}/ext/vcpkg-tripltets/
           doNotUpdateVcpkg: true
         if: matrix.cfg.dependencies != null
 
