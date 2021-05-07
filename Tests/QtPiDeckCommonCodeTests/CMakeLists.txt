@@ -4,7 +4,7 @@ find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 
 add_executable(QtPiDeckCommonCodeTests 
                src/main.cpp
-               #src/Services/IocTests.cpp 
+               src/Services/IocTests.cpp 
                src/Services/MessageBusTests.cpp 
                src/Network/MessageHeaderTests.cpp)
 add_test(NAME QtPiDeckCommonCodeTests COMMAND QtPiDeckCommonCodeTests)
