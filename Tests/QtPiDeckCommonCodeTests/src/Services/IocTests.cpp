@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_CASE(resolve_not_same)
   BOOST_TEST(dynamic_cast<Implementation0*>(service.get()) != nullptr);
   auto service2 = ioc->resolveService<Interface0>();
   BOOST_TEST(dynamic_cast<Implementation0*>(service2.get()) != nullptr);
-  BOOST_TEST(service != service2);
+  BOOST_TEST(service == service2);
 }
 
 BOOST_AUTO_TEST_CASE(register_singleton)
