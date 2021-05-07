@@ -50,7 +50,7 @@ struct Implementation final : Interface<intId>, UseServices<TDeps...> {
 
   template<class TInt>
   auto ResolvedService() -> std::shared_ptr<TInt>& {
-    return service<TInt>();
+    return QtPiDeck::Services::ServiceUser<TInt>::service();
   }
 };
 
