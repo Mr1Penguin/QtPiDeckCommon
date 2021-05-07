@@ -89,7 +89,7 @@ jobs:
       - uses: lukka/run-vcpkg@v7.3
         with:
           vcpkgDirectory: ${{ github.workspace }}/ext/vcpkg
-          appendedCacheKey: ${{ join(matrix.cfg.dependencies, '-') }}
+          appendedCacheKey: ${{ join(matrix.cfg.dependencies, '-') }}-temp
           vcpkgTriplet: ${{ matrix.cfg.vcpkgtriplet }}
           vcpkgArguments: ${{ join(matrix.cfg.dependencies, ' ') }} --overlay-triplets=${{ github.workspace }}/ext/vcpkg-tripltets/
           doNotUpdateVcpkg: true
