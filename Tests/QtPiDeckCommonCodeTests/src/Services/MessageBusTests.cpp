@@ -1,48 +1,37 @@
-#if defined(_MSC_VER) && defined(__clang__) && defined(__INTELLISENSE__)
-#pragma push_macro("__clang__")
-#undef __clang__
-#include <boost/test/unit_test.hpp>
-#pragma pop_macro("__clang__")
-#else
-#include <boost/test/unit_test.hpp>
-#endif
 #include <QDataStream>
 
-#include "Services/MessageBus.hpp"
+#include "BoostUnitTest.hpp"
+
 #include "Network/DeckDataStream.hpp"
+#include "Services/MessageBus.hpp"
 
 struct MessageBusFixture {
-  MessageBusFixture() : messageBus(std::make_unique<QtPiDeck::Services::MessageBus>(nullptr)) {}
-
-  std::unique_ptr<QtPiDeck::Services::MessageBus> messageBus;
+  std::unique_ptr<QtPiDeck::Services::MessageBus> messageBus{std::make_unique<QtPiDeck::Services::MessageBus>(nullptr)};
 };
 
-BOOST_FIXTURE_TEST_SUITE(MessageBusTests, MessageBusFixture)
+CT_BOOST_FIXTURE_TEST_SUITE(MessageBusTests, MessageBusFixture)
 using namespace QtPiDeck::Services;
 
-BOOST_AUTO_TEST_CASE(subscribe)
-{
+CT_BOOST_AUTO_TEST_CASE(subscribe) {
   constexpr uint64_t messageType = 1234;
   uint64_t setMessageType        = 0;
   auto subscription              = messageBus->subscribe(
       messageBus.get(), [&setMessageType](const QtPiDeck::Bus::Message& mess) { setMessageType = mess.messageType; });
   messageBus->sendMessage({messageType});
-  BOOST_TEST(setMessageType == messageType);
+  CT_BOOST_TEST(setMessageType == messageType);
 }
 
-BOOST_AUTO_TEST_CASE(unsubscribe)
-{
+CT_BOOST_AUTO_TEST_CASE(unsubscribe) {
   constexpr uint64_t messageType = 1234;
   uint64_t setMessageType        = 0;
   auto subscription              = messageBus->subscribe(
       messageBus.get(), [&setMessageType](const QtPiDeck::Bus::Message& mess) { setMessageType = mess.messageType; });
   messageBus->unsubscribe(subscription);
   messageBus->sendMessage({messageType});
-  BOOST_TEST(setMessageType == 0);
+  CT_BOOST_TEST(setMessageType == 0);
 }
 
-BOOST_AUTO_TEST_CASE(unsubscribeWithRAII)
-{
+CT_BOOST_AUTO_TEST_CASE(unsubscribeWithRAII) {
   constexpr uint64_t messageType = 1234;
   uint64_t setMessageType        = 0;
   {
@@ -50,11 +39,10 @@ BOOST_AUTO_TEST_CASE(unsubscribeWithRAII)
         messageBus.get(), [&setMessageType](const QtPiDeck::Bus::Message& mess) { setMessageType = mess.messageType; });
   }
   messageBus->sendMessage({messageType});
-  BOOST_TEST(setMessageType == 0);
+  CT_BOOST_TEST(setMessageType == 0);
 }
 
-BOOST_AUTO_TEST_CASE(subscribeFiltered)
-{
+CT_BOOST_AUTO_TEST_CASE(subscribeFiltered) {
   constexpr uint64_t messageType  = 1234;
   constexpr uint64_t messageType2 = 1235;
   uint64_t setMessageType         = 0;
@@ -62,13 +50,12 @@ BOOST_AUTO_TEST_CASE(subscribeFiltered)
       messageBus.get(), [&setMessageType](const QtPiDeck::Bus::Message& mess) { setMessageType = mess.messageType; },
       messageType);
   messageBus->sendMessage({messageType2});
-  BOOST_TEST(setMessageType == 0);
+  CT_BOOST_TEST(setMessageType == 0);
   messageBus->sendMessage({messageType});
-  BOOST_TEST(setMessageType == messageType);
+  CT_BOOST_TEST(setMessageType == messageType);
 }
 
-BOOST_AUTO_TEST_CASE(subscribeTwoSubscribers)
-{
+CT_BOOST_AUTO_TEST_CASE(subscribeTwoSubscribers) {
   constexpr uint64_t messageType = 1234;
   uint64_t setMessageType        = 0;
   uint64_t setMessageType2       = 0;
@@ -78,8 +65,8 @@ BOOST_AUTO_TEST_CASE(subscribeTwoSubscribers)
   auto subscription2 = messageBus->subscribe(
       messageBus.get(), [&setMessageType2](const QtPiDeck::Bus::Message& mess) { setMessageType2 = mess.messageType; });
   messageBus->sendMessage({messageType});
-  BOOST_TEST(setMessageType == messageType);
-  BOOST_TEST(setMessageType2 == messageType);
+  CT_BOOST_TEST(setMessageType == messageType);
+  CT_BOOST_TEST(setMessageType2 == messageType);
 }
 
 class Listener : public QObject {
@@ -91,36 +78,33 @@ public:
 
   void callMe(const QtPiDeck::Bus::Message& message) noexcept { setMessageType = message.messageType; }
 
-  auto getMessageType() noexcept -> uint64_t { return setMessageType; }
+  auto getMessageType() const noexcept -> uint64_t { return setMessageType; }
 
 private:
   const uint64_t m_expectedMessageType;
   uint64_t setMessageType;
 };
 
-BOOST_AUTO_TEST_CASE(subscribeMember)
-{
+CT_BOOST_AUTO_TEST_CASE(subscribeMember) {
   constexpr uint64_t messageType = 1234;
   Listener listener(messageType);
   auto subscription = QtPiDeck::Services::subscribe(*messageBus, &listener, &Listener::callMe);
   messageBus->sendMessage({messageType});
   auto setMessageType = listener.getMessageType();
-  BOOST_TEST(setMessageType == messageType);
+  CT_BOOST_TEST(setMessageType == messageType);
 }
 
-BOOST_AUTO_TEST_CASE(subscribeMemberFiltered)
-{
+CT_BOOST_AUTO_TEST_CASE(subscribeMemberFiltered) {
   constexpr uint64_t messageType = 1234;
   Listener listener(messageType);
   auto sub = QtPiDeck::Services::subscribe(*messageBus, &listener, static_cast<void (Listener::*)()>(&Listener::callMe),
                                            messageType);
   messageBus->sendMessage({messageType});
   auto setMessageType = listener.getMessageType();
-  BOOST_TEST(setMessageType == messageType);
+  CT_BOOST_TEST(setMessageType == messageType);
 }
 
-BOOST_AUTO_TEST_CASE(subscribeMemberFilteredWithType)
-{
+CT_BOOST_AUTO_TEST_CASE(subscribeMemberFilteredWithType) {
   constexpr uint64_t messageType = 1234;
   Listener listener(messageType);
   auto sub = QtPiDeck::Services::subscribe(
@@ -128,11 +112,10 @@ BOOST_AUTO_TEST_CASE(subscribeMemberFilteredWithType)
       messageType);
   messageBus->sendMessage({messageType});
   auto setMessageType = listener.getMessageType();
-  BOOST_TEST(setMessageType == messageType);
+  CT_BOOST_TEST(setMessageType == messageType);
 }
 
-BOOST_AUTO_TEST_CASE(sendMessageWithPayload)
-{
+CT_BOOST_AUTO_TEST_CASE(sendMessageWithPayload) {
   constexpr uint64_t messageType = 1234;
   const QString payloadData      = "Some random data";
   uint64_t setMessageType        = 0;
@@ -150,17 +133,17 @@ BOOST_AUTO_TEST_CASE(sendMessageWithPayload)
                              return qba;
                            }()});
 
-  BOOST_TEST(setMessageType == messageType);
+  CT_BOOST_TEST(setMessageType == messageType);
   const QString receivedPayloadData = [&payload] {
     QDataStream qds{payload};
     QString data;
     qds >> data;
     return data;
   }();
-  BOOST_TEST(receivedPayloadData == payloadData);
+  CT_BOOST_TEST(receivedPayloadData == payloadData);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+CT_BOOST_AUTO_TEST_SUITE_END()
 
 #ifndef __INTELLISENSE__
 #include "MessageBusTests.moc"

@@ -1,23 +1,15 @@
-#if defined(_MSC_VER) && defined(__clang__) && defined(__INTELLISENSE__)
-#pragma push_macro("__clang__")
-#undef __clang__
-#include <boost/test/unit_test.hpp>
-#pragma pop_macro("__clang__")
-#else
-#include <boost/test/unit_test.hpp>
-#endif
 #include <array>
 #include <type_traits>
+
+#include "BoostUnitTest.hpp"
 
 #include "Services/Ioc.hpp"
 
 struct IocFixture {
-  IocFixture() : ioc(std::make_unique<QtPiDeck::Services::Ioc>()) {}
-
-  std::unique_ptr<QtPiDeck::Services::Ioc> ioc;
+  std::unique_ptr<QtPiDeck::Services::Ioc> ioc{std::make_unique<QtPiDeck::Services::Ioc>()};
 };
 
-BOOST_FIXTURE_TEST_SUITE(IocTests, IocFixture)
+CT_BOOST_FIXTURE_TEST_SUITE(IocTests, IocFixture)
 
 using namespace QtPiDeck::Services;
 
@@ -56,17 +48,19 @@ struct Implementation final : Interface<intId>, UseServices<TDeps...> {
 
 using Implementation0 = Implementation<0>;
 
-BOOST_AUTO_TEST_CASE(no_service)
-{
+// NOLINTNEXTLINE
+CT_BOOST_AUTO_TEST_CASE(no_service) {
   auto service0 = ioc->resolveService<Interface0>();
-  BOOST_TEST(service0 == nullptr);
+  // NOLINTNEXTLINE
+  CT_BOOST_TEST(service0 == nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(register_service)
-{
+// NOLINTNEXTLINE
+CT_BOOST_AUTO_TEST_CASE(register_service) {
   ioc->registerService<Interface0, Implementation0>();
   auto service0 = ioc->resolveService<Interface0>();
-  BOOST_TEST(dynamic_cast<Implementation0*>(service0.get()) != nullptr);
+  // NOLINTNEXTLINE
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(service0.get()) != nullptr);
 }
 
 using Interface1 = Interface<1>;
@@ -75,134 +69,121 @@ Interface1::~Interface() = default;
 
 using Implementation1 = Implementation<1, 1>;
 
-BOOST_AUTO_TEST_CASE(register_two_services)
-{
+CT_BOOST_AUTO_TEST_CASE(register_two_services) {
   ioc->registerService<Interface0, Implementation0>();
   auto service0 = ioc->resolveService<Interface0>();
-  BOOST_TEST(dynamic_cast<Implementation0*>(service0.get()) != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(service0.get()) != nullptr);
   ioc->registerService<Interface1, Implementation1>();
   auto service1 = ioc->resolveService<Interface1>();
-  BOOST_TEST(dynamic_cast<Implementation1*>(service1.get()) != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation1*>(service1.get()) != nullptr);
 }
 
 using Implementation1_0 = Implementation<1, 0>;
 
-BOOST_AUTO_TEST_CASE(replace_service)
-{
+CT_BOOST_AUTO_TEST_CASE(replace_service) {
   ioc->registerService<Interface0, Implementation0>();
   auto service0 = ioc->resolveService<Interface0>();
-  BOOST_TEST(dynamic_cast<Implementation0*>(service0.get()) != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(service0.get()) != nullptr);
   ioc->registerService<Interface0, Implementation1_0>();
   auto service1_0 = ioc->resolveService<Interface0>();
-  BOOST_TEST(dynamic_cast<Implementation1_0*>(service1_0.get()) != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation0*>(service1_0.get()) == nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation1_0*>(service1_0.get()) != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(service1_0.get()) == nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(resolve_by_impl)
-{
+CT_BOOST_AUTO_TEST_CASE(resolve_by_impl) {
   ioc->registerService<Interface0, Implementation0>();
   auto service = ioc->resolveService<Implementation0>();
-  BOOST_TEST(service != nullptr);
+  CT_BOOST_TEST(service != nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(register_impl)
-{
+CT_BOOST_AUTO_TEST_CASE(register_impl) {
   ioc->registerService<Implementation0, Implementation0>();
   auto service = ioc->resolveService<Implementation0>();
-  BOOST_TEST(service != nullptr);
+  CT_BOOST_TEST(service != nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(register_specialization)
-{
+CT_BOOST_AUTO_TEST_CASE(register_specialization) {
   ioc->registerService<Interface0, Implementation0>();
   ioc->registerService<Implementation0, Implementation0>();
   auto service = ioc->resolveService<Interface0>();
-  BOOST_TEST(dynamic_cast<Implementation0*>(service.get()) != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(service.get()) != nullptr);
   auto service2 = ioc->resolveService<Implementation0>();
-  BOOST_TEST(service2 != nullptr);
+  CT_BOOST_TEST(service2 != nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(register_specialization_different)
-{
+CT_BOOST_AUTO_TEST_CASE(register_specialization_different) {
   ioc->registerService<Interface0, Implementation0>();
   ioc->registerService<Implementation1_0, Implementation1_0>();
   auto service = ioc->resolveService<Interface0>();
-  BOOST_TEST(dynamic_cast<Implementation0*>(service.get()) != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(service.get()) != nullptr);
   auto service2 = ioc->resolveService<Implementation1_0>();
-  BOOST_TEST(service2 != nullptr);
+  CT_BOOST_TEST(service2 != nullptr);
   auto service3 = ioc->resolveService<Implementation0>();
-  BOOST_TEST(service3 != nullptr);
+  CT_BOOST_TEST(service3 != nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(resolve_not_same)
-{
+CT_BOOST_AUTO_TEST_CASE(resolve_not_same) {
   ioc->registerService<Interface0, Implementation0>();
   auto service = ioc->resolveService<Interface0>();
-  BOOST_TEST(dynamic_cast<Implementation0*>(service.get()) != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(service.get()) != nullptr);
   auto service2 = ioc->resolveService<Interface0>();
-  BOOST_TEST(dynamic_cast<Implementation0*>(service2.get()) != nullptr);
-  BOOST_TEST(service != service2);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(service2.get()) != nullptr);
+  CT_BOOST_TEST(service != service2);
 }
 
-BOOST_AUTO_TEST_CASE(register_singleton)
-{
+CT_BOOST_AUTO_TEST_CASE(register_singleton) {
   ioc->registerSingleton<Interface0>(std::make_shared<Implementation0>());
   auto service = ioc->resolveService<Interface0>();
-  BOOST_TEST(service.use_count() == 2);
-  BOOST_TEST(dynamic_cast<Implementation0*>(service.get()) != nullptr);
+  CT_BOOST_TEST(service.use_count() == 2);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(service.get()) != nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(replace_singleton)
-{
+CT_BOOST_AUTO_TEST_CASE(replace_singleton) {
   ioc->registerSingleton<Interface0>(std::make_shared<Implementation0>());
   auto service = ioc->resolveService<Interface0>();
-  BOOST_TEST(dynamic_cast<Implementation0*>(service.get()) != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(service.get()) != nullptr);
   ioc->registerSingleton<Interface0>(std::make_shared<Implementation1_0>());
-  BOOST_TEST(service.use_count() == 1);
+  CT_BOOST_TEST(service.use_count() == 1);
   auto service2 = ioc->resolveService<Interface0>();
-  BOOST_TEST(dynamic_cast<Implementation0*>(service2.get()) == nullptr);
-  BOOST_TEST(dynamic_cast<Implementation1_0*>(service2.get()) != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(service2.get()) == nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation1_0*>(service2.get()) != nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(register_two_singletons)
-{
+CT_BOOST_AUTO_TEST_CASE(register_two_singletons) {
   ioc->registerSingleton<Interface0>(std::make_shared<Implementation0>());
   auto service = ioc->resolveService<Interface0>();
-  BOOST_TEST(dynamic_cast<Implementation0*>(service.get()) != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(service.get()) != nullptr);
   ioc->registerSingleton<Interface1>(std::make_shared<Implementation1>());
   auto service2 = ioc->resolveService<Interface1>();
-  BOOST_TEST(dynamic_cast<Implementation1*>(service2.get()) != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation1*>(service2.get()) != nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(resolve_same_singleton)
-{
+CT_BOOST_AUTO_TEST_CASE(resolve_same_singleton) {
   ioc->registerSingleton<Interface0>(std::make_shared<Implementation0>());
   auto service = ioc->resolveService<Interface0>();
-  BOOST_TEST(dynamic_cast<Implementation0*>(service.get()) != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(service.get()) != nullptr);
   auto service2 = ioc->resolveService<Interface0>();
-  BOOST_TEST(dynamic_cast<Implementation0*>(service2.get()) != nullptr);
-  BOOST_TEST(service == service2);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(service2.get()) != nullptr);
+  CT_BOOST_TEST(service == service2);
 }
 
 using Implementation0WithDeps = Implementation<0, 0, Interface1>;
 
-BOOST_AUTO_TEST_CASE(resolve_with_missing_dependency)
-{
+CT_BOOST_AUTO_TEST_CASE(resolve_with_missing_dependency) {
   ioc->registerService<Interface0, Implementation0WithDeps>();
   auto service = ioc->resolveService<Interface0>();
-  BOOST_TEST(dynamic_cast<Implementation0WithDeps*>(service.get()) != nullptr);
-  BOOST_TEST(std::dynamic_pointer_cast<Implementation0WithDeps>(service)->ResolvedService<Interface1>() == nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0WithDeps*>(service.get()) != nullptr);
+  CT_BOOST_TEST(std::dynamic_pointer_cast<Implementation0WithDeps>(service)->ResolvedService<Interface1>() == nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(resolve_with_dependency)
-{
+CT_BOOST_AUTO_TEST_CASE(resolve_with_dependency) {
   ioc->registerService<Interface0, Implementation0WithDeps>();
   ioc->registerService<Interface1, Implementation1>();
   auto service = ioc->resolveService<Interface0>();
-  BOOST_TEST(dynamic_cast<Implementation0WithDeps*>(service.get()) != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0WithDeps*>(service.get()) != nullptr);
   auto resolverService = std::dynamic_pointer_cast<Implementation0WithDeps>(service)->ResolvedService<Interface1>();
-  BOOST_TEST(resolverService != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation1*>(resolverService.get()) != nullptr);
+  CT_BOOST_TEST(resolverService != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation1*>(resolverService.get()) != nullptr);
 }
 
 using Interface2 = Interface<2>;
@@ -211,80 +192,73 @@ Interface2::~Interface() = default;
 
 using Implementation2WithTwoDeps = Implementation<2, 2, Interface0, Interface1>;
 
-BOOST_AUTO_TEST_CASE(resolve_with_two_dependencies)
-{
+CT_BOOST_AUTO_TEST_CASE(resolve_with_two_dependencies) {
   ioc->registerService<Interface0, Implementation0>();
   ioc->registerService<Interface1, Implementation1>();
   ioc->registerService<Interface2, Implementation2WithTwoDeps>();
   auto service = ioc->resolveService<Interface2>();
-  BOOST_TEST(dynamic_cast<Implementation2WithTwoDeps*>(service.get()) != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation2WithTwoDeps*>(service.get()) != nullptr);
   auto resolvedService1 = std::dynamic_pointer_cast<Implementation2WithTwoDeps>(service)->ResolvedService<Interface0>();
-  BOOST_TEST(resolvedService1 != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation0*>(resolvedService1.get()) != nullptr);
+  CT_BOOST_TEST(resolvedService1 != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(resolvedService1.get()) != nullptr);
   auto resolvedService2 = std::dynamic_pointer_cast<Implementation2WithTwoDeps>(service)->ResolvedService<Interface1>();
-  BOOST_TEST(resolvedService2 != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation1*>(resolvedService2.get()) != nullptr);
+  CT_BOOST_TEST(resolvedService2 != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation1*>(resolvedService2.get()) != nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(resolve_with_multilevel_dependencies)
-{
+CT_BOOST_AUTO_TEST_CASE(resolve_with_multilevel_dependencies) {
   ioc->registerService<Interface0, Implementation0WithDeps>();
   ioc->registerService<Interface1, Implementation1>();
   ioc->registerService<Interface2, Implementation2WithTwoDeps>();
   auto service = ioc->resolveService<Interface2>();
-  BOOST_TEST(dynamic_cast<Implementation2WithTwoDeps*>(service.get()) != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation2WithTwoDeps*>(service.get()) != nullptr);
   auto resolverService1 = std::dynamic_pointer_cast<Implementation2WithTwoDeps>(service)->ResolvedService<Interface0>();
-  BOOST_TEST(resolverService1 != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation0WithDeps*>(resolverService1.get()) != nullptr);
+  CT_BOOST_TEST(resolverService1 != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0WithDeps*>(resolverService1.get()) != nullptr);
   auto resolverService2 =
       std::dynamic_pointer_cast<Implementation0WithDeps>(resolverService1)->ResolvedService<Interface1>();
-  BOOST_TEST(resolverService2 != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation1*>(resolverService2.get()) != nullptr);
+  CT_BOOST_TEST(resolverService2 != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation1*>(resolverService2.get()) != nullptr);
 }
 
 class ClassWithoutDependencies {};
 
-std::ostream& operator<<(std::ostream& ostr, const std::unique_ptr<ClassWithoutDependencies>& right) {
+auto operator<<(std::ostream& ostr, const std::unique_ptr<ClassWithoutDependencies>& right) -> std::ostream& {
   ostr << "ClassWithoutDependencies {" << right.get() << "}";
   return ostr;
 }
 
-BOOST_AUTO_TEST_CASE(make_unique_pointer_without_dependencies)
-{
+CT_BOOST_AUTO_TEST_CASE(make_unique_pointer_without_dependencies) {
   auto result = ioc->make<ClassWithoutDependencies, CreationType::UniquePointer>();
   static_assert(std::is_same_v<std::unique_ptr<ClassWithoutDependencies>, decltype(result)>);
-  BOOST_TEST(result != nullptr);
+  CT_BOOST_TEST(result != nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(make_shared_pointer_without_dependencies)
-{
+CT_BOOST_AUTO_TEST_CASE(make_shared_pointer_without_dependencies) {
   auto result = ioc->make<ClassWithoutDependencies, CreationType::SharedPointer>();
   static_assert(std::is_same_v<std::shared_ptr<ClassWithoutDependencies>, decltype(result)>);
-  BOOST_TEST(result != nullptr);
+  CT_BOOST_TEST(result != nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(make_copy_without_dependencies)
-{
+CT_BOOST_AUTO_TEST_CASE(make_copy_without_dependencies) {
   [[maybe_unused]] auto result = ioc->make<ClassWithoutDependencies, CreationType::Copy>();
   static_assert(std::is_same_v<ClassWithoutDependencies, decltype(result)>);
-  BOOST_TEST(true);
+  CT_BOOST_TEST(true);
 }
 
-BOOST_AUTO_TEST_CASE(make_raw_in_memory_without_dependencies)
-{
+CT_BOOST_AUTO_TEST_CASE(make_raw_in_memory_without_dependencies) {
   alignas(ClassWithoutDependencies) std::array<std::byte, sizeof(ClassWithoutDependencies)> buffer{std::byte{}};
   auto* result = ioc->make<ClassWithoutDependencies, CreationType::RawInMemory>(buffer.data());
   static_assert(std::is_same_v<ClassWithoutDependencies*, decltype(result)>);
-  BOOST_TEST(result != nullptr);
+  CT_BOOST_TEST(result != nullptr);
   result->~ClassWithoutDependencies();
 }
 
-BOOST_AUTO_TEST_CASE(make_raw_without_dependencies)
-{
+CT_BOOST_AUTO_TEST_CASE(make_raw_without_dependencies) {
   auto* result = ioc->make<ClassWithoutDependencies, CreationType::Raw>();
   static_assert(std::is_same_v<ClassWithoutDependencies*, decltype(result)>);
   auto wrapper = std::unique_ptr<ClassWithoutDependencies>(result);
-  BOOST_TEST(result != nullptr);
+  CT_BOOST_TEST(result != nullptr);
 }
 
 class ClassWithOneDependencyConstructor : public UseServices<Interface0> {
@@ -294,57 +268,52 @@ public:
   auto getInterface() -> std::shared_ptr<Interface0> { return service<Interface0>(); }
 };
 
-std::ostream& operator<<(std::ostream& ostr, const std::unique_ptr<ClassWithOneDependencyConstructor>& right) {
+auto operator<<(std::ostream& ostr, const std::unique_ptr<ClassWithOneDependencyConstructor>& right) -> std::ostream& {
   ostr << "ClassWithOneDependencyConstructor {" << right.get() << "}";
   return ostr;
 }
 
-BOOST_AUTO_TEST_CASE(make_unique_pointer_with_one_dependency_constructor)
-{
+CT_BOOST_AUTO_TEST_CASE(make_unique_pointer_with_one_dependency_constructor) {
   ioc->registerService<Interface0, Implementation0>();
   auto result = ioc->make<ClassWithOneDependencyConstructor, CreationType::UniquePointer>();
-  BOOST_TEST(result != nullptr);
-  BOOST_TEST(result->getInterface() != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface().get()) != nullptr);
+  CT_BOOST_TEST(result != nullptr);
+  CT_BOOST_TEST(result->getInterface() != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface().get()) != nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(make_shared_pointer_with_one_dependency_constructor)
-{
+CT_BOOST_AUTO_TEST_CASE(make_shared_pointer_with_one_dependency_constructor) {
   ioc->registerService<Interface0, Implementation0>();
   auto result = ioc->make<ClassWithOneDependencyConstructor, CreationType::SharedPointer>();
-  BOOST_TEST(result != nullptr);
-  BOOST_TEST(result->getInterface() != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface().get()) != nullptr);
+  CT_BOOST_TEST(result != nullptr);
+  CT_BOOST_TEST(result->getInterface() != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface().get()) != nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(make_copy_with_one_dependency_constructor)
-{
+CT_BOOST_AUTO_TEST_CASE(make_copy_with_one_dependency_constructor) {
   ioc->registerService<Interface0, Implementation0>();
   auto result = ioc->make<ClassWithOneDependencyConstructor, CreationType::Copy>();
-  BOOST_TEST(result.getInterface() != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation0*>(result.getInterface().get()) != nullptr);
+  CT_BOOST_TEST(result.getInterface() != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(result.getInterface().get()) != nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(make_raw_in_memory_with_one_dependency_constructor)
-{
+CT_BOOST_AUTO_TEST_CASE(make_raw_in_memory_with_one_dependency_constructor) {
   ioc->registerService<Interface0, Implementation0>();
   using classType = ClassWithOneDependencyConstructor;
   alignas(classType) std::array<std::byte, sizeof(classType)> buffer{std::byte{}};
   auto* result = ioc->make<classType, CreationType::RawInMemory>(buffer.data());
-  BOOST_TEST(result != nullptr);
-  BOOST_TEST(result->getInterface() != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface().get()) != nullptr);
+  CT_BOOST_TEST(result != nullptr);
+  CT_BOOST_TEST(result->getInterface() != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface().get()) != nullptr);
   result->~ClassWithOneDependencyConstructor();
 }
 
-BOOST_AUTO_TEST_CASE(make_raw_with_one_dependency_constructor)
-{
+CT_BOOST_AUTO_TEST_CASE(make_raw_with_one_dependency_constructor) {
   ioc->registerService<Interface0, Implementation0>();
   using classType = ClassWithOneDependencyConstructor;
   auto result     = std::unique_ptr<classType>(ioc->make<classType, CreationType::Raw>());
-  BOOST_TEST(result != nullptr);
-  BOOST_TEST(result->getInterface() != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface().get()) != nullptr);
+  CT_BOOST_TEST(result != nullptr);
+  CT_BOOST_TEST(result->getInterface() != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface().get()) != nullptr);
 }
 
 class ClassWithOneDependencyConstructorQobject : public UseServices<Interface0> {
@@ -356,57 +325,53 @@ public:
   auto getInterface() -> std::shared_ptr<Interface0> { return service<Interface0>(); }
 };
 
-std::ostream& operator<<(std::ostream& ostr, const std::unique_ptr<ClassWithOneDependencyConstructorQobject>& right) {
+auto operator<<(std::ostream& ostr, const std::unique_ptr<ClassWithOneDependencyConstructorQobject>& right)
+    -> std::ostream& {
   ostr << "ClassWithOneDependencyConstructorQobject {" << right.get() << "}";
   return ostr;
 }
 
-BOOST_AUTO_TEST_CASE(make_unique_pointer_with_one_dependency_constructor_qobject)
-{
+CT_BOOST_AUTO_TEST_CASE(make_unique_pointer_with_one_dependency_constructor_qobject) {
   ioc->registerService<Interface0, Implementation0>();
   auto result = ioc->make<ClassWithOneDependencyConstructorQobject, CreationType::UniquePointer>();
-  BOOST_TEST(result != nullptr);
-  BOOST_TEST(result->getInterface() != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface().get()) != nullptr);
+  CT_BOOST_TEST(result != nullptr);
+  CT_BOOST_TEST(result->getInterface() != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface().get()) != nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(make_shared_pointer_with_one_dependency_constructor_qobject)
-{
+CT_BOOST_AUTO_TEST_CASE(make_shared_pointer_with_one_dependency_constructor_qobject) {
   ioc->registerService<Interface0, Implementation0>();
   auto result = ioc->make<ClassWithOneDependencyConstructorQobject, CreationType::SharedPointer>();
-  BOOST_TEST(result != nullptr);
-  BOOST_TEST(result->getInterface() != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface().get()) != nullptr);
+  CT_BOOST_TEST(result != nullptr);
+  CT_BOOST_TEST(result->getInterface() != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface().get()) != nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(make_copy_with_one_dependency_constructor_qobject)
-{
+CT_BOOST_AUTO_TEST_CASE(make_copy_with_one_dependency_constructor_qobject) {
   ioc->registerService<Interface0, Implementation0>();
   auto result = ioc->make<ClassWithOneDependencyConstructorQobject, CreationType::Copy>();
-  BOOST_TEST(result.getInterface() != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation0*>(result.getInterface().get()) != nullptr);
+  CT_BOOST_TEST(result.getInterface() != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(result.getInterface().get()) != nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(make_raw_in_memory_with_one_dependency_constructor_qobject)
-{
+CT_BOOST_AUTO_TEST_CASE(make_raw_in_memory_with_one_dependency_constructor_qobject) {
   ioc->registerService<Interface0, Implementation0>();
   using classType = ClassWithOneDependencyConstructorQobject;
   alignas(classType) std::array<std::byte, sizeof(classType)> buffer{std::byte{}};
   auto* result = ioc->make<ClassWithOneDependencyConstructorQobject, CreationType::RawInMemory>(buffer.data());
-  BOOST_TEST(result != nullptr);
-  BOOST_TEST(result->getInterface() != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface().get()) != nullptr);
+  CT_BOOST_TEST(result != nullptr);
+  CT_BOOST_TEST(result->getInterface() != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface().get()) != nullptr);
   result->~ClassWithOneDependencyConstructorQobject();
 }
 
-BOOST_AUTO_TEST_CASE(make_raw_with_one_dependency_constructor_qobject)
-{
+CT_BOOST_AUTO_TEST_CASE(make_raw_with_one_dependency_constructor_qobject) {
   ioc->registerService<Interface0, Implementation0>();
   using classType = ClassWithOneDependencyConstructorQobject;
   auto result     = std::unique_ptr<classType>(ioc->make<classType, CreationType::Raw>());
-  BOOST_TEST(result != nullptr);
-  BOOST_TEST(result->getInterface() != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface().get()) != nullptr);
+  CT_BOOST_TEST(result != nullptr);
+  CT_BOOST_TEST(result->getInterface() != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface().get()) != nullptr);
 }
 
 class ClassWithOneDependencyNoConstructor : public UseServices<Interface0> {
@@ -414,57 +379,53 @@ public:
   auto getInterface() -> std::shared_ptr<Interface0> { return service<Interface0>(); }
 };
 
-std::ostream& operator<<(std::ostream& ostr, const std::unique_ptr<ClassWithOneDependencyNoConstructor>& right) {
+auto operator<<(std::ostream& ostr, const std::unique_ptr<ClassWithOneDependencyNoConstructor>& right)
+    -> std::ostream& {
   ostr << "ClassWithOneDependencyNoConstructor {" << right.get() << "}";
   return ostr;
 }
 
-BOOST_AUTO_TEST_CASE(make_unique_pointer_with_one_dependency_no_constructor)
-{
+CT_BOOST_AUTO_TEST_CASE(make_unique_pointer_with_one_dependency_no_constructor) {
   ioc->registerService<Interface0, Implementation0>();
   auto result = ioc->make<ClassWithOneDependencyNoConstructor, CreationType::UniquePointer>();
-  BOOST_TEST(result != nullptr);
-  BOOST_TEST(result->getInterface() != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface().get()) != nullptr);
+  CT_BOOST_TEST(result != nullptr);
+  CT_BOOST_TEST(result->getInterface() != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface().get()) != nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(make_shared_pointer_with_one_dependency_no_constructor)
-{
+CT_BOOST_AUTO_TEST_CASE(make_shared_pointer_with_one_dependency_no_constructor) {
   ioc->registerService<Interface0, Implementation0>();
   auto result = ioc->make<ClassWithOneDependencyNoConstructor, CreationType::SharedPointer>();
-  BOOST_TEST(result != nullptr);
-  BOOST_TEST(result->getInterface() != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface().get()) != nullptr);
+  CT_BOOST_TEST(result != nullptr);
+  CT_BOOST_TEST(result->getInterface() != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface().get()) != nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(make_copy_with_one_dependency_no_constructor)
-{
+CT_BOOST_AUTO_TEST_CASE(make_copy_with_one_dependency_no_constructor) {
   ioc->registerService<Interface0, Implementation0>();
   auto result = ioc->make<ClassWithOneDependencyNoConstructor, CreationType::Copy>();
-  BOOST_TEST(result.getInterface() != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation0*>(result.getInterface().get()) != nullptr);
+  CT_BOOST_TEST(result.getInterface() != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(result.getInterface().get()) != nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(make_raw_in_memory_with_one_dependency_no_constructor)
-{
+CT_BOOST_AUTO_TEST_CASE(make_raw_in_memory_with_one_dependency_no_constructor) {
   ioc->registerService<Interface0, Implementation0>();
   using classType = ClassWithOneDependencyNoConstructor;
   alignas(classType) std::array<std::byte, sizeof(classType)> buffer{std::byte{}};
   auto* result = ioc->make<classType, CreationType::RawInMemory>(buffer.data());
-  BOOST_TEST(result != nullptr);
-  BOOST_TEST(result->getInterface() != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface().get()) != nullptr);
+  CT_BOOST_TEST(result != nullptr);
+  CT_BOOST_TEST(result->getInterface() != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface().get()) != nullptr);
   result->~ClassWithOneDependencyNoConstructor();
 }
 
-BOOST_AUTO_TEST_CASE(make_raw_with_one_dependency_no_constructor)
-{
+CT_BOOST_AUTO_TEST_CASE(make_raw_with_one_dependency_no_constructor) {
   ioc->registerService<Interface0, Implementation0>();
   using classType = ClassWithOneDependencyNoConstructor;
   auto result     = std::unique_ptr<classType>(ioc->make<classType, CreationType::Raw>());
-  BOOST_TEST(result != nullptr);
-  BOOST_TEST(result->getInterface() != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface().get()) != nullptr);
+  CT_BOOST_TEST(result != nullptr);
+  CT_BOOST_TEST(result->getInterface() != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface().get()) != nullptr);
 }
 
 class ClassWithTwoDependenciesConstructor : public UseServices<Interface0, Interface1> {
@@ -480,150 +441,141 @@ public:
   }
 };
 
-std::ostream& operator<<(std::ostream& ostr, const std::unique_ptr<ClassWithTwoDependenciesConstructor>& right) {
+auto operator<<(std::ostream& ostr, const std::unique_ptr<ClassWithTwoDependenciesConstructor>& right)
+    -> std::ostream& {
   ostr << "ClassWithTwoDependenciesConstructor {" << right.get() << "}";
   return ostr;
 }
 
-BOOST_AUTO_TEST_CASE(make_unique_pointer_with_two_dependencies_constructor)
-{
+CT_BOOST_AUTO_TEST_CASE(make_unique_pointer_with_two_dependencies_constructor) {
   ioc->registerService<Interface0, Implementation0>();
   ioc->registerService<Interface1, Implementation1>();
   auto result = ioc->make<ClassWithTwoDependenciesConstructor, CreationType::UniquePointer>();
-  BOOST_TEST(result != nullptr);
-  BOOST_TEST(result->getInterface<Interface0>() != nullptr);
-  BOOST_TEST(result->getInterface<Interface1>() != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface<Interface0>().get()) != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation1*>(result->getInterface<Interface1>().get()) != nullptr);
+  CT_BOOST_TEST(result != nullptr);
+  CT_BOOST_TEST(result->getInterface<Interface0>() != nullptr);
+  CT_BOOST_TEST(result->getInterface<Interface1>() != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface<Interface0>().get()) != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation1*>(result->getInterface<Interface1>().get()) != nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(make_shared_pointer_with_two_dependencies_constructor)
-{
+CT_BOOST_AUTO_TEST_CASE(make_shared_pointer_with_two_dependencies_constructor) {
   ioc->registerService<Interface0, Implementation0>();
   ioc->registerService<Interface1, Implementation1>();
   auto result = ioc->make<ClassWithTwoDependenciesConstructor, CreationType::SharedPointer>();
-  BOOST_TEST(result != nullptr);
-  BOOST_TEST(result->getInterface<Interface0>() != nullptr);
-  BOOST_TEST(result->getInterface<Interface1>() != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface<Interface0>().get()) != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation1*>(result->getInterface<Interface1>().get()) != nullptr);
+  CT_BOOST_TEST(result != nullptr);
+  CT_BOOST_TEST(result->getInterface<Interface0>() != nullptr);
+  CT_BOOST_TEST(result->getInterface<Interface1>() != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface<Interface0>().get()) != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation1*>(result->getInterface<Interface1>().get()) != nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(make_copy_with_two_dependencies_constructor)
-{
+CT_BOOST_AUTO_TEST_CASE(make_copy_with_two_dependencies_constructor) {
   ioc->registerService<Interface0, Implementation0>();
   ioc->registerService<Interface1, Implementation1>();
   auto result = ioc->make<ClassWithTwoDependenciesConstructor, CreationType::Copy>();
-  BOOST_TEST(result.getInterface<Interface0>() != nullptr);
-  BOOST_TEST(result.getInterface<Interface1>() != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation0*>(result.getInterface<Interface0>().get()) != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation1*>(result.getInterface<Interface1>().get()) != nullptr);
+  CT_BOOST_TEST(result.getInterface<Interface0>() != nullptr);
+  CT_BOOST_TEST(result.getInterface<Interface1>() != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(result.getInterface<Interface0>().get()) != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation1*>(result.getInterface<Interface1>().get()) != nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(make_raw_in_memory_with_two_dependencies_constructor)
-{
+CT_BOOST_AUTO_TEST_CASE(make_raw_in_memory_with_two_dependencies_constructor) {
   ioc->registerService<Interface0, Implementation0>();
   ioc->registerService<Interface1, Implementation1>();
   using classType = ClassWithTwoDependenciesConstructor;
   alignas(classType) std::array<std::byte, sizeof(classType)> buffer{std::byte{}};
   auto* result = ioc->make<classType, CreationType::RawInMemory>(buffer.data());
-  BOOST_TEST(result != nullptr);
-  BOOST_TEST(result->getInterface<Interface0>() != nullptr);
-  BOOST_TEST(result->getInterface<Interface1>() != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface<Interface0>().get()) != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation1*>(result->getInterface<Interface1>().get()) != nullptr);
+  CT_BOOST_TEST(result != nullptr);
+  CT_BOOST_TEST(result->getInterface<Interface0>() != nullptr);
+  CT_BOOST_TEST(result->getInterface<Interface1>() != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface<Interface0>().get()) != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation1*>(result->getInterface<Interface1>().get()) != nullptr);
   result->~ClassWithTwoDependenciesConstructor();
 }
 
-BOOST_AUTO_TEST_CASE(make_raw_with_two_dependencies_constructor)
-{
+CT_BOOST_AUTO_TEST_CASE(make_raw_with_two_dependencies_constructor) {
   ioc->registerService<Interface0, Implementation0>();
   ioc->registerService<Interface1, Implementation1>();
   using classType = ClassWithTwoDependenciesConstructor;
   auto result     = std::unique_ptr<classType>(ioc->make<classType, CreationType::Raw>());
-  BOOST_TEST(result != nullptr);
-  BOOST_TEST(result->getInterface<Interface0>() != nullptr);
-  BOOST_TEST(result->getInterface<Interface1>() != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface<Interface0>().get()) != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation1*>(result->getInterface<Interface1>().get()) != nullptr);
+  CT_BOOST_TEST(result != nullptr);
+  CT_BOOST_TEST(result->getInterface<Interface0>() != nullptr);
+  CT_BOOST_TEST(result->getInterface<Interface1>() != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface<Interface0>().get()) != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation1*>(result->getInterface<Interface1>().get()) != nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(make_unique_pointer_with_nested_dependencies_constructor)
-{
+CT_BOOST_AUTO_TEST_CASE(make_unique_pointer_with_nested_dependencies_constructor) {
   ioc->registerService<Interface0, Implementation0>();
   ioc->registerService<Interface1, Implementation<1, 1, Interface0>>();
   auto result = ioc->make<ClassWithTwoDependenciesConstructor, CreationType::UniquePointer>();
-  BOOST_TEST(result != nullptr);
-  BOOST_TEST(result->getInterface<Interface0>() != nullptr);
-  BOOST_TEST(result->getInterface<Interface1>() != nullptr);
+  CT_BOOST_TEST(result != nullptr);
+  CT_BOOST_TEST(result->getInterface<Interface0>() != nullptr);
+  CT_BOOST_TEST(result->getInterface<Interface1>() != nullptr);
   auto castedInterface =
       std::dynamic_pointer_cast<Implementation<1, 1, Interface0>>(result->getInterface<Interface1>());
-  BOOST_TEST(castedInterface != nullptr);
-  BOOST_TEST(castedInterface->ResolvedService<Interface0>() != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation0*>(castedInterface->ResolvedService<Interface0>().get()) != nullptr);
+  CT_BOOST_TEST(castedInterface != nullptr);
+  CT_BOOST_TEST(castedInterface->ResolvedService<Interface0>() != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(castedInterface->ResolvedService<Interface0>().get()) != nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(make_shared_pointer_with_nested_dependencies_constructor)
-{
+CT_BOOST_AUTO_TEST_CASE(make_shared_pointer_with_nested_dependencies_constructor) {
   ioc->registerService<Interface0, Implementation0>();
   ioc->registerService<Interface1, Implementation<1, 1, Interface0>>();
   auto result = ioc->make<ClassWithTwoDependenciesConstructor, CreationType::SharedPointer>();
-  BOOST_TEST(result != nullptr);
-  BOOST_TEST(result->getInterface<Interface0>() != nullptr);
-  BOOST_TEST(result->getInterface<Interface1>() != nullptr);
+  CT_BOOST_TEST(result != nullptr);
+  CT_BOOST_TEST(result->getInterface<Interface0>() != nullptr);
+  CT_BOOST_TEST(result->getInterface<Interface1>() != nullptr);
   auto castedInterface =
       std::dynamic_pointer_cast<Implementation<1, 1, Interface0>>(result->getInterface<Interface1>());
-  BOOST_TEST(castedInterface != nullptr);
-  BOOST_TEST(castedInterface->ResolvedService<Interface0>() != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation0*>(castedInterface->ResolvedService<Interface0>().get()) != nullptr);
+  CT_BOOST_TEST(castedInterface != nullptr);
+  CT_BOOST_TEST(castedInterface->ResolvedService<Interface0>() != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(castedInterface->ResolvedService<Interface0>().get()) != nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(make_copy_with_nested_dependencies_constructor)
-{
+CT_BOOST_AUTO_TEST_CASE(make_copy_with_nested_dependencies_constructor) {
   ioc->registerService<Interface0, Implementation0>();
   ioc->registerService<Interface1, Implementation<1, 1, Interface0>>();
   auto result = ioc->make<ClassWithTwoDependenciesConstructor, CreationType::Copy>();
-  BOOST_TEST(result.getInterface<Interface0>() != nullptr);
-  BOOST_TEST(result.getInterface<Interface1>() != nullptr);
+  CT_BOOST_TEST(result.getInterface<Interface0>() != nullptr);
+  CT_BOOST_TEST(result.getInterface<Interface1>() != nullptr);
   auto castedInterface = std::dynamic_pointer_cast<Implementation<1, 1, Interface0>>(result.getInterface<Interface1>());
-  BOOST_TEST(castedInterface != nullptr);
-  BOOST_TEST(castedInterface->ResolvedService<Interface0>() != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation0*>(castedInterface->ResolvedService<Interface0>().get()) != nullptr);
+  CT_BOOST_TEST(castedInterface != nullptr);
+  CT_BOOST_TEST(castedInterface->ResolvedService<Interface0>() != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(castedInterface->ResolvedService<Interface0>().get()) != nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(make_raw_in_memory_with_nested_dependencies_constructor)
-{
+CT_BOOST_AUTO_TEST_CASE(make_raw_in_memory_with_nested_dependencies_constructor) {
   ioc->registerService<Interface0, Implementation0>();
   ioc->registerService<Interface1, Implementation<1, 1, Interface0>>();
   using classType = ClassWithTwoDependenciesConstructor;
   alignas(classType) std::array<std::byte, sizeof(classType)> buffer{std::byte{}};
   auto* result = ioc->make<classType, CreationType::RawInMemory>(buffer.data());
-  BOOST_TEST(result != nullptr);
-  BOOST_TEST(result->getInterface<Interface0>() != nullptr);
-  BOOST_TEST(result->getInterface<Interface1>() != nullptr);
+  CT_BOOST_TEST(result != nullptr);
+  CT_BOOST_TEST(result->getInterface<Interface0>() != nullptr);
+  CT_BOOST_TEST(result->getInterface<Interface1>() != nullptr);
   auto castedInterface =
       std::dynamic_pointer_cast<Implementation<1, 1, Interface0>>(result->getInterface<Interface1>());
-  BOOST_TEST(castedInterface != nullptr);
-  BOOST_TEST(castedInterface->ResolvedService<Interface0>() != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation0*>(castedInterface->ResolvedService<Interface0>().get()) != nullptr);
+  CT_BOOST_TEST(castedInterface != nullptr);
+  CT_BOOST_TEST(castedInterface->ResolvedService<Interface0>() != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(castedInterface->ResolvedService<Interface0>().get()) != nullptr);
 }
 
-BOOST_AUTO_TEST_CASE(make_raw_with_nested_dependencies_constructor)
-{
+CT_BOOST_AUTO_TEST_CASE(make_raw_with_nested_dependencies_constructor) {
   ioc->registerService<Interface0, Implementation0>();
   ioc->registerService<Interface1, Implementation<1, 1, Interface0>>();
   using classType = ClassWithTwoDependenciesConstructor;
   auto result     = std::unique_ptr<classType>(ioc->make<classType, CreationType::Raw>());
-  BOOST_TEST(result != nullptr);
-  BOOST_TEST(result->getInterface<Interface0>() != nullptr);
-  BOOST_TEST(result->getInterface<Interface1>() != nullptr);
+  CT_BOOST_TEST(result != nullptr);
+  CT_BOOST_TEST(result->getInterface<Interface0>() != nullptr);
+  CT_BOOST_TEST(result->getInterface<Interface1>() != nullptr);
   auto castedInterface =
       std::dynamic_pointer_cast<Implementation<1, 1, Interface0>>(result->getInterface<Interface1>());
-  BOOST_TEST(castedInterface != nullptr);
-  BOOST_TEST(castedInterface->ResolvedService<Interface0>() != nullptr);
-  BOOST_TEST(dynamic_cast<Implementation0*>(castedInterface->ResolvedService<Interface0>().get()) != nullptr);
+  CT_BOOST_TEST(castedInterface != nullptr);
+  CT_BOOST_TEST(castedInterface->ResolvedService<Interface0>() != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(castedInterface->ResolvedService<Interface0>().get()) != nullptr);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+CT_BOOST_AUTO_TEST_SUITE_END()
 
 //#include "IocTests.moc"

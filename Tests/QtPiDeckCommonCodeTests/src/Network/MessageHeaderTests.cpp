@@ -1,46 +1,26 @@
-#if defined(_MSC_VER) && defined(__clang__) && defined(__INTELLISENSE__)
-#pragma push_macro("__clang__")
-#undef __clang__
-#include <boost/test/unit_test.hpp>
-#pragma pop_macro("__clang__")
-#else
-#include <boost/test/unit_test.hpp>
-#endif
-
 #include <QDataStream>
+
+#include "BoostUnitTest.hpp"
 
 #include "Network/MessageHeader.hpp"
 #include "Network/DeckDataStream.hpp"
 
-namespace boost {
-}
-
 namespace QtPiDeck::Network {
-std::ostream& operator<<(std::ostream& ostr, const MessageHeader& right) {
+auto operator<<(std::ostream& ostr, const MessageHeader& right) -> std::ostream& {
   ostr << "MessageHeader{ dataSize: " << right.dataSize << ", messageType: " << static_cast<uint32_t>(right.messageType)
        << ", RequestId: " << right.requestId.toStdString().c_str() << " }";
   return ostr;
 }
 
-bool operator==(const QtPiDeck::Network::MessageHeader& left, const QtPiDeck::Network::MessageHeader& right) {
+auto operator==(const QtPiDeck::Network::MessageHeader& left, const QtPiDeck::Network::MessageHeader& right) -> bool {
   return left.dataSize == right.dataSize && left.messageType == right.messageType && left.requestId == right.requestId;
 }
 }
 
-#if !defined(_MSC_VER) && 0
-namespace boost::test_tools::tt_detail {
-std::ostream& boost_test_print_type(std::ostream& ostr, const QtPiDeck::Network::MessageHeader& right) {
-  ostr << "MessageHeader{ dataSize: " << right.dataSize << ", messageType: " << static_cast<uint32_t>(right.messageType)
-       << ", RequestId: " << right.requestId.toStdString().c_str() << " }";
-  return ostr;
-}
-}
-#endif
-
-BOOST_AUTO_TEST_SUITE(MessageHeaderTests)
+CT_BOOST_AUTO_TEST_SUITE(MessageHeaderTests)
 using namespace QtPiDeck::Network;
 
-BOOST_AUTO_TEST_CASE(serialize_and_deserialize)
+CT_BOOST_AUTO_TEST_CASE(serialize_and_deserialize)
 {
   const MessageHeader messageHeader{0, MessageType::Pong, QStringLiteral("a-random-id")};
   QByteArray qba;
@@ -49,9 +29,9 @@ BOOST_AUTO_TEST_CASE(serialize_and_deserialize)
   QDataStream out{&qba, DeckDataStream::OpenModeFlag::ReadOnly};
   MessageHeader outMessageHeader{};
   out >> outMessageHeader;
-  BOOST_TEST(outMessageHeader == messageHeader);
+  CT_BOOST_TEST(outMessageHeader == messageHeader);
 }
 
-BOOST_AUTO_TEST_SUITE_END()
+CT_BOOST_AUTO_TEST_SUITE_END()
 
 //#include "MessageHeaderTests.moc"

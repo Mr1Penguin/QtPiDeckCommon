@@ -1,6 +1,5 @@
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
-find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 
 add_executable(QtPiDeckCommonCodeTests 
                src/main.cpp
@@ -10,8 +9,7 @@ add_executable(QtPiDeckCommonCodeTests
 add_test(NAME QtPiDeckCommonCodeTests COMMAND QtPiDeckCommonCodeTests)
 target_link_libraries(QtPiDeckCommonCodeTests
     PRIVATE
-    Boost::boost 
-    Boost::unit_test_framework
+    BoostTestWrapper
     QtPiDeckCommon)
 
 target_compile_definitions(
