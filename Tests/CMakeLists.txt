@@ -65,6 +65,7 @@ macro(add_qml_test QML_FILE)
 endmacro()
 
 add_subdirectory(BoostTestWrapper)
+add_subdirectory(CodeTestsUtils)
 
 if(BUILD_COMMON_TESTS)
   message(STATUS "Common tests enabled")
