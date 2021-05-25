@@ -28,4 +28,5 @@ option(BUILD_COMMON_TESTS "" ON)
 
 add_subdirectory(QtPiDeckCommon)
 add_subdirectory(QtChecker)
+add_subdirectory(QtDefinitions)
 add_subdirectory(Tests)
