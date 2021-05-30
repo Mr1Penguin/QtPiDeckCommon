@@ -25,8 +25,10 @@ inline auto getEmptyMessageHeader(MessageType messageType, QString requestId) {
 
 QTPIDECKCOMMON_EXPORT auto operator<<(QDataStream& str, const MessageHeader& header) -> QDataStream&;
 QTPIDECKCOMMON_EXPORT auto operator>>(QDataStream& str, MessageHeader& header) -> QDataStream&;
-#if (QT_VERSION == QTPI4_VERSION)
+#ifdef __GNUC__
+#if (__GNUC__ == 8 && __GNUC_MINOR__ <= 3) || __GNUC__ < 8
 QTPIDECKCOMMON_EXPORT auto operator<<(QDataStream& str, const MessageType& messageType) -> QDataStream&;
 QTPIDECKCOMMON_EXPORT auto operator>>(QDataStream& str, MessageType& messageType) -> QDataStream&;
+#endif
 #endif
 }

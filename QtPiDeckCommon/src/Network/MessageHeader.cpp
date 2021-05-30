@@ -33,7 +33,8 @@ auto operator>>(QDataStream& str, MessageHeader& header) -> QDataStream& {
   return str;
 }
 
-#if (QT_VERSION == QTPI4_VERSION)
+#ifdef __GNUC__
+#if (__GNUC__ == 8 && __GNUC_MINOR__ <= 3) || __GNUC__ < 8
 auto operator>>(QDataStream& str, MessageType& messageType) -> QDataStream& {
   uint32_t v;
   str >> v;
@@ -45,5 +46,6 @@ auto operator<<(QDataStream& str, const MessageType& messageType) -> QDataStream
   str << static_cast<uint32_t>(messageType);
   return str;
 }
+#endif
 #endif
 }
