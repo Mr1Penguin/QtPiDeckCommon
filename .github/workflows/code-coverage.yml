@@ -77,16 +77,27 @@ jobs:
         run: ninja
         working-directory: build
 
+      - name: Install lcov
+        run: sudo apt update && sudo apt install -y lcov
+
+      - name: Initial lcov run
+        run: lcov --no-external --capture --initial --directory . --output-file before.txt
+
       - name: Test project
         run: ctest --output-on-failure
         working-directory: build
         env:
           LD_LIBRARY_PATH: ./QtPiDeckCommon
 
-      - name: Install lcov
-        run: sudo apt update && sudo apt install -y lcov
-
-      - name: Run lcov
+      - name: Post-test lcov run
         run: lcov --capture --directory . --output-file coverage.txt
+
+      - name: Merge lcov reports
+        run: |
+            lcov --add-tracefile before.txt --add-tracefile coverage.txt --output-file coverage.txt
+            rm before.txt
+
+      - name: Clean up report
+        run: lcov --remove coverage.txt -o coverage.txt '/usr/*' '*/Tests/*' '*/build/*' '*boost*'
 
       - uses: codecov/codecov-action@v1

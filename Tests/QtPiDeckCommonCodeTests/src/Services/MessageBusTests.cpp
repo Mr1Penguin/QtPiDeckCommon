@@ -5,6 +5,55 @@
 #include "Network/DeckDataStream.hpp"
 #include "Services/MessageBus.hpp"
 
+CT_BOOST_AUTO_TEST_SUITE(SubscriptionTests)
+
+class SignalEmitter : public QObject {
+  Q_OBJECT // NOLINT
+public:
+  void emitSignal() { emit signal(); }
+signals:
+  void signal();
+};
+
+CT_BOOST_AUTO_TEST_CASE(SubscripionExpiresOnDestructor) {
+  SignalEmitter emitter;
+  int counter = 0;
+  {
+    QtPiDeck::Services::Subscription subscription{
+        QObject::connect(&emitter, &SignalEmitter::signal, [&counter] { ++counter; })};
+    emitter.emitSignal();
+  }
+  CT_BOOST_TEST(counter == 1);
+  emitter.emitSignal();
+  CT_BOOST_TEST(counter == 1);
+}
+
+CT_BOOST_AUTO_TEST_CASE(SubscripionExpiresOnReset) {
+  SignalEmitter emitter;
+  int counter = 0;
+  QtPiDeck::Services::Subscription subscription{
+      QObject::connect(&emitter, &SignalEmitter::signal, [&counter] { ++counter; })};
+  emitter.emitSignal();
+  CT_BOOST_TEST(counter == 1);
+  subscription.reset();
+  emitter.emitSignal();
+  CT_BOOST_TEST(counter == 1);
+}
+
+CT_BOOST_AUTO_TEST_CASE(SubscripionDoesNotAffectConnectionAfterMove) {
+  SignalEmitter emitter;
+  int counter = 0;
+  QtPiDeck::Services::Subscription subscription{
+      QObject::connect(&emitter, &SignalEmitter::signal, [&counter] { ++counter; })};
+  emitter.emitSignal();
+  CT_BOOST_TEST(counter == 1);
+  QtPiDeck::Services::Subscription subscription2{std::move(subscription)};
+  subscription.reset();
+  emitter.emitSignal();
+  CT_BOOST_TEST(counter == 2);
+}
+CT_BOOST_AUTO_TEST_SUITE_END()
+
 struct MessageBusFixture {
   std::unique_ptr<QtPiDeck::Services::MessageBus> messageBus{std::make_unique<QtPiDeck::Services::MessageBus>(nullptr)};
 };
