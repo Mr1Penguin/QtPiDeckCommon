@@ -5,7 +5,8 @@ add_executable(QtPiDeckCommonCodeTests
                src/main.cpp
                src/Services/IocTests.cpp 
                src/Services/MessageBusTests.cpp 
-               src/Network/MessageHeaderTests.cpp)
+               src/Network/MessageHeaderTests.cpp
+               src/ApplicationTests.cpp)
 add_test(NAME QtPiDeckCommonCodeTests COMMAND QtPiDeckCommonCodeTests)
 target_link_libraries(QtPiDeckCommonCodeTests
     PRIVATE

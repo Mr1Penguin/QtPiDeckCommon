@@ -10,30 +10,30 @@
 namespace QtPiDeck {
 class QTPIDECKCOMMON_EXPORT Application {
 public:
-    Application();
-    Application(const Application &) = delete;
-    Application(Application &&) = delete;
-    virtual ~Application() = default;
+  Application();
+  Application(const Application&) = delete;
+  Application(Application&&)      = delete;
+  virtual ~Application()          = default;
 
-    auto operator=(const Application &) -> Application& = delete;
-    auto operator=(Application &&) -> Application& = delete;
+  auto operator=(const Application&) -> Application& = delete;
+  auto operator=(Application&&) -> Application& = delete;
 
-    auto start(int argc, char **argv) -> int;
+  auto start(int argc, char** argv) -> int;
 
-    auto ioc() -> Services::Ioc& { return m_ioc; }
-    [[nodiscard]] auto ioc() const -> const Services::Ioc& { return m_ioc; }
+  auto ioc() -> Services::Ioc& { return m_ioc; }
+  [[nodiscard]] auto ioc() const -> const Services::Ioc& { return m_ioc; }
 
-    static auto current() -> Application* { return s_current; }
+  static auto current() -> Application* { return s_current; }
 
 protected:
-    virtual auto mainPage() -> QUrl = 0;
-    virtual void initialPreparations();
-    virtual void appCreated();
-    virtual void engineCreated(QQmlApplicationEngine & engine);
+  virtual auto mainPage() -> QUrl = 0;
+  virtual void initialPreparations();
+  virtual void appCreated();
+  virtual void engineCreated(QQmlApplicationEngine& engine);
 
 private:
-    Services::Ioc m_ioc;
+  Services::Ioc m_ioc;
 
-    inline static Application* s_current; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+  inline static Application* s_current; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 };
 }
