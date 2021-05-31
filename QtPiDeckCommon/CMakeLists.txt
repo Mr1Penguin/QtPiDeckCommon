@@ -37,8 +37,8 @@ target_compile_definitions(
 )
 
 if(CODECOV AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_BUILD_TYPE STREQUAL "Debug")
-    target_compile_options(QtPiDeckCommon PRIVATE --coverage -fprofile-arcs -ftest-coverage)
-    target_link_options(QtPiDeckCommon PRIVATE --coverage -fprofile-arcs -ftest-coverage)
+    target_compile_options(QtPiDeckCommon PUBLIC --coverage)
+    target_link_options(QtPiDeckCommon PUBLIC --coverage)
 endif()
 
 target_link_libraries(QtPiDeckCommon
