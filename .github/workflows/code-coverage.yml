@@ -83,6 +83,9 @@ jobs:
         env:
           LD_LIBRARY_PATH: ./QtPiDeckCommon
 
+      - name: Install lcov
+        run: sudo apt update && sudo apt install -y lcov
+
       - name: Run lcov
         run: lcov --capture --directory . --output-file coverage.txt
 
