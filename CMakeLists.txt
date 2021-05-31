@@ -25,6 +25,7 @@ if(NOT FLAGS_SET_BY_PARENT)
 endif()
 
 option(BUILD_COMMON_TESTS "" ON)
+option(CODECOV "" OFF)
 
 add_subdirectory(QtPiDeckCommon)
 add_subdirectory(QtChecker)
