@@ -6,13 +6,13 @@ option(VISUAL_STUDIO "" OFF)
 
 include(CTest)
 
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    set(CMAKE_AUTOUIC ON)
+    set(CMAKE_AUTOMOC ON)
+    set(CMAKE_AUTORCC ON)
+    set(CMAKE_CXX_STANDARD 17)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-if(NOT FLAGS_SET_BY_PARENT)
     if (MSVC)
         # warning level 4 and all warnings as errors
         # waiting for /external to be fixed
