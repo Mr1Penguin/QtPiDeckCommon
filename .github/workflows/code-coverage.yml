@@ -87,7 +87,7 @@ jobs:
         run: sudo apt update && sudo apt install -y lcov
 
       - name: Initial lcov run
-        run: lcov --rc lcov_branch_coverage=1 --no-external --capture --initial --directory . --output-file before.txt --gcov-tool ${{martix.cfg.gcov}}
+        run: lcov --rc lcov_branch_coverage=1 --no-external --capture --initial --directory . --output-file before.txt --gcov-tool ${{ martix.cfg.gcov }}
 
       - name: Test project
         run: ctest --output-on-failure
@@ -96,14 +96,14 @@ jobs:
           LD_LIBRARY_PATH: ./QtPiDeckCommon
 
       - name: Post-test lcov run
-        run: lcov --rc lcov_branch_coverage=1 --capture --directory . --output-file coverage.txt --gcov-tool ${{martix.cfg.gcov}}
+        run: lcov --rc lcov_branch_coverage=1 --capture --directory . --output-file coverage.txt --gcov-tool ${{ martix.cfg.gcov }}
 
       - name: Merge lcov reports
         run: |
-            lcov --rc lcov_branch_coverage=1 --add-tracefile before.txt --add-tracefile coverage.txt --output-file coverage.txt --gcov-tool ${{martix.cfg.gcov}}
+            lcov --rc lcov_branch_coverage=1 --add-tracefile before.txt --add-tracefile coverage.txt --output-file coverage.txt --gcov-tool ${{ martix.cfg.gcov }}
             rm before.txt
 
       - name: Clean up report
-        run: lcov --rc lcov_branch_coverage=1 --remove coverage.txt -o coverage.txt '/usr/*' '*/Tests/*' '*/build/*' '*boost*'
+        run: lcov --rc lcov_branch_coverage=1 --remove coverage.txt -o coverage.txt '/usr/*' '*/Tests/*' '*/build/*' '*boost*' --gcov-tool ${{ martix.cfg.gcov }}
 
       - uses: codecov/codecov-action@v1
