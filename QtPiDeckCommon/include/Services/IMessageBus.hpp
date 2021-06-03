@@ -50,20 +50,33 @@ public:
 template<class TSubscriber, typename = std::enable_if_t<std::is_base_of_v<QObject, TSubscriber>>>
 [[nodiscard]] auto subscribe(IMessageBus& bus, TSubscriber* context,
                              void (TSubscriber::*response)(const Bus::Message&)) noexcept -> Subscription {
-  return bus.subscribe(context, [context, response](const Bus::Message& message) { (context->*response)(message); });
+
+#if defined(__cpp_lib_bind_front)
+  return bus.subscribe(context, std::bind_front(response, context));
+#else
+  return bus.subscribe(context,
+                       [context, response](const Bus::Message& message) { std::invoke(response, context, message); });
+#endif
 }
+
+
 
 template<class TSubscriber, typename = std::enable_if_t<std::is_base_of_v<QObject, TSubscriber>>>
 [[nodiscard]] auto subscribe(IMessageBus& bus, TSubscriber* context, void (TSubscriber::*response)(),
                              uint64_t messageType) noexcept -> Subscription {
   return bus.subscribe(
-      context, [context, response](const Bus::Message& /*message*/) { (context->*response)(); }, messageType);
+      context, [context, response](const Bus::Message& /*message*/) { std::invoke(response, context); }, messageType);
 }
 
 template<class TSubscriber, typename = std::enable_if_t<std::is_base_of_v<QObject, TSubscriber>>>
 [[nodiscard]] auto subscribe(IMessageBus& bus, TSubscriber* context, void (TSubscriber::*response)(const Bus::Message&),
                              uint64_t messageType) noexcept -> Subscription {
+#if defined(__cpp_lib_bind_front)
+  return bus.subscribe(context, std::bind_front(response, context), messageType);
+#else
   return bus.subscribe(
-      context, [context, response](const Bus::Message& message) { (context->*response)(message); }, messageType);
+      context, [context, response](const Bus::Message& message) { std::invoke(response, context, message); },
+      messageType);
+#endif
 }
 }

@@ -15,15 +15,15 @@ jobs:
     strategy:
       matrix:
         cfg:
-        - { os: ubuntu-20.04, qt: 5.11.3, cc: gcc-8, experimental: false, dependencies: ["boost-test"], vcpkgtriplet: x64-linux }
-        - { os: ubuntu-20.04, qt: 5.11.3, cc: gcc-10, experimental: true, dependencies: ["boost-test"], vcpkgtriplet: x64-linux }
-        - { os: ubuntu-20.04, qt: 5.15.2, cc: gcc-8, experimental: false, dependencies: ["boost-test"], vcpkgtriplet: x64-linux }
-        - { os: ubuntu-20.04, qt: 5.15.2, cc: gcc-10, experimental: false, dependencies: ["boost-test"], vcpkgtriplet: x64-linux }
-        - { os: ubuntu-20.04, qt: 6.1.0, cc: gcc-10, experimental: true, dependencies: ["boost-test", "openssl"], vcpkgtriplet: x64-linux }
-        - { os: windows-latest, qt: 5.15.2, cc: cl, experimental: false, dependencies: ["boost-test"], vcpkgtriplet: x64-windows }
-        - { os: windows-latest, qt: 6.1.0, cc: cl, experimental: true, dependencies: ["boost-test", "openssl"], vcpkgtriplet: x64-windows }
-        - { os: macos-latest, qt: 5.15.2, cc: clang, experimental: false, dependencies: ["boost-test"], vcpkgtriplet: x64-osx }
-        - { os: macos-latest, qt: 6.1.0, cc: clang, experimental: true, dependencies: ["boost-test", "openssl"], vcpkgtriplet: x64-osx }
+        - { os: ubuntu-20.04, qt: 5.11.3, cc: gcc-8, cxx: g++-8, experimental: false, dependencies: ["boost-test"], vcpkgtriplet: x64-linux }
+        - { os: ubuntu-20.04, qt: 5.11.3, cc: gcc-10, cxx: g++-10, experimental: true, dependencies: ["boost-test"], vcpkgtriplet: x64-linux }
+        - { os: ubuntu-20.04, qt: 5.15.2, cc: gcc-8, cxx: g++-8, experimental: false, dependencies: ["boost-test"], vcpkgtriplet: x64-linux }
+        - { os: ubuntu-20.04, qt: 5.15.2, cc: gcc-10, cxx: g++-10, experimental: false, dependencies: ["boost-test"], vcpkgtriplet: x64-linux }
+        - { os: ubuntu-20.04, qt: 6.1.0, cc: gcc-10, cxx: g++-10, experimental: true, dependencies: ["boost-test", "openssl"], vcpkgtriplet: x64-linux }
+        - { os: windows-latest, qt: 5.15.2, cc: cl, cxx: cl, experimental: false, dependencies: ["boost-test"], vcpkgtriplet: x64-windows }
+        - { os: windows-latest, qt: 6.1.0, cc: cl, cxx: cl, experimental: true, dependencies: ["boost-test", "openssl"], vcpkgtriplet: x64-windows }
+        - { os: macos-latest, qt: 5.15.2, cc: clang, cxx: clang++, experimental: false, dependencies: ["boost-test"], vcpkgtriplet: x64-osx }
+        - { os: macos-latest, qt: 6.1.0, cc: clang, cxx: clang++, experimental: true, dependencies: ["boost-test", "openssl"], vcpkgtriplet: x64-osx }
 
     name: Qt${{ matrix.cfg.qt }} - ${{ matrix.cfg.cc }}[${{ matrix.cfg.os }}]
     continue-on-error: ${{ matrix.cfg.experimental }}
@@ -67,6 +67,10 @@ jobs:
           sudo apt install vulkan-sdk libxkbcommon-dev -y
         if: matrix.cfg.os == 'ubuntu-20.04' && matrix.cfg.qt == '6.1.0'
 
+      - name: Install gcc 8
+        run: sudo apt-get install g++-8 -y
+        if: matrix.cfg.cc == 'gcc-8'
+
       - name: Cache Vulkan(windows)
         id: cache-vulkan
         uses: actions/cache@v1
@@ -100,6 +104,7 @@ jobs:
         working-directory: build
         env:
           CC: ${{ matrix.cfg.cc }}
+          CXX: ${{ matrix.cfg.cxx }}
 
       - name: Build project
         run: ninja
