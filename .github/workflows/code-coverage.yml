@@ -59,6 +59,10 @@ jobs:
           sudo apt install vulkan-sdk libxkbcommon-dev -y
         if: matrix.cfg.os == 'ubuntu-20.04' && matrix.cfg.qt == '6.1.0'
 
+      - name: Install gcc 8
+        run: sudo apt-get install g++-8 -y
+        if: matrix.cfg.cc == 'gcc-8'
+
       - uses: lukka/run-vcpkg@v7.3
         with:
           vcpkgDirectory: ${{ github.workspace }}/ext/vcpkg
