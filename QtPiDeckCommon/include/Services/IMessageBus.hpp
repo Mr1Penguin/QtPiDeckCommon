@@ -8,8 +8,6 @@
 #include "Bus/Message.hpp"
 #include "ServiceInterface.hpp"
 
-#include <iostream>
-
 namespace QtPiDeck::Services {
 class Subscription {
 public:
