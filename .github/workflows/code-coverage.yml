@@ -15,6 +15,7 @@ jobs:
     strategy:
       matrix:
         cfg:
+        - { os: ubuntu-20.04, qt: 5.11.3, cc: gcc-8, experimental: true, dependencies: ["boost-test"], vcpkgtriplet: x64-linux }
         - { os: ubuntu-20.04, qt: 5.11.3, cc: gcc-10, experimental: true, dependencies: ["boost-test"], vcpkgtriplet: x64-linux }
         - { os: ubuntu-20.04, qt: 5.15.2, cc: gcc-10, experimental: false, dependencies: ["boost-test"], vcpkgtriplet: x64-linux }
         - { os: ubuntu-20.04, qt: 6.1.0, cc: gcc-10, experimental: true, dependencies: ["boost-test", "openssl"], vcpkgtriplet: x64-linux }
