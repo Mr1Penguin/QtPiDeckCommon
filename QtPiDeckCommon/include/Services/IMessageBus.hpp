@@ -15,12 +15,12 @@ public:
   explicit Subscription(QMetaObject::Connection connection) : m_connection(connection) {}
   Subscription(const Subscription&) = delete;
   Subscription(Subscription&& other) {
-    m_connection = other.m_connection;
+    m_connection = std::move(other.m_connection);
     other.m_connection.reset();
   }
   auto operator=(const Subscription&) -> Subscription& = delete;
   auto operator                                        =(Subscription&& other) -> Subscription& {
-    m_connection = other.m_connection;
+    m_connection = std::move(other.m_connection);
     other.m_connection.reset();
     return *this;
   };
