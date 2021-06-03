@@ -15,10 +15,10 @@ jobs:
     strategy:
       matrix:
         cfg:
-        - { os: ubuntu-20.04, qt: 5.11.3, cc: gcc-8, cxx: g++-8, experimental: true, dependencies: ["boost-test"], vcpkgtriplet: x64-linux }
-        - { os: ubuntu-20.04, qt: 5.11.3, cc: gcc-10, cxx: g++-10, experimental: true, dependencies: ["boost-test"], vcpkgtriplet: x64-linux }
-        - { os: ubuntu-20.04, qt: 5.15.2, cc: gcc-10, cxx: g++-10, experimental: false, dependencies: ["boost-test"], vcpkgtriplet: x64-linux }
-        - { os: ubuntu-20.04, qt: 6.1.0, cc: gcc-10, cxx: g++-10, experimental: true, dependencies: ["boost-test", "openssl"], vcpkgtriplet: x64-linux }
+        - { os: ubuntu-20.04, qt: 5.11.3, cc: gcc-8, cxx: g++-8, gcov: gcov-8, experimental: true, dependencies: ["boost-test"], vcpkgtriplet: x64-linux }
+        - { os: ubuntu-20.04, qt: 5.11.3, cc: gcc-10, cxx: g++-10, gcov: gcov-10, experimental: true, dependencies: ["boost-test"], vcpkgtriplet: x64-linux }
+        - { os: ubuntu-20.04, qt: 5.15.2, cc: gcc-10, cxx: g++-10, gcov: gcov-10, experimental: false, dependencies: ["boost-test"], vcpkgtriplet: x64-linux }
+        - { os: ubuntu-20.04, qt: 6.1.0, cc: gcc-10, cxx: g++-10, gcov: gcov-10, experimental: true, dependencies: ["boost-test", "openssl"], vcpkgtriplet: x64-linux }
 
     name: code coverage [Qt${{ matrix.cfg.qt }}]
     continue-on-error: ${{ matrix.cfg.experimental }}
@@ -87,7 +87,7 @@ jobs:
         run: sudo apt update && sudo apt install -y lcov
 
       - name: Initial lcov run
-        run: lcov --rc lcov_branch_coverage=1 --no-external --capture --initial --directory . --output-file before.txt
+        run: lcov --rc lcov_branch_coverage=1 --no-external --capture --initial --directory . --output-file before.txt --gcov-tool ${{martix.cfg.gcov}}
 
       - name: Test project
         run: ctest --output-on-failure
@@ -96,11 +96,11 @@ jobs:
           LD_LIBRARY_PATH: ./QtPiDeckCommon
 
       - name: Post-test lcov run
-        run: lcov --rc lcov_branch_coverage=1 --capture --directory . --output-file coverage.txt
+        run: lcov --rc lcov_branch_coverage=1 --capture --directory . --output-file coverage.txt --gcov-tool ${{martix.cfg.gcov}}
 
       - name: Merge lcov reports
         run: |
-            lcov --rc lcov_branch_coverage=1 --add-tracefile before.txt --add-tracefile coverage.txt --output-file coverage.txt
+            lcov --rc lcov_branch_coverage=1 --add-tracefile before.txt --add-tracefile coverage.txt --output-file coverage.txt --gcov-tool ${{martix.cfg.gcov}}
             rm before.txt
 
       - name: Clean up report
