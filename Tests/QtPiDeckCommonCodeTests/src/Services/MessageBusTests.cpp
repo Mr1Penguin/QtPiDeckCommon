@@ -43,15 +43,35 @@ CT_BOOST_AUTO_TEST_CASE(SubscripionExpiresOnReset) {
 CT_BOOST_AUTO_TEST_CASE(SubscripionDoesNotAffectConnectionAfterMove) {
   SignalEmitter emitter;
   int counter = 0;
-  QtPiDeck::Services::Subscription subscription{
-      QObject::connect(&emitter, &SignalEmitter::signal, [&counter] { ++counter; })};
+  auto subscription = std::make_unique<QtPiDeck::Services::Subscription>(
+      QObject::connect(&emitter, &SignalEmitter::signal, [&counter] { ++counter; }));
   emitter.emitSignal();
   CT_BOOST_TEST(counter == 1);
-  QtPiDeck::Services::Subscription subscription2{std::move(subscription)};
+  auto subscription2 = std::make_unique<QtPiDeck::Services::Subscription>(std::move(*subscription));
   subscription.reset();
   emitter.emitSignal();
   CT_BOOST_TEST(counter == 2);
+  subscription2.reset();
+  emitter.emitSignal();
+  CT_BOOST_TEST(counter == 2);
 }
+
+CT_BOOST_AUTO_TEST_CASE(SubscripionIsEmptyAfterMove) {
+  SignalEmitter emitter;
+  int counter       = 0;
+  auto subscription = std::make_unique<QtPiDeck::Services::Subscription>(
+      QObject::connect(&emitter, &SignalEmitter::signal, [&counter] { ++counter; }));
+  emitter.emitSignal();
+  CT_BOOST_TEST(counter == 1);
+  auto subscription2 = std::make_unique<QtPiDeck::Services::Subscription>(std::move(*subscription));
+  subscription2.reset();
+  emitter.emitSignal();
+  CT_BOOST_TEST(counter == 1);
+  subscription.reset();
+  emitter.emitSignal();
+  CT_BOOST_TEST(counter == 1);
+}
+
 CT_BOOST_AUTO_TEST_SUITE_END()
 
 struct MessageBusFixture {
