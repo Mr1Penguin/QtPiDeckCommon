@@ -69,7 +69,7 @@ jobs:
          mv build/compile_commands.json .
          mkdir clang-tidy-reports
 
-      - run: git log --graph --all --decorate > file && head -n100 file
+      - run: sudo apt-get install -y clang-tidy
 
       - name: Generate reports
         run: git diff --name-only $(git merge-base origin/master HEAD) HEAD | grep '\.cpp$' | xargs -P2 -I% sh -c "mkdir -p cl/% && clang-tidy % > clang-tidy-reports/%/report"
