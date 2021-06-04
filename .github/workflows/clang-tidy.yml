@@ -72,6 +72,10 @@ jobs:
           CC: ${{ matrix.cfg.cc }}
           CXX: ${{ matrix.cfg.cxx }}
 
+      - name: Build project
+        run: ninja
+        working-directory: build
+
       - name: Prepare directories and files
         run: |
            mv build/compile_commands.json .

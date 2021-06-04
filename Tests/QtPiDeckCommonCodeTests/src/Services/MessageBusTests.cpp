@@ -213,3 +213,5 @@ CT_BOOST_AUTO_TEST_CASE(sendMessageWithPayload) {
 }
 
 CT_BOOST_AUTO_TEST_SUITE_END()
+
+#include "MessageBusTests.moc"
