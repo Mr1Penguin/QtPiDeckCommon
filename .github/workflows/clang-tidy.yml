@@ -74,9 +74,9 @@ jobs:
       - name: Generate reports
         run: git diff --name-only $(git merge-base origin/master HEAD) HEAD | grep '\.cpp$' | xargs -P2 -I% sh -c "mkdir -p clang-tidy-reports/% && clang-tidy % > clang-tidy-reports/%/report.txt"
 
-      - run: find clang-tidy-reports -name 'report' -empty -exec rm {} \; 
+      - run: find clang-tidy-reports -name 'report.txt' -empty -exec rm {} \; 
 
-      - run: echo ::set-output name=count::$(find clang-tidy-reports -name 'report' | wc -l)
+      - run: echo ::set-output name=count::$(find clang-tidy-reports -name 'report.txt' | wc -l)
         id: reports-number
       
       - name: Archive report
