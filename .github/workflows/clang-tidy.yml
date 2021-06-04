@@ -83,7 +83,7 @@ jobs:
         run: zip -r clang-tidy-reports.zip clang-tidy-reports
         if: steps.reports-number.outputs.count != 0
 
-      - name: Exprrt report
+      - name: Export report
         uses: actions/upload-artifact@v2
         with:
           name: clang-tidy-reports
