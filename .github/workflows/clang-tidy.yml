@@ -29,6 +29,8 @@ jobs:
           key: ${{ runner.os }}-QtCache-${{ matrix.cfg.qt }}-temp
 
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Checkout submodules
         run: |
@@ -78,11 +80,11 @@ jobs:
 
       - name: Prepare directories and files
         run: |
-           mv build/compile_commands.json .
-           mkdir clang-tidy-reports
+         mv build/compile_commands.json .
+         mkdir clang-tidy-reports
 
       - name: Generate reports
-        run: git diff --name-only $(git merge-base origin/master HEAD) HEAD | grep '\.cpp$' | xargs -P2 -I% sh -c "mkdir -p cl/% && clang-tidy % > clang-tidy-reports/%/report"
+        run: git diff --name-only $(git merge-base master HEAD) HEAD | grep '\.cpp$' | xargs -P2 -I% sh -c "mkdir -p cl/% && clang-tidy % > clang-tidy-reports/%/report"
 
       - run: find clang-tidy-reports -name 'report' -empty -exec rm {} \; 
 
