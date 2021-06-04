@@ -14,12 +14,12 @@ public:
   Subscription() = default;
   explicit Subscription(QMetaObject::Connection connection) : m_connection(connection) {}
   Subscription(const Subscription&) = delete;
-  Subscription(Subscription&& other) {
+  Subscription(Subscription&& other) noexcept {
     m_connection = std::move(other.m_connection);
     other.m_connection.reset();
   }
   auto operator=(const Subscription&) -> Subscription& = delete;
-  auto operator                                        =(Subscription&& other) -> Subscription& {
+  auto operator                                        =(Subscription&& other) noexcept -> Subscription& {
     m_connection = std::move(other.m_connection);
     other.m_connection.reset();
     return *this;
@@ -58,8 +58,6 @@ template<class TSubscriber, typename = std::enable_if_t<std::is_base_of_v<QObjec
                        [context, response](const Bus::Message& message) { std::invoke(response, context, message); });
 #endif
 }
-
-
 
 template<class TSubscriber, typename = std::enable_if_t<std::is_base_of_v<QObject, TSubscriber>>>
 [[nodiscard]] auto subscribe(IMessageBus& bus, TSubscriber* context, void (TSubscriber::*response)(),
