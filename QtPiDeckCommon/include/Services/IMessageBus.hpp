@@ -39,12 +39,13 @@ private:
 
 class IMessageBus : public ServiceInterface {
 public:
-  [[nodiscard]] virtual auto subscribe(QObject* context, const std::function<void(const Bus::Message&)>& method)
-      -> Subscription                                                        = 0;
+  [[nodiscard]] virtual auto subscribe(QObject* context,
+                                       const std::function<void(const Bus::Message&)>& method) noexcept
+      -> Subscription                                                                 = 0;
   [[nodiscard]] virtual auto subscribe(QObject* context, const std::function<void(const Bus::Message&)>& method,
-                                       uint64_t messageType) -> Subscription = 0;
-  virtual void unsubscribe(Subscription&)                                    = 0;
-  virtual void sendMessage(Bus::Message)                                     = 0;
+                                       uint64_t messageType) noexcept -> Subscription = 0;
+  virtual void unsubscribe(Subscription&) noexcept                                    = 0;
+  virtual void sendMessage(Bus::Message) noexcept                                     = 0;
 };
 
 template<class TSubscriber, typename = std::enable_if_t<std::is_base_of_v<QObject, TSubscriber>>>

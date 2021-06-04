@@ -11,12 +11,12 @@ class QTPIDECKCOMMON_EXPORT MessageBus final : public QObject, public IMessageBu
 public:
   explicit MessageBus(QObject* parent) : QObject(parent) {}
 
-  [[nodiscard]] auto subscribe(QObject* context, const std::function<void(const Bus::Message&)>& method)
+  [[nodiscard]] auto subscribe(QObject* context, const std::function<void(const Bus::Message&)>& method) noexcept
       -> Subscription final;
   [[nodiscard]] auto subscribe(QObject* context, const std::function<void(const Bus::Message&)>& method,
-                               uint64_t messageType) -> Subscription final;
-  void unsubscribe(Subscription& connection) final;
-  void sendMessage(Bus::Message message) final;
+                               uint64_t messageType) noexcept -> Subscription final;
+  void unsubscribe(Subscription& connection) noexcept final;
+  void sendMessage(Bus::Message message) noexcept final;
 
 signals:
   void newMessage(Bus::Message message);
