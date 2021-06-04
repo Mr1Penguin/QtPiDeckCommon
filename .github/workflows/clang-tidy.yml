@@ -1,0 +1,97 @@
+name: Clang tidy checks
+
+# currently does not check 100% of code
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.cfg.os }}
+    env:
+      VULKAN_VER: 1.2.162
+      VULKAN_VER_FULL: 1.2.162.0
+    strategy:
+      matrix:
+        cfg:
+        - { os: ubuntu-20.04, qt: 5.15.2, cc: gcc-10, cxx: g++-10, experimental: false, dependencies: ["boost-test"], vcpkgtriplet: x64-linux }
+
+    name: Qt${{ matrix.cfg.qt }} - ${{ matrix.cfg.cc }}[${{ matrix.cfg.os }}]
+    continue-on-error: ${{ matrix.cfg.experimental }}
+
+    steps:
+      - name: Cache Qt
+        id: cache-qt
+        uses: actions/cache@v1
+        with:
+          path: ../Qt
+          key: ${{ runner.os }}-QtCache-${{ matrix.cfg.qt }}-temp
+
+      - uses: actions/checkout@v2
+
+      - name: Checkout submodules
+        run: |
+          git config --global url."https://github.com/".insteadOf "git@github.com:"
+          git submodule sync --recursive
+          git submodule update --init --force --recursive --depth=1
+
+      - uses: lukka/get-cmake@latest
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: '${{ matrix.cfg.qt }}'
+          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+
+      - name: Make build dir
+        run: mkdir build
+
+      - name: Install additional Qt6 dependencies(ubuntu)
+        run: |
+          wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
+          sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-${VULKAN_VER}-focal.list https://packages.lunarg.com/vulkan/${VULKAN_VER}/lunarg-vulkan-${VULKAN_VER}-focal.list
+          sudo apt update
+          sudo apt install
+          sudo apt install vulkan-sdk libxkbcommon-dev -y
+        if: matrix.cfg.os == 'ubuntu-20.04' && matrix.cfg.qt == '6.1.0'
+
+      - uses: lukka/run-vcpkg@v7.3
+        with:
+          vcpkgDirectory: ${{ github.workspace }}/ext/vcpkg
+          appendedCacheKey: ${{ join(matrix.cfg.dependencies, '-') }}-temp
+          vcpkgTriplet: ${{ matrix.cfg.vcpkgtriplet }}
+          vcpkgArguments: ${{ join(matrix.cfg.dependencies, ' ') }} --overlay-triplets=${{ github.workspace }}/ext/vcpkg-tripltets/
+          doNotUpdateVcpkg: true
+        if: matrix.cfg.dependencies != null
+
+      - name: Run cmake
+        run: cmake .. -G Ninja -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/ext/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+        working-directory: build
+        env:
+          CC: ${{ matrix.cfg.cc }}
+          CXX: ${{ matrix.cfg.cxx }}
+
+      - name: Prepare directories and files
+        run: |
+           mv build/compile_commands.json .
+           mkdir clang-tidy-reports
+
+      - name: Generate reports
+        run: git diff --name-only $(git merge-base master HEAD) HEAD | grep '\.cpp$' | xargs -P2 -I% sh -c "mkdir -p cl/% && clang-tidy % > clang-tidy-reports/%/report"
+
+      - run: find clang-tidy-reports -name 'report' -empty -exec rm {} \; 
+
+      - run: echo ::set-output name=count::$(find clang-tidy-reports -name 'report' | wc -l)
+        id: reports-number
+      
+      - name: Archive report
+        run: zip -r clang-tidy-reports.zip clang-tidy-reports
+        if: steps.reports-number.outputs.count != 0
+
+      - name: Exprrt report
+        uses: actions/upload-artifact@v2
+        with:
+          name: clang-tidy-reports
+          path: clang-tidy-reports.zip
+        if: steps.reports-number.outputs.count != 0
