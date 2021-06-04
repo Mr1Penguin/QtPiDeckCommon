@@ -72,7 +72,7 @@ jobs:
       - run: sudo apt-get install -y clang-tidy
 
       - name: Generate reports
-        run: git diff --name-only $(git merge-base origin/master HEAD) HEAD | grep '\.cpp$' | xargs -P2 -I% sh -c "mkdir -p cl/% && clang-tidy % > clang-tidy-reports/%/report"
+        run: git diff --name-only $(git merge-base origin/master HEAD) HEAD | grep '\.cpp$' | xargs -P2 -I% sh -c "mkdir -p clang-tidy-reports/% && clang-tidy % > clang-tidy-reports/%/report"
 
       - run: find clang-tidy-reports -name 'report' -empty -exec rm {} \; 
 
