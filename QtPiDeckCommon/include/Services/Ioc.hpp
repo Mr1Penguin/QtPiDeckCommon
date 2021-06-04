@@ -18,7 +18,7 @@ enum class CreationType { SharedPointer, UniquePointer, Copy, RawInMemory, Raw }
 
 class Ioc {
 public:
-  template <class TInterface, class TImplementation = TInterface>
+  template<class TInterface, class TImplementation = TInterface>
   void registerService() noexcept {
     static_assert(std::is_base_of_v<TInterface, TImplementation>);
     static_assert(std::is_base_of_v<ServiceInterface, TInterface>);
@@ -27,10 +27,9 @@ public:
       using wrapperType = ServiceImplementationMetaWrapper<TImplementation>;
       return std::unique_ptr<ServiceImplementationMetaWrapperBase>(new wrapperType());
     };
-    auto record = std::make_pair(createWrapper(), std::type_index{typeid(TImplementation)});
-    auto it     = m_services.find({typeid(TInterface)});
-    const auto end = std::cend(m_services);
-    if ( it != end) {
+    if (auto [record, it] = std::make_tuple(std::make_pair(createWrapper(), std::type_index{typeid(TImplementation)}),
+                                            m_services.find({typeid(TInterface)}));
+        it != std::cend(m_services)) {
       m_typeReferences.erase(it->second.second);
       it->second = std::move(record);
       qCDebug(::Ioc, "Replaced implementation for service '%s' with '%s'", std::type_index{typeid(TInterface)}.name(),
@@ -44,7 +43,7 @@ public:
     m_typeReferences.emplace(std::type_index{typeid(TImplementation)}, std::type_index{typeid(TInterface)});
   }
 
-  template <class TInterface>
+  template<class TInterface>
   void registerSingleton(std::shared_ptr<TInterface> singleton) noexcept {
     static_assert(std::is_base_of_v<ServiceInterface, TInterface>);
     Q_ASSERT(singleton != nullptr); // LCOV_EXCL_BR_LINE
@@ -57,7 +56,7 @@ public:
     }
   }
 
-  template <class TService>
+  template<class TService>
   [[nodiscard]] auto resolveService() const noexcept -> std::shared_ptr<TService> {
     if (const auto it = m_services.find({typeid(TService)}); it != std::cend(m_services)) {
       return std::shared_ptr<TService>(static_cast<TService*>(it->second.first->getRawImpl(*this)));
@@ -77,7 +76,7 @@ public:
     return nullptr;
   }
 
-  template <class TObject, CreationType creationType = CreationType::UniquePointer>
+  template<class TObject, CreationType creationType = CreationType::UniquePointer>
   [[nodiscard]] auto make(void* memory = nullptr) const noexcept {
     if constexpr (!std::is_base_of_v<detail::HasDependecies, TObject>) {
       return createImpl<TObject, creationType>(memory);
@@ -88,23 +87,23 @@ public:
 
 private:
   struct ServiceImplementationMetaWrapperBase {
-    ServiceImplementationMetaWrapperBase() = default;
+    ServiceImplementationMetaWrapperBase()                                            = default;
     ServiceImplementationMetaWrapperBase(const ServiceImplementationMetaWrapperBase&) = default;
-    ServiceImplementationMetaWrapperBase(ServiceImplementationMetaWrapperBase&&) = default;
-    virtual ~ServiceImplementationMetaWrapperBase() = default;
+    ServiceImplementationMetaWrapperBase(ServiceImplementationMetaWrapperBase&&)      = default;
+    virtual ~ServiceImplementationMetaWrapperBase()                                   = default;
     auto operator=(const ServiceImplementationMetaWrapperBase&) -> ServiceImplementationMetaWrapperBase& = default;
     auto operator=(ServiceImplementationMetaWrapperBase&&) -> ServiceImplementationMetaWrapperBase& = default;
-    [[nodiscard]] virtual auto getRawImpl(const Ioc& ioc) const noexcept -> ServiceInterface* = 0;
+    [[nodiscard]] virtual auto getRawImpl(const Ioc& ioc) const noexcept -> ServiceInterface*       = 0;
   };
 
-  template <class TImplementation>
+  template<class TImplementation>
   struct ServiceImplementationMetaWrapper : ServiceImplementationMetaWrapperBase {
     [[nodiscard]] auto getRawImpl(const Ioc& ioc) const noexcept -> TImplementation* final {
       return ioc.make<TImplementation, CreationType::Raw>();
     }
   };
 
-  template <class TImplementation, CreationType creationType, class... TDeps>
+  template<class TImplementation, CreationType creationType, class... TDeps>
   auto makeWithDependencies(Services::UseServices<TDeps...>* /*deductor*/, void* memory = nullptr) const noexcept {
     if constexpr (std::is_constructible_v<TImplementation, std::shared_ptr<TDeps>...>) {
       return createImpl<TImplementation, creationType>(memory, resolveService<TDeps>()...);
@@ -122,7 +121,7 @@ private:
     }
   }
 
-  template <class TImplementation, CreationType creationType, class... TArgs>
+  template<class TImplementation, CreationType creationType, class... TArgs>
   auto createImpl([[maybe_unused]] void* memory, TArgs... args) const noexcept {
     if constexpr (creationType == CreationType::SharedPointer) {
       return std::make_shared<TImplementation>(args...);
@@ -138,7 +137,7 @@ private:
     }
   }
 
-  template <class... TServices>
+  template<class... TServices>
   void setServices(UseServices<TServices...>& service) const noexcept {
     (service.template setService<TServices>(resolveService<TServices>()), ...);
   }
