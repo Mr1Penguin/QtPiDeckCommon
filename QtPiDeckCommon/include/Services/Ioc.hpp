@@ -19,7 +19,7 @@ enum class CreationType { SharedPointer, UniquePointer, Copy, RawInMemory, Raw }
 class Ioc {
 public:
   template <class TInterface, class TImplementation = TInterface>
-  void registerService() {
+  void registerService() noexcept {
     static_assert(std::is_base_of_v<TInterface, TImplementation>);
     static_assert(std::is_base_of_v<ServiceInterface, TInterface>);
 
@@ -28,7 +28,9 @@ public:
       return std::unique_ptr<ServiceImplementationMetaWrapperBase>(new wrapperType());
     };
     auto record = std::make_pair(createWrapper(), std::type_index{typeid(TImplementation)});
-    if (auto it = m_services.find({typeid(TInterface)}); it != std::cend(m_services)) {
+    auto it     = m_services.find({typeid(TInterface)});
+    const auto end = std::cend(m_services);
+    if ( it != end) {
       m_typeReferences.erase(it->second.second);
       it->second = std::move(record);
       qCDebug(::Ioc, "Replaced implementation for service '%s' with '%s'", std::type_index{typeid(TInterface)}.name(),
@@ -45,7 +47,7 @@ public:
   template <class TInterface>
   void registerSingleton(std::shared_ptr<TInterface> singleton) noexcept {
     static_assert(std::is_base_of_v<ServiceInterface, TInterface>);
-    Q_ASSERT(singleton != nullptr);
+    Q_ASSERT(singleton != nullptr); // LCOV_EXCL_BR_LINE
     if (auto it = m_singletons.find({typeid(TInterface)}); it != std::cend(m_singletons)) {
       it->second = std::move(singleton);
       qCDebug(::Ioc, "Replaced implementation for singleton '%s'", std::type_index{typeid(TInterface)}.name());
@@ -58,16 +60,16 @@ public:
   template <class TService>
   [[nodiscard]] auto resolveService() const noexcept -> std::shared_ptr<TService> {
     if (const auto it = m_services.find({typeid(TService)}); it != std::cend(m_services)) {
-      return std::shared_ptr<TService>(dynamic_cast<TService*>(it->second.first->getRawImpl(*this)));
+      return std::shared_ptr<TService>(static_cast<TService*>(it->second.first->getRawImpl(*this)));
     }
 
     if (const auto it = m_typeReferences.find({typeid(TService)}); it != std::cend(m_typeReferences)) {
       const auto& wrapper = m_services.at(it->second).first;
-      return std::shared_ptr<TService>(dynamic_cast<TService*>(wrapper->getRawImpl(*this)));
+      return std::shared_ptr<TService>(static_cast<TService*>(wrapper->getRawImpl(*this)));
     }
 
     if (const auto it = m_singletons.find({typeid(TService)}); it != std::cend(m_singletons)) {
-      return std::dynamic_pointer_cast<TService>(it->second);
+      return std::static_pointer_cast<TService>(it->second);
     }
 
     qCDebug(::Ioc, "Service or singleton '%s' not found", std::type_index{typeid(TService)}.name());
