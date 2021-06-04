@@ -147,7 +147,7 @@ public:
 
   void callMe(const QtPiDeck::Bus::Message& message) noexcept { setMessageType = message.messageType; }
 
-  auto getMessageType() const noexcept -> uint64_t { return setMessageType; }
+  [[nodiscard]] auto getMessageType() const noexcept -> uint64_t { return setMessageType; }
 
 private:
   const uint64_t m_expectedMessageType;
