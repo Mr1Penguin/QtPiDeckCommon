@@ -19,14 +19,14 @@ struct MessageHeader {
   QString requestId;
 };
 
-inline auto getEmptyMessageHeader(MessageType messageType, QString requestId) {
+inline auto getEmptyMessageHeader(MessageType messageType, QString requestId) noexcept {
   return MessageHeader{0, messageType, requestId};
 }
 
-QTPIDECKCOMMON_EXPORT auto operator<<(QDataStream& str, const MessageHeader& header) -> QDataStream&;
-QTPIDECKCOMMON_EXPORT auto operator>>(QDataStream& str, MessageHeader& header) -> QDataStream&;
+QTPIDECKCOMMON_EXPORT auto operator<<(QDataStream& str, const MessageHeader& header) noexcept -> QDataStream&;
+QTPIDECKCOMMON_EXPORT auto operator>>(QDataStream& str, MessageHeader& header) noexcept -> QDataStream&;
 #if (QT_VERSION == QTPI4_VERSION)
-QTPIDECKCOMMON_EXPORT auto operator<<(QDataStream& str, const MessageType& messageType) -> QDataStream&;
-QTPIDECKCOMMON_EXPORT auto operator>>(QDataStream& str, MessageType& messageType) -> QDataStream&;
+QTPIDECKCOMMON_EXPORT auto operator<<(QDataStream& str, const MessageType& messageType) noexcept -> QDataStream&;
+QTPIDECKCOMMON_EXPORT auto operator>>(QDataStream& str, MessageType& messageType) noexcept -> QDataStream&;
 #endif
 }
