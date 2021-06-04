@@ -72,7 +72,7 @@ jobs:
       - run: git log --graph --all --decorate > file && head -n100 file
 
       - name: Generate reports
-        run: git diff --name-only $(git merge-base master HEAD) HEAD | grep '\.cpp$' | xargs -P2 -I% sh -c "mkdir -p cl/% && clang-tidy % > clang-tidy-reports/%/report"
+        run: git diff --name-only $(git merge-base origin/master HEAD) HEAD | grep '\.cpp$' | xargs -P2 -I% sh -c "mkdir -p cl/% && clang-tidy % > clang-tidy-reports/%/report"
 
       - run: find clang-tidy-reports -name 'report' -empty -exec rm {} \; 
 
