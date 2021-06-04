@@ -15,7 +15,7 @@ public:
       -> Subscription final;
   [[nodiscard]] auto subscribe(QObject* context, const std::function<void(const Bus::Message&)>& method,
                                uint64_t messageType) noexcept -> Subscription final;
-  void unsubscribe(Subscription& connection) noexcept final;
+  void unsubscribe(Subscription& subscription) noexcept final;
   void sendMessage(Bus::Message message) noexcept final;
 
 signals:
