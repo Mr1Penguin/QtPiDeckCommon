@@ -35,6 +35,14 @@ endif()
 option(BUILD_COMMON_TESTS "" ON)
 option(CODECOV "" OFF)
 
+try_compile(STD_FORMAT ${CMAKE_BINARY_DIR}/temp SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/try_compile/std_format.cpp)
+
+if (STD_FORMAT)
+message(STATUS "Compiler supports std::format")
+else()
+message(STATUS "std::format is not supported. libfmt will be used")
+endif()
+
 add_subdirectory(QtPiDeckCommon)
 add_subdirectory(QtChecker)
 add_subdirectory(QtDefinitions)

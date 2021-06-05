@@ -4,6 +4,13 @@
 #include <type_traits>
 #include <typeindex>
 #include <unordered_map>
+#if __cpp_lib_format
+#include <format>
+namespace fmtlib = std;
+#else
+#include <fmt/core.h>
+namespace fmtlib = fmt;
+#endif
 
 #include <QLoggingCategory>
 #include <QObject>
@@ -27,20 +34,24 @@ public:
       using wrapperType = ServiceImplementationMetaWrapper<TImplementation>;
       return std::unique_ptr<ServiceImplementationMetaWrapperBase>(new wrapperType());
     };
-    if (auto [record, it] = std::make_tuple(std::make_pair(createWrapper(), std::type_index{typeid(TImplementation)}),
-                                            m_services.find({typeid(TInterface)}));
+    const auto implTypeIndex = std::type_index{typeid(TImplementation)};
+    const auto intTypeIndex  = std::type_index{typeid(TInterface)};
+    if (auto [record, it] =
+            std::make_tuple(std::make_pair(createWrapper(), implTypeIndex), m_services.find({typeid(TInterface)}));
         it != std::cend(m_services)) {
       m_typeReferences.erase(it->second.second);
       it->second = std::move(record);
-      qCDebug(::Ioc, "Replaced implementation for service '%s' with '%s'", std::type_index{typeid(TInterface)}.name(),
-              std::type_index{typeid(TImplementation)}.name());
+      qCDebug(::Ioc) << fmtlib::format("Replaced implementation for service '{}' with '{}'", intTypeIndex.name(),
+                                       implTypeIndex.name())
+                            .c_str();
     } else {
-      m_services.emplace(std::type_index{typeid(TInterface)}, std::move(record));
-      qCDebug(::Ioc, "Added service '%s' with implementation '%s'", std::type_index{typeid(TInterface)}.name(),
-              std::type_index{typeid(TImplementation)}.name());
+      m_services.emplace(intTypeIndex, std::move(record));
+      qCDebug(::Ioc) << fmtlib::format("Added service '{}' with implementation '{}'", intTypeIndex.name(),
+                                       implTypeIndex.name())
+                            .c_str();
     }
 
-    m_typeReferences.emplace(std::type_index{typeid(TImplementation)}, std::type_index{typeid(TInterface)});
+    m_typeReferences.emplace(implTypeIndex, std::type_index{typeid(TInterface)});
   }
 
   template<class TInterface>
@@ -49,10 +60,10 @@ public:
     Q_ASSERT(singleton != nullptr); // LCOV_EXCL_BR_LINE
     if (auto it = m_singletons.find({typeid(TInterface)}); it != std::cend(m_singletons)) {
       it->second = std::move(singleton);
-      qCDebug(::Ioc, "Replaced implementation for singleton '%s'", std::type_index{typeid(TInterface)}.name());
+      qCDebug(::Ioc) << fmtlib::format("Replaced implementation for singleton '{}'", std::type_index{typeid(TInterface)}.name()).c_str();
     } else {
       m_singletons.emplace(std::type_index{typeid(TInterface)}, std::move(singleton));
-      qCDebug(::Ioc, "Add singleton '%s'", std::type_index{typeid(TInterface)}.name());
+      qCDebug(::Ioc) << fmtlib::format("Add singleton '{}'", std::type_index{typeid(TInterface)}.name()).c_str();
     }
   }
 
@@ -71,7 +82,7 @@ public:
       return std::static_pointer_cast<TService>(it->second);
     }
 
-    qCDebug(::Ioc, "Service or singleton '%s' not found", std::type_index{typeid(TService)}.name());
+    qCDebug(::Ioc) << fmtlib::format("Service or singleton '{}' not found", std::type_index{typeid(TService)}.name()).c_str();
 
     return nullptr;
   }

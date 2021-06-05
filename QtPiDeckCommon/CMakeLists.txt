@@ -46,3 +46,8 @@ target_link_libraries(QtPiDeckCommon
   Qt${QT_VERSION_MAJOR}::Core
   Qt${QT_VERSION_MAJOR}::Quick
   QtChecker)
+
+if (NOT STD_FORMAT)
+    find_package(fmt CONFIG REQUIRED)
+    target_link_libraries(QtPiDeckCommon PUBLIC fmt::fmt)
+endif()
