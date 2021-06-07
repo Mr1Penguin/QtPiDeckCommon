@@ -63,16 +63,18 @@ jobs:
         run: sudo apt-get install g++-8 -y
         if: matrix.cfg.cc == 'gcc-8'
 
-      - name: Get vcpkg package list
-        run: echo "::set-output name=dependencies::$(python3 ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ matrix.cfg.qt }})"
+      - name: Get vcpkg package list and cache key
+        run: |
+          echo "::set-output name=dependencies::$(python3 -m ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ matrix.cfg.qt }})"
+          echo "::set-output name=cacheKey::$(python3 -m ${{ github.workspace }}/scripts/vcpkgCacheKey.py qt${{ matrix.cfg.qt }})"
         id: vcpkgPackages
 
       - uses: lukka/run-vcpkg@v7.3
         with:
           vcpkgDirectory: ${{ github.workspace }}/ext/vcpkg
-          appendedCacheKey: ${{ join(steps.vcpkgPackages.outputs.dependencies, '-') }}-temp
+          appendedCacheKey: ${{ join(steps.vcpkgPackages.outputs.cacheKey }}
           vcpkgTriplet: ${{ matrix.cfg.vcpkgtriplet }}
-          vcpkgArguments: ${{ join(steps.vcpkgPackages.outputs.dependencies, ' ') }} --overlay-triplets=${{ github.workspace }}/ext/vcpkg-tripltets/
+          vcpkgArguments: ${{ join(steps.vcpkgPackages.outputs.dependencies }} --overlay-triplets=${{ github.workspace }}/ext/vcpkg-tripltets/
           doNotUpdateVcpkg: true
         if: steps.vcpkgPackages.outputs.dependencies != 'nil'
 
