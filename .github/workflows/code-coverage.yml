@@ -15,10 +15,10 @@ jobs:
     strategy:
       matrix:
         cfg:
-        - { os: ubuntu-20.04, qt: 5.11.3, cc: gcc-8, cxx: g++-8, gcov: gcov-8, experimental: true, dependencies: ["boost-test"], vcpkgtriplet: x64-linux }
-        - { os: ubuntu-20.04, qt: 5.11.3, cc: gcc-10, cxx: g++-10, gcov: gcov-10, experimental: true, dependencies: ["boost-test"], vcpkgtriplet: x64-linux }
-        - { os: ubuntu-20.04, qt: 5.15.2, cc: gcc-10, cxx: g++-10, gcov: gcov-10, experimental: false, dependencies: ["boost-test"], vcpkgtriplet: x64-linux }
-        - { os: ubuntu-20.04, qt: 6.1.0, cc: gcc-10, cxx: g++-10, gcov: gcov-10, experimental: true, dependencies: ["boost-test", "openssl"], vcpkgtriplet: x64-linux }
+        - { os: ubuntu-20.04, qt: 5.11.3, cc: gcc-8, cxx: g++-8, gcov: gcov-8, experimental: true, vcpkgtriplet: x64-linux }
+        - { os: ubuntu-20.04, qt: 5.11.3, cc: gcc-10, cxx: g++-10, gcov: gcov-10, experimental: true, vcpkgtriplet: x64-linux }
+        - { os: ubuntu-20.04, qt: 5.15.2, cc: gcc-10, cxx: g++-10, gcov: gcov-10, experimental: false, vcpkgtriplet: x64-linux }
+        - { os: ubuntu-20.04, qt: 6.1.0, cc: gcc-10, cxx: g++-10, gcov: gcov-10, experimental: true, vcpkgtriplet: x64-linux }
 
     name: code coverage [Qt${{ matrix.cfg.qt }}]
     continue-on-error: ${{ matrix.cfg.experimental }}
@@ -63,14 +63,18 @@ jobs:
         run: sudo apt-get install g++-8 -y
         if: matrix.cfg.cc == 'gcc-8'
 
+      - name: Get vcpkg package list
+        run: echo ::set-output name=dependencies::$(python3 ${{ github.workspace }}/scripts/vcpkgPackages.py ${{ matrix.cfg.qt }})
+        id: vcpkgPackages
+
       - uses: lukka/run-vcpkg@v7.3
         with:
           vcpkgDirectory: ${{ github.workspace }}/ext/vcpkg
-          appendedCacheKey: ${{ join(matrix.cfg.dependencies, '-') }}-temp
+          appendedCacheKey: ${{ join(steps.vcpkgPackages.outputs.dependencies, '-') }}-temp
           vcpkgTriplet: ${{ matrix.cfg.vcpkgtriplet }}
-          vcpkgArguments: ${{ join(matrix.cfg.dependencies, ' ') }} --overlay-triplets=${{ github.workspace }}/ext/vcpkg-tripltets/
+          vcpkgArguments: ${{ join(steps.vcpkgPackages.outputs.dependencies, ' ') }} --overlay-triplets=${{ github.workspace }}/ext/vcpkg-tripltets/
           doNotUpdateVcpkg: true
-        if: matrix.cfg.dependencies != null
+        if: steps.vcpkgPackages.outputs.dependencies != 'nil'
 
       - name: Run cmake
         run: cmake .. -G Ninja -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/ext/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=Debug -DCODECOV=ON
