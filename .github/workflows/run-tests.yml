@@ -15,15 +15,15 @@ jobs:
     strategy:
       matrix:
         cfg:
-        - { os: ubuntu-20.04, qt: 5.11.3, cc: gcc-8, cxx: g++-8, experimental: false, dependencies: ["boost-test"], vcpkgtriplet: x64-linux }
-        - { os: ubuntu-20.04, qt: 5.11.3, cc: gcc-10, cxx: g++-10, experimental: true, dependencies: ["boost-test"], vcpkgtriplet: x64-linux }
-        - { os: ubuntu-20.04, qt: 5.15.2, cc: gcc-8, cxx: g++-8, experimental: false, dependencies: ["boost-test"], vcpkgtriplet: x64-linux }
-        - { os: ubuntu-20.04, qt: 5.15.2, cc: gcc-10, cxx: g++-10, experimental: false, dependencies: ["boost-test"], vcpkgtriplet: x64-linux }
-        - { os: ubuntu-20.04, qt: 6.1.0, cc: gcc-10, cxx: g++-10, experimental: true, dependencies: ["boost-test", "openssl"], vcpkgtriplet: x64-linux }
-        - { os: windows-latest, qt: 5.15.2, cc: cl, cxx: cl, experimental: false, dependencies: ["boost-test"], vcpkgtriplet: x64-windows }
-        - { os: windows-latest, qt: 6.1.0, cc: cl, cxx: cl, experimental: true, dependencies: ["boost-test", "openssl"], vcpkgtriplet: x64-windows }
-        - { os: macos-latest, qt: 5.15.2, cc: clang, cxx: clang++, experimental: false, dependencies: ["boost-test"], vcpkgtriplet: x64-osx }
-        - { os: macos-latest, qt: 6.1.0, cc: clang, cxx: clang++, experimental: true, dependencies: ["boost-test", "openssl"], vcpkgtriplet: x64-osx }
+        - { os: ubuntu-20.04, qt: 5.11.3, cc: gcc-8, cxx: g++-8, experimental: false, vcpkgtriplet: x64-linux }
+        - { os: ubuntu-20.04, qt: 5.11.3, cc: gcc-10, cxx: g++-10, experimental: true, vcpkgtriplet: x64-linux }
+        - { os: ubuntu-20.04, qt: 5.15.2, cc: gcc-8, cxx: g++-8, experimental: false, vcpkgtriplet: x64-linux }
+        - { os: ubuntu-20.04, qt: 5.15.2, cc: gcc-10, cxx: g++-10, experimental: false, vcpkgtriplet: x64-linux }
+        - { os: ubuntu-20.04, qt: 6.1.0, cc: gcc-10, cxx: g++-10, experimental: true, vcpkgtriplet: x64-linux }
+        - { os: windows-latest, qt: 5.15.2, cc: cl, cxx: cl, experimental: false, vcpkgtriplet: x64-windows }
+        - { os: windows-latest, qt: 6.1.0, cc: cl, cxx: cl, experimental: true, vcpkgtriplet: x64-windows }
+        - { os: macos-latest, qt: 5.15.2, cc: clang, cxx: clang++, experimental: false, vcpkgtriplet: x64-osx }
+        - { os: macos-latest, qt: 6.1.0, cc: clang, cxx: clang++, experimental: true, vcpkgtriplet: x64-osx }
 
     name: Qt${{ matrix.cfg.qt }} - ${{ matrix.cfg.cc }}[${{ matrix.cfg.os }}]
     continue-on-error: ${{ matrix.cfg.experimental }}
@@ -90,14 +90,20 @@ jobs:
         run: echo "VULKAN_SDK=C:\VulkanSDK\${env:VULKAN_VER_FULL}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
         if: matrix.cfg.os == 'windows-latest' && matrix.cfg.qt == '6.1.0'
 
+      - name: Get vcpkg package list and cache key
+        run: |
+          echo "::set-output name=dependencies::$(python3 ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ matrix.cfg.qt }})"
+          echo "::set-output name=cacheKey::$(python3 ${{ github.workspace }}/scripts/vcpkgCacheKey.py qt${{ matrix.cfg.qt }})"
+        id: vcpkgPackages
+
       - uses: lukka/run-vcpkg@v7.3
         with:
           vcpkgDirectory: ${{ github.workspace }}/ext/vcpkg
-          appendedCacheKey: ${{ join(matrix.cfg.dependencies, '-') }}-temp
+          appendedCacheKey: ${{ steps.vcpkgPackages.outputs.cacheKey }}
           vcpkgTriplet: ${{ matrix.cfg.vcpkgtriplet }}
-          vcpkgArguments: ${{ join(matrix.cfg.dependencies, ' ') }} --overlay-triplets=${{ github.workspace }}/ext/vcpkg-tripltets/
+          vcpkgArguments: ${{ steps.vcpkgPackages.outputs.dependencies }} --overlay-triplets=${{ github.workspace }}/ext/vcpkg-tripltets/
           doNotUpdateVcpkg: true
-        if: matrix.cfg.dependencies != null
+        if: steps.vcpkgPackages.outputs.dependencies != 'nil'
 
       - name: Run cmake
         run: cmake .. -G Ninja -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/ext/vcpkg/scripts/buildsystems/vcpkg.cmake

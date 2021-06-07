@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         cfg:
-        - { os: ubuntu-20.04, qt: 5.15.2, cc: gcc-10, cxx: g++-10, experimental: false, dependencies: ["boost-test"], vcpkgtriplet: x64-linux }
+        - { os: ubuntu-20.04, qt: 5.15.2, cc: gcc-10, cxx: g++-10, experimental: false, vcpkgtriplet: x64-linux }
 
     name: Qt${{ matrix.cfg.qt }} - ${{ matrix.cfg.cc }}[${{ matrix.cfg.os }}]
     continue-on-error: ${{ matrix.cfg.experimental }}
@@ -43,15 +43,21 @@ jobs:
 
       - name: Make build dir
         run: mkdir build
+       
+      - name: Get vcpkg package list and cache key
+        run: |
+          echo "::set-output name=dependencies::$(python3 ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ matrix.cfg.qt }})"
+          echo "::set-output name=cacheKey::$(python3 ${{ github.workspace }}/scripts/vcpkgCacheKey.py qt${{ matrix.cfg.qt }})"
+        id: vcpkgPackages
 
       - uses: lukka/run-vcpkg@v7.3
         with:
           vcpkgDirectory: ${{ github.workspace }}/ext/vcpkg
-          appendedCacheKey: ${{ join(matrix.cfg.dependencies, '-') }}-temp
+          appendedCacheKey: ${{ steps.vcpkgPackages.outputs.cacheKey }}
           vcpkgTriplet: ${{ matrix.cfg.vcpkgtriplet }}
-          vcpkgArguments: ${{ join(matrix.cfg.dependencies, ' ') }} --overlay-triplets=${{ github.workspace }}/ext/vcpkg-tripltets/
+          vcpkgArguments: ${{ steps.vcpkgPackages.outputs.dependencies }} --overlay-triplets=${{ github.workspace }}/ext/vcpkg-tripltets/
           doNotUpdateVcpkg: true
-        if: matrix.cfg.dependencies != null
+        if: steps.vcpkgPackages.outputs.dependencies != 'nil'
 
       - name: Run cmake
         run: cmake .. -G Ninja -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/ext/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
