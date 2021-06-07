@@ -53,9 +53,9 @@ jobs:
       - uses: lukka/run-vcpkg@v7.3
         with:
           vcpkgDirectory: ${{ github.workspace }}/ext/vcpkg
-          appendedCacheKey: ${{ join(steps.vcpkgPackages.outputs.cacheKey }}
+          appendedCacheKey: ${{ steps.vcpkgPackages.outputs.cacheKey }}
           vcpkgTriplet: ${{ matrix.cfg.vcpkgtriplet }}
-          vcpkgArguments: ${{ join(steps.vcpkgPackages.outputs.dependencies }} --overlay-triplets=${{ github.workspace }}/ext/vcpkg-tripltets/
+          vcpkgArguments: ${{ steps.vcpkgPackages.outputs.dependencies }} --overlay-triplets=${{ github.workspace }}/ext/vcpkg-tripltets/
           doNotUpdateVcpkg: true
         if: steps.vcpkgPackages.outputs.dependencies != 'nil'
 
