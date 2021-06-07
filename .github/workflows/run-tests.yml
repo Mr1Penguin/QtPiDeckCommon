@@ -91,7 +91,7 @@ jobs:
         if: matrix.cfg.os == 'windows-latest' && matrix.cfg.qt == '6.1.0'
 
       - name: Get vcpkg package list
-        run: echo ::set-output name=dependencies::$(python3 ${{ github.workspace }}/scripts/vcpkgPackages.py ${{ matrix.cfg.qt }})
+        run: echo "::set-output name=dependencies::$(python3 ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ matrix.cfg.qt }})"
         id: vcpkgPackages
 
       - uses: lukka/run-vcpkg@v7.3
