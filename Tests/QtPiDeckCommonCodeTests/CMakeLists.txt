@@ -13,11 +13,6 @@ target_link_libraries(QtPiDeckCommonCodeTests
     BoostTestWrapper
     QtPiDeckCommon)
 
-target_compile_definitions(
-    QtPiDeckCommonCodeTests 
-    PRIVATE
-    BOOST_TEST_DYN_LINK)
-
 # visual studio test manager requires to have these libs in PATH
 # so we just copy required libs to test binary
 if(VISUAL_STUDIO)    

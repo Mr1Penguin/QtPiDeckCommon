@@ -55,7 +55,7 @@ jobs:
           vcpkgDirectory: ${{ github.workspace }}/ext/vcpkg
           appendedCacheKey: ${{ steps.vcpkgPackages.outputs.cacheKey }}
           vcpkgTriplet: ${{ matrix.cfg.vcpkgtriplet }}
-          vcpkgArguments: ${{ steps.vcpkgPackages.outputs.dependencies }} --overlay-triplets=${{ github.workspace }}/ext/vcpkg-tripltets/
+          vcpkgArguments: ${{ steps.vcpkgPackages.outputs.dependencies }}
           doNotUpdateVcpkg: true
         if: steps.vcpkgPackages.outputs.dependencies != 'nil'
 
