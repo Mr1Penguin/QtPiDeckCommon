@@ -160,6 +160,6 @@ private:
   std::unordered_map<std::type_index, std::type_index> m_typeReferences;
   std::unordered_map<std::type_index, std::shared_ptr<ServiceInterface>> m_singletons;
 
-  boost::log::sources::severity_logger<boost::log::trivial::severity_level> m_slg;
+  mutable boost::log::sources::severity_logger<boost::log::trivial::severity_level> m_slg;
 };
 }
