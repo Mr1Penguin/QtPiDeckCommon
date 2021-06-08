@@ -40,12 +40,12 @@ public:
         it != std::cend(m_services)) {
       m_typeReferences.erase(it->second.second);
       it->second = std::move(record);
-      BOOST_LOG_SEV(m_slg, Utility::severity::debug)
+      BOOST_LOG_SEV(m_slg, Utilities::severity::debug)
           << "Replaced implementation for service '" << std::type_index{typeid(TInterface)}.name() << "' with '"
           << std::type_index{typeid(TImplementation)}.name() << "'";
     } else {
       m_services.emplace(std::type_index{typeid(TInterface)}, std::move(record));
-      BOOST_LOG_SEV(m_slg, Utility::severity::debug)
+      BOOST_LOG_SEV(m_slg, Utilities::severity::debug)
           << "Added service '" << std::type_index{typeid(TInterface)}.name() << "' with implementation '"
           << std::type_index{typeid(TImplementation)}.name() << "'";
     }
@@ -59,11 +59,11 @@ public:
     Q_ASSERT(singleton != nullptr); // LCOV_EXCL_BR_LINE
     if (auto it = m_singletons.find({typeid(TInterface)}); it != std::cend(m_singletons)) {
       it->second = std::move(singleton);
-      BOOST_LOG_SEV(m_slg, Utility::severity::debug)
+      BOOST_LOG_SEV(m_slg, Utilities::severity::debug)
           << "Replaced implementation for singleton '" << std::type_index{typeid(TInterface)}.name() << "'";
     } else {
       m_singletons.emplace(std::type_index{typeid(TInterface)}, std::move(singleton));
-      BOOST_LOG_SEV(m_slg, Utility::severity::debug)
+      BOOST_LOG_SEV(m_slg, Utilities::severity::debug)
           << "Add singleton '" << std::type_index{typeid(TInterface)}.name() << "'";
     }
   }
@@ -83,7 +83,7 @@ public:
       return std::static_pointer_cast<TService>(it->second);
     }
 
-    BOOST_LOG_SEV(m_slg, Utility::severity::debug)
+    BOOST_LOG_SEV(m_slg, Utilities::severity::debug)
         << "Service or singleton '" << std::type_index{typeid(TService)}.name() << "' not found";
 
     return nullptr;
