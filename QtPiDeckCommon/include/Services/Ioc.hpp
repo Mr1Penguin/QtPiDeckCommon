@@ -22,7 +22,7 @@ public:
   Ioc() noexcept { Utilities::initLogger(m_slg, "Ioc"); }
   Ioc(const Ioc&)     = delete;
   Ioc(Ioc&&) noexcept = default;
-
+  ~Ioc()              = default;
   auto operator=(const Ioc&) -> Ioc& = delete;
   auto operator=(Ioc&&) noexcept -> Ioc& = default;
 
