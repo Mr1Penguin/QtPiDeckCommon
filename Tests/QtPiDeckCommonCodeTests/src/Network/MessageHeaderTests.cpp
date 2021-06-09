@@ -1,5 +1,6 @@
 #include <QDataStream>
 
+#define BOOST_TEST_MODULE MessageHeaderTests
 #include "BoostUnitTest.hpp"
 
 #include "Network/MessageHeader.hpp"
@@ -20,7 +21,7 @@ auto operator==(const QtPiDeck::Network::MessageHeader& left, const QtPiDeck::Ne
 CT_BOOST_AUTO_TEST_SUITE(MessageHeaderTests)
 using namespace QtPiDeck::Network;
 
-CT_BOOST_AUTO_TEST_CASE(serialize_and_deserialize)
+CT_BOOST_AUTO_TEST_CASE(ShouldBeSerializedAndDeserialized)
 {
   const MessageHeader messageHeader{0, MessageType::Pong, QStringLiteral("a-random-id")};
   QByteArray qba;

@@ -1,6 +1,7 @@
 #include <array>
 #include <type_traits>
 
+#define BOOST_TEST_MODULE IocTests
 #include "BoostUnitTest.hpp"
 
 #include "Services/Ioc.hpp"
@@ -263,7 +264,7 @@ CT_BOOST_AUTO_TEST_CASE(make_raw_without_dependencies) {
 
 class ClassWithOneDependencyConstructor : public UseServices<Interface0> {
 public:
-  ClassWithOneDependencyConstructor(std::shared_ptr<Interface0> interface) { setService(std::move(interface)); }
+  ClassWithOneDependencyConstructor(std::shared_ptr<Interface0> interface0) { setService(std::move(interface0)); }
 
   auto getInterface() -> std::shared_ptr<Interface0> { return service<Interface0>(); }
 };
@@ -318,8 +319,8 @@ CT_BOOST_AUTO_TEST_CASE(make_raw_with_one_dependency_constructor) {
 
 class ClassWithOneDependencyConstructorQobject : public UseServices<Interface0> {
 public:
-  ClassWithOneDependencyConstructorQobject(QObject* /*parent*/, std::shared_ptr<Interface0> interface) {
-    setService(std::move(interface));
+  ClassWithOneDependencyConstructorQobject(QObject* /*parent*/, std::shared_ptr<Interface0> interface0) {
+    setService(std::move(interface0));
   }
 
   auto getInterface() -> std::shared_ptr<Interface0> { return service<Interface0>(); }
@@ -430,8 +431,8 @@ CT_BOOST_AUTO_TEST_CASE(make_raw_with_one_dependency_no_constructor) {
 
 class ClassWithTwoDependenciesConstructor : public UseServices<Interface0, Interface1> {
 public:
-  ClassWithTwoDependenciesConstructor(std::shared_ptr<Interface0> interface, std::shared_ptr<Interface1> interface1) {
-    setService(std::move(interface));
+  ClassWithTwoDependenciesConstructor(std::shared_ptr<Interface0> interface0, std::shared_ptr<Interface1> interface1) {
+    setService(std::move(interface0));
     setService(std::move(interface1));
   }
 

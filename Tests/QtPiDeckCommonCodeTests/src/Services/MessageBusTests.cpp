@@ -1,5 +1,6 @@
 #include <QDataStream>
 
+#define BOOST_TEST_MODULE MessageBusTests
 #include "BoostUnitTest.hpp"
 
 #include "Network/DeckDataStream.hpp"
