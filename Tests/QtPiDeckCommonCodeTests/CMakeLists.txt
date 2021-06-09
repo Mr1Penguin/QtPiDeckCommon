@@ -9,6 +9,7 @@ function(add_common_cpp_test testName filename)
         BoostTestWrapper
         QtPiDeckCommon)
     add_test(NAME ${testName} COMMAND ${testName})
+    target_compile_definitions(${testName} PRIVATE BOOST_TEST_NO_MAIN BOOST_TEST_ALTERNATIVE_INIT_API)
 endfunction()
 
 # I don't like file-per-test but 
@@ -21,7 +22,7 @@ add_common_cpp_test(MessageBusTests src/Services/MessageBusTests.cpp)
 
 # visual studio test manager requires to have these libs in PATH
 # so we just copy required libs to test binary
-if(VISUAL_STUDIO)    
+if(VISUAL_STUDIO)
     find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Qml Gui Network REQUIRED)
     add_custom_command(
         TARGET ApplicationTests POST_BUILD

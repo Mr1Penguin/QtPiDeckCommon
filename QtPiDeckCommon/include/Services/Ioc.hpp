@@ -5,19 +5,27 @@
 #include <typeindex>
 #include <unordered_map>
 
-#include <QLoggingCategory>
+#include <boost/log/attributes/constant.hpp>
+#include <boost/log/trivial.hpp>
+
 #include <QObject>
 
 #include "Services/ServiceInterface.hpp"
 #include "Services/UseServices.hpp"
-
-QTPIDECKCOMMON_EXPORT Q_DECLARE_LOGGING_CATEGORY(Ioc) // NOLINT
+#include "Utilities/Logging.hpp"
 
 namespace QtPiDeck::Services {
 enum class CreationType { SharedPointer, UniquePointer, Copy, RawInMemory, Raw };
 
 class Ioc {
 public:
+  Ioc() noexcept { Utilities::initLogger(m_slg, "Ioc"); }
+  Ioc(const Ioc&)     = delete;
+  Ioc(Ioc&&) noexcept = default;
+  ~Ioc()              = default;
+  auto operator=(const Ioc&) -> Ioc& = delete;
+  auto operator=(Ioc&&) noexcept -> Ioc& = default;
+
   template<class TInterface, class TImplementation = TInterface>
   void registerService() noexcept {
     static_assert(std::is_base_of_v<TInterface, TImplementation>);
@@ -32,12 +40,14 @@ public:
         it != std::cend(m_services)) {
       m_typeReferences.erase(it->second.second);
       it->second = std::move(record);
-      qCDebug(::Ioc, "Replaced implementation for service '%s' with '%s'", std::type_index{typeid(TInterface)}.name(),
-              std::type_index{typeid(TImplementation)}.name());
+      BOOST_LOG_SEV(m_slg, Utilities::severity::debug)
+          << "Replaced implementation for service '" << std::type_index{typeid(TInterface)}.name() << "' with '"
+          << std::type_index{typeid(TImplementation)}.name() << "'";
     } else {
       m_services.emplace(std::type_index{typeid(TInterface)}, std::move(record));
-      qCDebug(::Ioc, "Added service '%s' with implementation '%s'", std::type_index{typeid(TInterface)}.name(),
-              std::type_index{typeid(TImplementation)}.name());
+      BOOST_LOG_SEV(m_slg, Utilities::severity::debug)
+          << "Added service '" << std::type_index{typeid(TInterface)}.name() << "' with implementation '"
+          << std::type_index{typeid(TImplementation)}.name() << "'";
     }
 
     m_typeReferences.emplace(std::type_index{typeid(TImplementation)}, std::type_index{typeid(TInterface)});
@@ -49,10 +59,12 @@ public:
     Q_ASSERT(singleton != nullptr); // LCOV_EXCL_BR_LINE
     if (auto it = m_singletons.find({typeid(TInterface)}); it != std::cend(m_singletons)) {
       it->second = std::move(singleton);
-      qCDebug(::Ioc, "Replaced implementation for singleton '%s'", std::type_index{typeid(TInterface)}.name());
+      BOOST_LOG_SEV(m_slg, Utilities::severity::debug)
+          << "Replaced implementation for singleton '" << std::type_index{typeid(TInterface)}.name() << "'";
     } else {
       m_singletons.emplace(std::type_index{typeid(TInterface)}, std::move(singleton));
-      qCDebug(::Ioc, "Add singleton '%s'", std::type_index{typeid(TInterface)}.name());
+      BOOST_LOG_SEV(m_slg, Utilities::severity::debug)
+          << "Add singleton '" << std::type_index{typeid(TInterface)}.name() << "'";
     }
   }
 
@@ -71,7 +83,8 @@ public:
       return std::static_pointer_cast<TService>(it->second);
     }
 
-    qCDebug(::Ioc, "Service or singleton '%s' not found", std::type_index{typeid(TService)}.name());
+    BOOST_LOG_SEV(m_slg, Utilities::severity::debug)
+        << "Service or singleton '" << std::type_index{typeid(TService)}.name() << "' not found";
 
     return nullptr;
   }
@@ -146,5 +159,7 @@ private:
   std::unordered_map<std::type_index, ValueType> m_services;
   std::unordered_map<std::type_index, std::type_index> m_typeReferences;
   std::unordered_map<std::type_index, std::shared_ptr<ServiceInterface>> m_singletons;
+
+  mutable boost::log::sources::severity_logger<boost::log::trivial::severity_level> m_slg;
 };
 }

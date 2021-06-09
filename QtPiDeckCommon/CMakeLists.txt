@@ -1,6 +1,8 @@
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Quick REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick REQUIRED)
 
+find_package(Boost REQUIRED COMPONENTS log)
+
 add_library(QtPiDeckCommon SHARED
   src/Application.cpp
   src/QtPiDeckCommon.cpp
@@ -8,6 +10,7 @@ add_library(QtPiDeckCommon SHARED
   src/Services/Ioc.cpp
   src/Services/MessageBus.cpp
   src/Services/ServiceInterface.cpp
+  src/Utilities/Logging.cpp
   include/Application.hpp
   include/QtPiDeckCommon.hpp
   include/QtPiDeckCommon_global.hpp
@@ -20,9 +23,9 @@ add_library(QtPiDeckCommon SHARED
   include/Services/MessageBus.hpp
   include/Services/ServiceInterface.hpp
   include/Services/UseServices.hpp
+  include/Utilities/Logging.hpp
   qmlCommon.qrc
-  icons.qrc
-)
+  icons.qrc)
 
 target_include_directories(QtPiDeckCommon
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
@@ -45,4 +48,5 @@ target_link_libraries(QtPiDeckCommon
   PUBLIC
   Qt${QT_VERSION_MAJOR}::Core
   Qt${QT_VERSION_MAJOR}::Quick
+  Boost::log
   QtChecker)
