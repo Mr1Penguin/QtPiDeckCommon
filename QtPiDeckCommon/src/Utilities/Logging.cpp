@@ -23,7 +23,7 @@ struct Formatter {
   auto operator=(Formatter&&) -> Formatter& = delete;
   ~Formatter()                              = default;
 
-  void operator()(boost::log::record_view const& rec, boost::log::formatting_ostream& strm) {
+  void operator()(boost::log::record_view const& rec, boost::log::formatting_ostream& strm) noexcept {
     strm << "[";
     m_dateFormatter(rec, strm);
     strm << "] " << boost::log::extract<std::string>(categoryAttribute, rec) << ": ";
@@ -47,7 +47,7 @@ private:
 };
 }
 
-void initLogging(std::string_view execName) {
+void initLogging(std::string_view execName) noexcept {
   const Formatter formatter;
 #if !defined(NDEBUG)
   boost::log::add_console_log(std::clog)->set_formatter(formatter);

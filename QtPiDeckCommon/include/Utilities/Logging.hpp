@@ -16,12 +16,12 @@ using severity =  boost::log::trivial::severity_level;
 
 inline const std::string categoryAttribute{"category"};
 
-inline auto getConstantAttributeValue(std::string value) -> boost::log::attributes::constant<std::string> {
+inline auto getConstantAttributeValue(std::string value) noexcept -> boost::log::attributes::constant<std::string> {
   return boost::log::attributes::constant{std::move(value)};
 }
 
 inline void initLogger(boost::log::sources::severity_logger<boost::log::trivial::severity_level>& slg,
-                       std::string_view sv) {
+                       std::string_view sv) noexcept {
   slg.add_attribute(categoryAttribute, getConstantAttributeValue(std::string{sv}));
   slg.add_attribute("TimeStamp", boost::log::attributes::local_clock());
 }
