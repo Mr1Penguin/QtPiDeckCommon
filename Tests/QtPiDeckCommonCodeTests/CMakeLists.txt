@@ -1,29 +1,35 @@
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
 
-add_executable(QtPiDeckCommonCodeTests 
-               src/main.cpp
-               src/Services/IocTests.cpp 
-               src/Services/MessageBusTests.cpp 
-               src/Network/MessageHeaderTests.cpp
-               src/ApplicationTests.cpp)
-add_test(NAME QtPiDeckCommonCodeTests COMMAND QtPiDeckCommonCodeTests)
-target_link_libraries(QtPiDeckCommonCodeTests
-    PRIVATE
-    BoostTestWrapper
-    QtPiDeckCommon)
+function(add_common_cpp_test testName filename)
+    add_executable(${testName}
+                   ${filename})
+    target_link_libraries(${testName}
+        PRIVATE
+        BoostTestWrapper
+        QtPiDeckCommon)
+    add_test(NAME ${testName} COMMAND ${testName})
+endfunction()
+
+# I don't like file-per-test but 
+# this is the only way to enable 
+# custom main and cross platform
+add_common_cpp_test(ApplicationTests src/ApplicationTests.cpp)
+add_common_cpp_test(MessageHeaderTests src/Network/MessageHeaderTests.cpp)
+add_common_cpp_test(IocTests src/Services/IocTests.cpp)
+add_common_cpp_test(MessageBusTests src/Services/MessageBusTests.cpp)
 
 # visual studio test manager requires to have these libs in PATH
 # so we just copy required libs to test binary
 if(VISUAL_STUDIO)    
     find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Qml Gui Network REQUIRED)
     add_custom_command(
-        TARGET QtPiDeckCommonCodeTests POST_BUILD
+        TARGET ApplicationTests POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
         $<TARGET_FILE:QtPiDeckCommon>
         $<TARGET_FILE:Qt${QT_VERSION_MAJOR}::Core>
         $<TARGET_FILE:Qt${QT_VERSION_MAJOR}::Qml>
         $<TARGET_FILE:Qt${QT_VERSION_MAJOR}::Gui>
         $<TARGET_FILE:Qt${QT_VERSION_MAJOR}::Network>
-        $<TARGET_FILE_DIR:QtPiDeckCommonCodeTests>)
+        ${CMAKE_CURRENT_BINARY_DIR})
 endif()

@@ -1,5 +1,7 @@
 #include <QDataStream>
 
+// NOLINTNEXTLINE
+#define BOOST_TEST_MODULE MessageBusTests
 #include "BoostUnitTest.hpp"
 
 #include "Network/DeckDataStream.hpp"
@@ -97,7 +99,7 @@ CT_BOOST_AUTO_TEST_CASE(unsubscribe) {
       messageBus.get(), [&setMessageType](const QtPiDeck::Bus::Message& mess) { setMessageType = mess.messageType; });
   messageBus->unsubscribe(subscription);
   messageBus->sendMessage({messageType});
-  CT_BOOST_TEST(setMessageType == 0);
+  CT_BOOST_TEST(setMessageType == uint64_t{0});
 }
 
 CT_BOOST_AUTO_TEST_CASE(unsubscribeWithRAII) {
@@ -108,7 +110,7 @@ CT_BOOST_AUTO_TEST_CASE(unsubscribeWithRAII) {
         messageBus.get(), [&setMessageType](const QtPiDeck::Bus::Message& mess) { setMessageType = mess.messageType; });
   }
   messageBus->sendMessage({messageType});
-  CT_BOOST_TEST(setMessageType == 0);
+  CT_BOOST_TEST(setMessageType == uint64_t{0});
 }
 
 CT_BOOST_AUTO_TEST_CASE(subscribeFiltered) {
@@ -119,7 +121,7 @@ CT_BOOST_AUTO_TEST_CASE(subscribeFiltered) {
       messageBus.get(), [&setMessageType](const QtPiDeck::Bus::Message& mess) { setMessageType = mess.messageType; },
       messageType);
   messageBus->sendMessage({messageType2});
-  CT_BOOST_TEST(setMessageType == 0);
+  CT_BOOST_TEST(setMessageType == uint64_t{0});
   messageBus->sendMessage({messageType});
   CT_BOOST_TEST(setMessageType == messageType);
 }

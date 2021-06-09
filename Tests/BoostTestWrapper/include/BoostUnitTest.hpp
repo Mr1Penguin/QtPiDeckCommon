@@ -1,10 +1,10 @@
 #if defined(_MSC_VER) && defined(__clang__) && defined(__INTELLISENSE__)
 #pragma push_macro("__clang__")
 #undef __clang__
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #pragma pop_macro("__clang__")
 #else
-#include <boost/test/unit_test.hpp>
+#include <boost/test/included/unit_test.hpp>
 #endif
 
 #define CT_BOOST_AUTO_TEST_SUITE(suite) BOOST_AUTO_TEST_SUITE(suite) // NOLINT

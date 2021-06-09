@@ -1,3 +1,5 @@
+// NOLINTNEXTLINE
+#define BOOST_TEST_MODULE ApplicationTests
 #include "BoostUnitTest.hpp"
 
 #include "Application.hpp"
