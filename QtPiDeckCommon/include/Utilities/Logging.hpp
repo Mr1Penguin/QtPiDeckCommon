@@ -26,5 +26,5 @@ inline void initLogger(boost::log::sources::severity_logger<boost::log::trivial:
   slg.add_attribute("TimeStamp", boost::log::attributes::local_clock());
 }
 
-void QTPIDECKCOMMON_EXPORT initLogging(std::string_view execName);
+void QTPIDECKCOMMON_EXPORT initLogging(std::string_view execName) noexcept;
 }
