@@ -1,6 +1,7 @@
 #include <array>
 #include <type_traits>
 
+// NOLINTNEXTLINE
 #define BOOST_TEST_MODULE IocTests
 #include "BoostUnitTest.hpp"
 

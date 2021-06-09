@@ -1,5 +1,6 @@
 #include <QDataStream>
 
+// NOLINTNEXTLINE
 #define BOOST_TEST_MODULE MessageHeaderTests
 #include "BoostUnitTest.hpp"
 
