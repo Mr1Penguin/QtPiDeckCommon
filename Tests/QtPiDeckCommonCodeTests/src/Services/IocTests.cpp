@@ -7,6 +7,13 @@
 
 #include "Services/Ioc.hpp"
 
+#include "Utilities/Logging.hpp"
+
+auto main(int argc, char* argv[]) -> int {
+  QtPiDeck::Utilities::initLogging("IocTests");
+  return boost::unit_test::unit_test_main(&init_unit_test, argc, argv);
+}
+
 struct IocFixture {
   std::unique_ptr<QtPiDeck::Services::Ioc> ioc{std::make_unique<QtPiDeck::Services::Ioc>()};
 };

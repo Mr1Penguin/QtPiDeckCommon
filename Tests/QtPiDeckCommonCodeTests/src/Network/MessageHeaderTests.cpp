@@ -7,6 +7,13 @@
 #include "Network/MessageHeader.hpp"
 #include "Network/DeckDataStream.hpp"
 
+#include "Utilities/Logging.hpp"
+
+auto main(int argc, char* argv[]) -> int {
+  QtPiDeck::Utilities::initLogging("MessageHeaderTests");
+  return boost::unit_test::unit_test_main(&init_unit_test, argc, argv);
+}
+
 namespace QtPiDeck::Network {
 auto operator<<(std::ostream& ostr, const MessageHeader& right) -> std::ostream& {
   ostr << "MessageHeader{ dataSize: " << right.dataSize << ", messageType: " << static_cast<uint32_t>(right.messageType)
