@@ -35,6 +35,7 @@ jobs:
         with:
           path: ../Qt
           key: ${{ runner.os }}-QtCache-${{ matrix.cfg.qt }}
+        if: '1' == '2'
 
       - uses: actions/checkout@v2
 
@@ -53,7 +54,7 @@ jobs:
         uses: jurplel/install-qt-action@v2.11.1
         with:
           version: '${{ matrix.cfg.qt }}'
-          cached: ${{ steps.cache-qt.outputs.cache-hit }} && false
+          # cached: ${{ steps.cache-qt.outputs.cache-hit }} && false
 
       - name: Make build dir
         run: mkdir build
