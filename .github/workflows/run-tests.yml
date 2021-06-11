@@ -35,7 +35,7 @@ jobs:
         with:
           path: ../Qt
           key: ${{ runner.os }}-QtCache-${{ matrix.cfg.qt }}
-        if: '1' == '2'
+        if: matrix.cfg.os == '2'
 
       - uses: actions/checkout@v2
 
