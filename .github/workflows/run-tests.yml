@@ -46,6 +46,9 @@ jobs:
 
       - uses: lukka/get-cmake@latest
 
+      - run: mkdir Qt
+        if:  matrix.cfg.os == 'macos-latest' && !steps.cache-qt.outputs.cache-hit
+
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
         with:
