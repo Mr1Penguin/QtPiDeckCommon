@@ -50,7 +50,7 @@ jobs:
         if:  matrix.cfg.os == 'macos-latest' && false
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v2.12.2
         with:
           version: '${{ matrix.cfg.qt }}'
           cached: ${{ steps.cache-qt.outputs.cache-hit }} && false
