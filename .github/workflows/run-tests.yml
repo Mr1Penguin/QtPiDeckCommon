@@ -34,7 +34,7 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ../Qt
-          key: ${{ runner.os }}-QtCache-${{ matrix.cfg.qt }}-temp
+          key: ${{ runner.os }}-QtCache-${{ matrix.cfg.qt }}
 
       - uses: actions/checkout@v2
 
