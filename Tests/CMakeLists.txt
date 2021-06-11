@@ -23,7 +23,10 @@ macro(add_qml_test QML_FILE)
     add_executable(${EXE_NAME}
         main.cpp
         ${QML_FILE})
-    add_test(NAME ${TEST_NAME} COMMAND ${EXE_NAME} -platform offscreen)
+
+    if (NOT VISUAL_STUDIO)
+        add_test(NAME ${TEST_NAME} COMMAND ${EXE_NAME} -platform offscreen)
+    endif()
 
     target_link_libraries(${EXE_NAME}
         PRIVATE
