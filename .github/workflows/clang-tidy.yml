@@ -72,15 +72,15 @@ jobs:
         run: ninja
         working-directory: build
 
-      - name: Prepare directories and files
-        run: |
-         mv build/compile_commands.json .
-         mkdir clang-tidy-reports
+      - name: Prepare reports directory
+        run: mkdir clang-tidy-reports
 
       - name: Generate reports
-        run: git diff --name-only $(git merge-base origin/master HEAD) HEAD | grep '\.cpp$' | xargs -P2 -I% bash -c 'v=%; [ -f % ] && clang-tidy-11 % > clang-tidy-reports/${v//\//.}.txt || true'
+        run: git diff --name-only $(git merge-base origin/master HEAD) HEAD | grep '\.cpp$' | xargs -P2 -I% bash -c 'v=%; [ -f % ] && clang-tidy-11 -p build % > clang-tidy-reports/${v//\//.}.txt || true'
 
       - run: ls clang-tidy-reports
+
+      - run: clang-tidy -p build QtPiDeckCommon/src/QtPiDeckCommon.cpp
 
       - run: find clang-tidy-reports -name '*.txt' -empty -exec rm -v {} \; 
 
