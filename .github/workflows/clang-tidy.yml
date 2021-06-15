@@ -80,7 +80,7 @@ jobs:
 
       - run: ls clang-tidy-reports
 
-      - run: clang-tidy -p build QtPiDeckCommon/src/QtPiDeckCommon.cpp
+      - run: clang-tidy-11 -p build QtPiDeckCommon/src/QtPiDeckCommon.cpp
 
       - run: find clang-tidy-reports -name '*.txt' -empty -exec rm -v {} \; 
 
