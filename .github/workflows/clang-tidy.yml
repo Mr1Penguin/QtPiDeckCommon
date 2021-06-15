@@ -78,22 +78,18 @@ jobs:
       - run: sudo apt-get install -y clang-tidy
 
       - name: Generate reports
-        run: git diff --name-only $(git merge-base origin/master HEAD) HEAD | grep '\.cpp$' | xargs -P2 -I% sh -c "[ -f % ] && mkdir -p clang-tidy-reports/% && clang-tidy % > clang-tidy-reports/%/report.txt || true"
+        run: git diff --name-only $(git merge-base origin/master HEAD) HEAD | grep '\.cpp$' | | xargs -P2 -I% sh -c 'v=%; [ -f % ] && clang-tidy % > clang-tidy-reports/${v//\//.}.txt || true'
 
-      - run: find clang-tidy-reports -name 'report.txt' -empty -exec rm -v {} \; 
+      - run: find clang-tidy-reports -name '*.txt' -empty -exec rm -v {} \; 
 
       - run: echo ::set-output name=count::$(find clang-tidy-reports -name 'report.txt' | wc -l)
         id: reports-number
-      
-      - name: Archive report
-        run: zip -r clang-tidy-reports.zip clang-tidy-reports
-        if: steps.reports-number.outputs.count != 0
 
       - name: Export report
         uses: actions/upload-artifact@v2
         with:
           name: clang-tidy-reports
-          path: clang-tidy-reports.zip
+          path: clang-tidy-reports
         if: steps.reports-number.outputs.count != 0
 
       - name: Fail if clang-tidy found something
