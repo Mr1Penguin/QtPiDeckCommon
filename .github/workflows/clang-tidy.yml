@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         cfg:
-        - { os: ubuntu-20.04, qt: 5.15.2, cc: gcc-10, cxx: g++-10, experimental: false, vcpkgtriplet: x64-linux }
+        - { os: ubuntu-20.04, qt: 5.15.2, cc: clang-11, cxx: clang++-11, experimental: false, vcpkgtriplet: x64-linux }
 
     name: Qt${{ matrix.cfg.qt }} - ${{ matrix.cfg.cc }}[${{ matrix.cfg.os }}]
     continue-on-error: ${{ matrix.cfg.experimental }}
@@ -59,6 +59,8 @@ jobs:
           doNotUpdateVcpkg: true
         if: steps.vcpkgPackages.outputs.dependencies != 'nil'
 
+      - run: sudo apt-get install -y clang-tidy-11 clang-11
+
       - name: Run cmake
         run: cmake .. -G Ninja -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/ext/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
         working-directory: build
@@ -70,30 +72,22 @@ jobs:
         run: ninja
         working-directory: build
 
-      - name: Prepare directories and files
-        run: |
-         mv build/compile_commands.json .
-         mkdir clang-tidy-reports
-
-      - run: sudo apt-get install -y clang-tidy
+      - name: Prepare reports directory
+        run: mkdir clang-tidy-reports
 
       - name: Generate reports
-        run: git diff --name-only $(git merge-base origin/master HEAD) HEAD | grep '\.cpp$' | xargs -P2 -I% sh -c "[ -f % ] && mkdir -p clang-tidy-reports/% && clang-tidy % > clang-tidy-reports/%/report.txt || true"
+        run: git diff --name-only $(git merge-base origin/master HEAD) HEAD | grep '\.cpp$' | xargs -P2 -I% bash -c 'v=%; [ -f % ] && clang-tidy-11 -p build % > clang-tidy-reports/${v//\//.}.txt || true'
 
-      - run: find clang-tidy-reports -name 'report.txt' -empty -exec rm -v {} \; 
+      - run: find clang-tidy-reports -name '*.txt' -empty -exec rm -v {} \; 
 
-      - run: echo ::set-output name=count::$(find clang-tidy-reports -name 'report.txt' | wc -l)
+      - run: echo ::set-output name=count::$(find clang-tidy-reports -name '*.txt' | wc -l)
         id: reports-number
-      
-      - name: Archive report
-        run: zip -r clang-tidy-reports.zip clang-tidy-reports
-        if: steps.reports-number.outputs.count != 0
 
       - name: Export report
         uses: actions/upload-artifact@v2
         with:
           name: clang-tidy-reports
-          path: clang-tidy-reports.zip
+          path: clang-tidy-reports
         if: steps.reports-number.outputs.count != 0
 
       - name: Fail if clang-tidy found something
