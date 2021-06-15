@@ -84,7 +84,7 @@ jobs:
 
       - run: find clang-tidy-reports -name '*.txt' -empty -exec rm -v {} \; 
 
-      - run: echo ::set-output name=count::$(find clang-tidy-reports -name 'report.txt' | wc -l)
+      - run: echo ::set-output name=count::$(find clang-tidy-reports -name '*.txt' | wc -l)
         id: reports-number
 
       - name: Export report
