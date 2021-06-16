@@ -8,6 +8,7 @@ function(add_common_cpp_test testName filename)
         PRIVATE
         BoostTestWrapper
         QtPiDeckCommon)
+    set_warnings_flags(${testName})
     add_test(NAME ${testName} COMMAND ${testName})
     target_compile_definitions(${testName} PRIVATE BOOST_TEST_NO_MAIN BOOST_TEST_ALTERNATIVE_INIT_API)
 endfunction()
