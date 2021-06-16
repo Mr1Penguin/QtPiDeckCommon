@@ -45,6 +45,8 @@ if(CODECOV AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_BUILD_TYPE STREQUA
     target_link_options(QtPiDeckCommon PUBLIC --coverage)
 endif()
 
+set_warnings_flags(QtPiDeckCommon)
+
 target_link_libraries(QtPiDeckCommon
   PUBLIC
   Qt${QT_VERSION_MAJOR}::Core

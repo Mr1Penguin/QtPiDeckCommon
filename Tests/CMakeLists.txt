@@ -35,6 +35,7 @@ macro(add_qml_test QML_FILE)
         ${TESTED_TARGET}
         QmlTestsUtils)
     target_compile_definitions(${EXE_NAME} PRIVATE -DQUICK_TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+    set_warnings_flags(${EXE_NAME})
 
     get_target_property(QtPiDeckCommon_SOURCE_DIR QtPiDeckCommon SOURCE_DIR)
     set(QML_IMPORT_PATH ${QtPiDeckCommon_SOURCE_DIR}/qml/components CACHE STRING "Qt Creator qml import paths" FORCE)

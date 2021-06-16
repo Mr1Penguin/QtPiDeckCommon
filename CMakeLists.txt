@@ -6,6 +6,21 @@ option(VISUAL_STUDIO "" OFF)
 
 include(CTest)
 
+if(MSVC AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 19.14)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /experimental:external /external:W0 ")
+    set(CMAKE_INCLUDE_SYSTEM_FLAG_CXX "/external:I ")
+endif()
+
+function(set_warnings_flags target)
+    if(MSVC)
+        if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 19.14)
+            target_compile_options(${target} PRIVATE /W4 /WX)
+        endif()
+    else()
+        target_compile_options(${target} PRIVATE -Wall -Wextra -pedantic -Werror)
+    endif()
+endfunction()
+
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     set(CMAKE_AUTOUIC ON)
     set(CMAKE_AUTOMOC ON)
@@ -19,16 +34,6 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
     endif()
     unset(CXX20_POS)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-    if (MSVC)
-        # warning level 4 and all warnings as errors
-        # waiting for /external to be fixed
-        # add_compile_options(/W4 /WX)
-        # add_compile_options(/WX)
-    else()
-        # lots of warnings and all warnings as errors
-        add_compile_options(-Wall -Wextra -pedantic -Werror)
-    endif()
 endif()
 
 option(BUILD_COMMON_TESTS "" ON)
