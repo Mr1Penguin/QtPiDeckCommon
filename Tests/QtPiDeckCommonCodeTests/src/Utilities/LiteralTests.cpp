@@ -10,6 +10,7 @@ auto main(int argc, char* argv[]) -> int {
   return boost::unit_test::unit_test_main(&init_unit_test, argc, argv);
 }
 
+
 auto operator<<(std::ostream& ostr, const QUrl& right) -> std::ostream& {
   ostr << "QUrl[" << right.toString().toStdString() << "]";
   return ostr;
