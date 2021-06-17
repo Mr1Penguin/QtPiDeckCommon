@@ -7,50 +7,23 @@
 
 #include "Bus/Message.hpp"
 #include "ServiceInterface.hpp"
+#include "Utilities/Connection.hpp"
 
 namespace QtPiDeck::Services {
-class Subscription {
-public:
-  Subscription() = default;
-  explicit Subscription(QMetaObject::Connection connection) : m_connection(connection) {}
-  Subscription(const Subscription&) = delete;
-  Subscription(Subscription&& other) noexcept {
-    m_connection = std::move(other.m_connection);
-    other.m_connection.reset();
-  }
-  auto operator=(const Subscription&) -> Subscription& = delete;
-  auto operator                                        =(Subscription&& other) noexcept -> Subscription& {
-    m_connection = std::move(other.m_connection);
-    other.m_connection.reset();
-    return *this;
-  };
-  ~Subscription() { reset(); }
-
-  void reset() noexcept {
-    if (m_connection) {
-      QObject::disconnect(*m_connection);
-      m_connection.reset();
-    }
-  }
-
-private:
-  std::optional<QMetaObject::Connection> m_connection;
-};
-
 class IMessageBus : public ServiceInterface {
 public:
   [[nodiscard]] virtual auto subscribe(QObject* context,
                                        const std::function<void(const Bus::Message&)>& method) noexcept
-      -> Subscription                                                                 = 0;
+      -> Utilities::Connection                                                                 = 0;
   [[nodiscard]] virtual auto subscribe(QObject* context, const std::function<void(const Bus::Message&)>& method,
-                                       uint64_t messageType) noexcept -> Subscription = 0;
-  virtual void unsubscribe(Subscription&) noexcept                                    = 0;
-  virtual void sendMessage(Bus::Message) noexcept                                     = 0;
+                                       uint64_t messageType) noexcept -> Utilities::Connection = 0;
+  virtual void unsubscribe(Utilities::Connection&) noexcept                                    = 0;
+  virtual void sendMessage(Bus::Message) noexcept                                              = 0;
 };
 
 template<class TSubscriber, typename = std::enable_if_t<std::is_base_of_v<QObject, TSubscriber>>>
 [[nodiscard]] auto subscribe(IMessageBus& bus, TSubscriber* context,
-                             void (TSubscriber::*response)(const Bus::Message&)) noexcept -> Subscription {
+                             void (TSubscriber::*response)(const Bus::Message&)) noexcept -> Utilities::Connection {
 
 #if defined(__cpp_lib_bind_front)
   return bus.subscribe(context, std::bind_front(response, context));
@@ -62,14 +35,14 @@ template<class TSubscriber, typename = std::enable_if_t<std::is_base_of_v<QObjec
 
 template<class TSubscriber, typename = std::enable_if_t<std::is_base_of_v<QObject, TSubscriber>>>
 [[nodiscard]] auto subscribe(IMessageBus& bus, TSubscriber* context, void (TSubscriber::*response)(),
-                             uint64_t messageType) noexcept -> Subscription {
+                             uint64_t messageType) noexcept -> Utilities::Connection {
   return bus.subscribe(
       context, [context, response](const Bus::Message& /*message*/) { std::invoke(response, context); }, messageType);
 }
 
 template<class TSubscriber, typename = std::enable_if_t<std::is_base_of_v<QObject, TSubscriber>>>
 [[nodiscard]] auto subscribe(IMessageBus& bus, TSubscriber* context, void (TSubscriber::*response)(const Bus::Message&),
-                             uint64_t messageType) noexcept -> Subscription {
+                             uint64_t messageType) noexcept -> Utilities::Connection {
 #if defined(__cpp_lib_bind_front)
   return bus.subscribe(context, std::bind_front(response, context), messageType);
 #else

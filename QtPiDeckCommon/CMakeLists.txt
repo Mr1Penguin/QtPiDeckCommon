@@ -25,6 +25,7 @@ add_library(QtPiDeckCommon SHARED
   include/Services/UseServices.hpp
   include/Utilities/Logging.hpp
   include/Utilities/Literals.hpp
+  include/Utilities/Connection.hpp
   qmlCommon.qrc
   icons.qrc)
 

@@ -3,8 +3,9 @@
 #include <QMetaMethod>
 
 namespace QtPiDeck::Services {
-auto MessageBus::subscribe(QObject* context, const std::function<void(const Bus::Message&)>& method) noexcept -> Subscription {
-  return Subscription{connect(this, &MessageBus::newMessage, context, method)};
+auto MessageBus::subscribe(QObject* context, const std::function<void(const Bus::Message&)>& method) noexcept
+    -> Utilities::Connection {
+  return Utilities::Connection{connect(this, &MessageBus::newMessage, context, method)};
 }
 
 namespace {
@@ -18,11 +19,11 @@ auto filtered(const std::function<void(const Bus::Message&)>& method, const uint
 }
 
 auto MessageBus::subscribe(QObject* context, const std::function<void(const Bus::Message&)>& method,
-                           uint64_t messageType) noexcept -> Subscription {
-  return Subscription{connect(this, &MessageBus::newMessage, context, filtered(method, messageType))};
+                           uint64_t messageType) noexcept -> Utilities::Connection {
+  return Utilities::Connection{connect(this, &MessageBus::newMessage, context, filtered(method, messageType))};
 }
 
-void MessageBus::unsubscribe(Subscription& subscription) noexcept { subscription.reset(); }
+void MessageBus::unsubscribe(Utilities::Connection& subscription) noexcept { subscription.reset(); }
 
 void MessageBus::sendMessage(Bus::Message message) noexcept { emit newMessage(message); }
 }
