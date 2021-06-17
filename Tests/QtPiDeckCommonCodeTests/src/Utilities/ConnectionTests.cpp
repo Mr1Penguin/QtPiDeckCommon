@@ -1,5 +1,4 @@
-// NOLINTNEXTLINE
-#define BOOST_TEST_MODULE ConnectionTests
+#define BOOST_TEST_MODULE ConnectionTests // NOLINT
 #include "BoostUnitTest.hpp"
 
 #include <QObject>
