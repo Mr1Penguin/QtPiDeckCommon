@@ -4,6 +4,12 @@
 
 #include <QObject>
 #include "Utilities/Connection.hpp"
+#include "Utilities/Logging.hpp"
+
+auto main(int argc, char* argv[]) -> int {
+  QtPiDeck::Utilities::initLogging("ConnectionTests");
+  return boost::unit_test::unit_test_main(&init_unit_test, argc, argv);
+}
 
 CT_BOOST_AUTO_TEST_SUITE(ConnectionTests)
 
@@ -73,3 +79,5 @@ CT_BOOST_AUTO_TEST_CASE(SubscripionIsEmptyAfterMove) {
 }
 
 CT_BOOST_AUTO_TEST_SUITE_END()
+
+#include "ConnectionTests.moc"
