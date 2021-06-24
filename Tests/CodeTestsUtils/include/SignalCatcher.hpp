@@ -15,7 +15,7 @@ public:
 
   ~SignalCatcher() { QObject::disconnect(m_connection); }
 
-  auto count() const noexcept -> uint64_t { return m_count; }
+  [[nodiscard]] auto count() const noexcept -> uint64_t { return m_count; }
 
 private:
   void inc() { ++m_count; }
