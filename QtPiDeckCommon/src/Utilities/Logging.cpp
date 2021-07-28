@@ -40,7 +40,7 @@ private:
                                                                                boost::log::fallback_to_none, char>>());
   static auto getDateFormatter() -> actorType {
     return boost::log::expressions::stream
-           << boost::log::expressions::format_date_time<boost::posix_time::ptime>("TimeStamp", "%Y-%m-%d %H:%M:%f");
+           << boost::log::expressions::format_date_time<boost::posix_time::ptime>("TimeStamp", "%Y-%m-%d %H:%M:%S");
   }
 
   actorType m_dateFormatter{getDateFormatter()};
