@@ -3,6 +3,7 @@
 project("QtPiDeckCommon" LANGUAGES CXX)
 
 option(VISUAL_STUDIO "" OFF)
+option(BUILD_GUIAPP "build application to see/test shared gui elements" OFF)
 
 include(CTest)
 
@@ -43,3 +44,8 @@ add_subdirectory(QtPiDeckCommon)
 add_subdirectory(QtChecker)
 add_subdirectory(QtDefinitions)
 add_subdirectory(Tests)
+
+if (BUILD_GUIAPP)
+    message(STATUS "GuiApp compilation enabled")
+    add_subdirectory(GuiApp)
+endif()
