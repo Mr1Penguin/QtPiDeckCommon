@@ -17,6 +17,20 @@ if(VISUAL_STUDIO)
     get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
     find_program(WINDEPLOYQT_EXECUTABLE windeployqt HINTS "${_qt_bin_dir}")
 
+    if (CMAKE_BUILD_TYPE EQUAL "RELEASE")
+        set(RELEASE_FLAG "--release")
+    endif()
+
+    add_custom_target(
+        CopyQtPiDeckCommon
+        COMMAND ${CMAKE_COMMAND} -E copy
+            $<TARGET_FILE:QtPiDeckCommon>
+            $<TARGET_FILE:Boost::log>
+            ${CMAKE_CURRENT_BINARY_DIR}
+        DEPENDS QtPiDeckCommon)
+
+    add_dependencies(GuiApp CopyQtPiDeckCommon)
+
     add_custom_command(
         TARGET GuiApp POST_BUILD
         COMMAND "${CMAKE_COMMAND}" -E
@@ -24,13 +38,8 @@ if(VISUAL_STUDIO)
             --verbose 0
             --qmldir ${CMAKE_CURRENT_SOURCE_DIR}
             --no-compiler-runtime
-            \"$<TARGET_FILE:GuiApp>\"
-    COMMENT "Deploying Qt...")
+            ${RELEASE_FLAG}
+            \"$<TARGET_FILE:GuiApp>\")
 
-    add_custom_command(
-        TARGET GuiApp POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy
-        $<TARGET_FILE:QtPiDeckCommon>
-        $<TARGET_FILE:Boost::log>
-        ${CMAKE_CURRENT_BINARY_DIR})
+    unset(RELEASE_FLAG)
 endif()
