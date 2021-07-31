@@ -6,6 +6,7 @@
 #include <QUrl>
 
 #include "Services/Ioc.hpp"
+#include "Utilities/QmlHelpers.hpp"
 
 namespace QtPiDeck {
 class QTPIDECKCOMMON_EXPORT Application {

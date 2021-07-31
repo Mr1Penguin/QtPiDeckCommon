@@ -30,5 +30,7 @@ void Application::initialPreparations() {}
 
 void Application::appCreated() {}
 
-void Application::engineCreated(QQmlApplicationEngine& /*engine*/) {}
+void Application::engineCreated(QQmlApplicationEngine& /*engine*/) {
+
+}
 }

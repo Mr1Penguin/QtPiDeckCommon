@@ -6,10 +6,18 @@ import QtQuick.Layouts 1.3
 import QtPiDeck 1.0
 
 Window {
-    width: 640
-    height: 480
+    width: 800
+    height: 600
     visible: true
     title: qsTr("Hello World")
 
-    Command {}
+    Command {
+        anchors.left: parent.left
+        anchors.top: parent.top
+        anchors.topMargin: 5
+        anchors.leftMargin: 5
+        onClicked: {
+            console.log("Hi")
+        }
+    }
 }

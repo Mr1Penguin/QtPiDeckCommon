@@ -3,7 +3,7 @@ import QtQuick 2.0
 Rectangle {
     signal clicked
 
-    width: 96 //to be changed during client testing
+    width: qh.dp(128) //to be changed during client testing
     height: width
     border.color: "black" // to be changed with theme
     border.width: 1
@@ -20,6 +20,7 @@ Rectangle {
         visible: image.source == ""
         width: parent.width
         wrapMode: Text.Wrap
+        font.pixelSize: qh.dp(14)
         horizontalAlignment: Text.AlignHCenter
         anchors.centerIn: parent
     }
