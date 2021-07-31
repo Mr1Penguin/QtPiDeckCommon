@@ -1,7 +1,7 @@
 import QtQuick 2.0
 
 Rectangle {
-    signal onClicked()
+    signal clicked
 
     width: 96 //to be changed during client testing
     height: width
@@ -26,7 +26,7 @@ Rectangle {
     MouseArea {
         id: mouseArea
         anchors.fill: parent
-        onClicked: parent.onClicked()
+        onClicked: parent.clicked()
     }
 
     // not finished
