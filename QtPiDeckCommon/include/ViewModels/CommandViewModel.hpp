@@ -23,7 +23,7 @@ public:
   [[nodiscard]] auto text() const noexcept -> QString { return m_text; }
   void setText(const QString& text) noexcept;
   [[nodiscard]] auto imagePath() const noexcept -> QString { return m_imagePath; }
-  void setImagePath(const QString& text) noexcept;
+  void setImagePath(const QString& imagePath) noexcept;
 
 #if QT_VERSION_MAJOR == 6
   auto bindableText() -> QBindable<QString> { return &m_text; }

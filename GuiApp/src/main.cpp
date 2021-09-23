@@ -26,15 +26,16 @@ auto main(int argc, char* argv[]) -> int {
   QObject::connect(
       &engine, &QQmlApplicationEngine::objectCreated, &app,
       [&url, &helper](QObject* obj, const QUrl& objUrl) {
-        if (!obj && url == objUrl)
+        if (obj == nullptr && url == objUrl) {
           QCoreApplication::exit(-1);
+        }
 
         helper.windowCreated();
       },
       Qt::QueuedConnection);
   engine.load(url);
 
-  return app.exec();
+  return QGuiApplication::exec();
 }
 
 //#include "main.moc"
