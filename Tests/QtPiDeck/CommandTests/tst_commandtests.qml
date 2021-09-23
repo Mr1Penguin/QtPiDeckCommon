@@ -4,6 +4,19 @@ import QtPiDeck 1.0
 import QtPiDeck.Tests 1.0
 
 Command {
+    viewModel: CommandViewModel {
+        text: "Hello me"
+        //imagePath: "/icons/maintheme/64x64/close.png"
+    }
+
+    function dp(value) {
+        return qh ? qh.dp(value) : value;
+    }
+
+    function sp(value) {
+        return qh ? qh.sp(value) : value;
+    }
+
     id: command
     TestCase {
         name: "CommandTests"

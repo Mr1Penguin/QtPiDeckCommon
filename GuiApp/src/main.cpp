@@ -19,8 +19,8 @@ auto main(int argc, char* argv[]) -> int {
   QtPiDeckCommon qpdc;
   qpdc.registerTypes();
   engine.addImportPath("qrc:/qml/components"_qs);
-  QtPiDeck::Utilities::QmlHelper helper;
   const QUrl url = "qrc:/qml/app.qml"_qurl;
+  QtPiDeck::Utilities::QmlHelper helper;
   engine.rootContext()->setContextProperty("qh", &helper);
   QtPiDeck::ViewModels::CommandViewModel::registerType();
   QObject::connect(
