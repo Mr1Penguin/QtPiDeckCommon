@@ -34,6 +34,7 @@ protected:
 
 private:
   Services::Ioc m_ioc;
+  Utilities::QmlHelper m_qmlHelper;
 
   inline static Application* s_current; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 };
