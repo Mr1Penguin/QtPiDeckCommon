@@ -5,15 +5,19 @@
 #include <QScreen>
 #include <QWindow>
 
-#include <iostream>
-
 #include "QtPiDeckCommon_global.hpp"
 
 namespace QtPiDeck::Utilities {
 class QTPIDECKCOMMON_EXPORT QmlHelper : public QObject {
   Q_OBJECT // NOLINT
 public:
-  QmlHelper() : QObject(nullptr), m_dpi(std::max(minDpi, QGuiApplication::primaryScreen()->logicalDotsPerInch())) {}
+  QmlHelper() : QObject(nullptr), m_dpi(minDpi) {
+    if (const auto* screen = QGuiApplication::primaryScreen(); screen) {
+      if (const auto newDpi = screen->logicalDotsPerInch(); newDpi > m_dpi) {
+        m_dpi = newDpi;
+      }
+    }
+  }
 
   void windowCreated() {
     auto* app = qobject_cast<QGuiApplication*>(QGuiApplication::instance());
