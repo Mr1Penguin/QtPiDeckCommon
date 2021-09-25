@@ -13,8 +13,8 @@
 
 namespace QtPiDeck::Tests {
 auto makeImports() noexcept {
-  using namespace Utilities::literals;
-  return std::array{"qrc:/qml/components"_qs};
+  using namespace std::string_literals;
+  return std::array{"qrc:/qml/components"s};
 }
 
 void registerTypes() noexcept {

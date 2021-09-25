@@ -39,7 +39,7 @@ void addImports15(MAYBE_UNUSED QQmlEngine *engine, MAYBE_UNUSED T makeImports) n
     if constexpr(QT_VERSION >= QT5_15_LTS_VERSION) {
         const auto imports = makeImports();
         for (auto & str : imports) {
-            engine->addImportPath(str);
+            engine->addImportPath(str.data());
         }
     }
 }
