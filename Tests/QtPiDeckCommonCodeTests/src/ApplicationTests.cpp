@@ -2,7 +2,6 @@
 #include "BoostUnitTest.hpp"
 
 #include "Application.hpp"
-
 #include "Utilities/Logging.hpp"
 
 auto main(int argc, char* argv[]) -> int {
@@ -12,6 +11,7 @@ auto main(int argc, char* argv[]) -> int {
 
 namespace {
 class TestApplication final : public QtPiDeck::Application {
+protected:
   auto mainPage() -> QUrl final { return QUrl(); }
 };
 }

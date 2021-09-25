@@ -7,11 +7,15 @@
 #include "QmlTreeExplorer.hpp"
 #include "QtPiDeckCommon.hpp"
 #include "TestSetup.hpp"
-#include "ViewModels/CommandViewModel.hpp"
 #include "Utilities/QmlHelpers.hpp"
+#include "ViewModels/CommandViewModel.hpp"
+#include "Utilities/Literals.hpp"
 
 namespace QtPiDeck::Tests {
-auto makeImports() noexcept { return std::array<std::string, 1>{"qrc:/qml/components"}; }
+auto makeImports() noexcept {
+  using namespace Utilities::literals;
+  return std::array{"qrc:/qml/components"_qs};
+}
 
 void registerTypes() noexcept {
   ViewModels::CommandViewModel::registerType();
