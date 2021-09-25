@@ -11,6 +11,7 @@ add_library(QtPiDeckCommon SHARED
   src/Services/MessageBus.cpp
   src/Services/ServiceInterface.cpp
   src/Utilities/Logging.cpp
+  src/ViewModels/CommandViewModel.cpp
   include/Application.hpp
   include/QtPiDeckCommon.hpp
   include/QtPiDeckCommon_global.hpp
@@ -27,6 +28,8 @@ add_library(QtPiDeckCommon SHARED
   include/Utilities/Literals.hpp
   include/Utilities/Connection.hpp
   include/Utilities/QmlHelpers.hpp
+  include/Utilities/Traits.hpp
+  include/ViewModels/CommandViewModel.hpp
   qmlCommon.qrc
   icons.qrc)
 

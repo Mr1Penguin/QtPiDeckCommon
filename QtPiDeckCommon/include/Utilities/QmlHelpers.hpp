@@ -5,17 +5,19 @@
 #include <QScreen>
 #include <QWindow>
 
-#include <iostream>
-
 #include "QtPiDeckCommon_global.hpp"
-
-//#define CUSTOM_DPI 320
 
 namespace QtPiDeck::Utilities {
 class QTPIDECKCOMMON_EXPORT QmlHelper : public QObject {
   Q_OBJECT // NOLINT
 public:
-  QmlHelper() : QObject(nullptr), m_dpi(std::max(minDpi, QGuiApplication::primaryScreen()->logicalDotsPerInch())) {}
+  QmlHelper() : QObject(nullptr), m_dpi(minDpi) {
+    if (const auto* screen = QGuiApplication::primaryScreen(); screen) {
+      if (const auto newDpi = screen->logicalDotsPerInch(); newDpi > m_dpi) {
+        m_dpi = newDpi;
+      }
+    }
+  }
 
   void windowCreated() {
     auto* app = qobject_cast<QGuiApplication*>(QGuiApplication::instance());
@@ -29,23 +31,18 @@ public:
     connectToLogicalDpiChanged(window->screen());
   }
 
-  Q_INVOKABLE double dp(double value) {
-    std::cout << value << " * (" << m_dpi << " / " << baseDpi << ") = " << value * (m_dpi / baseDpi) << "\n";
-#ifdef CUSTOM_DPI
-    return value * (CUSTOM_DPI / baseDpi);
-#else
-    return value * (m_dpi / baseDpi);
-#endif
-  }
+  Q_INVOKABLE double dp(double value) { return value * (m_dpi / baseDpi); }
+  // font size to apply font scale later
+  Q_INVOKABLE double sp(double value) { return dp(value); }
 
 private:
   void screenChanged(QScreen* screen) {
     setDpi(screen->logicalDotsPerInch());
     connectToLogicalDpiChanged(screen);
   }
-  void setDpi(double dpi) { 
-    m_dpi = std::max(minDpi, dpi); 
-  }
+
+  void setDpi(double dpi) { m_dpi = std::max(minDpi, dpi); }
+
   void connectToLogicalDpiChanged(QScreen* screen) {
     disconnect(m_dpiChangedConnection);
     m_dpiChangedConnection = connect(screen, &QScreen::logicalDotsPerInchChanged, this, &QmlHelper::setDpi);
@@ -55,6 +52,6 @@ private:
   QMetaObject::Connection m_dpiChangedConnection;
 
   constexpr static double baseDpi = 160;
-  constexpr static double minDpi  = 120;
+  constexpr static double minDpi  = 160;
 };
 }

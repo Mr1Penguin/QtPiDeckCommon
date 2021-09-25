@@ -1,108 +1,78 @@
 import QtQuick 2.0
+import QtPiDeck 1.0
 
 Rectangle {
     signal clicked
 
-    width: qh.dp(128) //to be changed during client testing
+    property CommandViewModel viewModel
+
+    width: dp(128)
     height: width
     border.color: "black" // to be changed with theme
-    border.width: 1
+    border.width: dp(1)
     radius: 10
-    Image { // to be tested on client side
+    Image {
         id: image
-        source: ""
+        source: viewModel.imagePath
         anchors.fill: parent
-        //horizontalAlignment: horizontalCenter
-        //verticalAlignment: verticalAlignment
     }
+
     Text {
-        text: qsTr("What is this very very long text it can't even be put in one line")
+        text: viewModel.text
         visible: image.source == ""
         width: parent.width
         wrapMode: Text.Wrap
-        font.pixelSize: qh.dp(14)
+        font.pixelSize: sp(14)
         horizontalAlignment: Text.AlignHCenter
         anchors.centerIn: parent
     }
+
     MouseArea {
         id: mouseArea
         anchors.fill: parent
         onClicked: parent.clicked()
     }
 
-    // not finished
-    Image {
-        id: commandStatus
+    Rectangle {
+        id: status
+        radius: 10
+        anchors.centerIn: parent
+        width: parent.width * 0.9
+        height: width
         visible: false
-        source: ""
-        state: "hidden"
-        opacity: 0
-        anchors.fill: parent
-        //horizontalAlignment: horizontalCenter
-        //verticalAlignment: verticalAlignment
-
-        states: [
-            State {
-                name: "success"
-                PropertyChanges {
-                    target: commandStatus
-                    visible: true
-                }
-                PropertyChanges {
-                    target: commandStatus
-                    opacity: 1
-                }
-                PropertyChanges {
-                    target: commandStatus
-                    source: "" //ok image
-                }
-            },
-            State {
-                name: "failure"
-                PropertyChanges {
-                    target: commandStatus
-                    visible: true
-                }
-                PropertyChanges {
-                    target: commandStatus
-                    opacity: 1
-                }
-                PropertyChanges {
-                    target: commandStatus
-                    source: "" //fail image
-                }
-            },
-            State {
-                name: "hiding"
-            },
-            State {
-                name: "hidden"
-                PropertyChanges {
-                    target: commandStatus
-                    source: "" //fail image
-                }
-            }
-        ]
-
-        transitions: [
-            Transition {
-                from: ""
-                to: "success,failure"
-                reversible: true
-                SequentialAnimation {
-                    id: anim
-                    NumberAnimation {
-                        target: commandStatus
-                        property: "opacity"
-                        from: 0;
-                        to: 1;
-                        duration: 100
-                    }
-                }
-            }
-        ]
+        color: "transparent"
     }
 
-    function showOk() {commandStatus.state = "success"}
-    function showFailed() {commandStatus.state = "failure"}
+    PropertyAnimation {
+        id: statusOk
+        target: status
+        properties: "color"
+        to: "green"
+        duration: 250
+        onStopped: {
+            status.visible = false
+            status.color = "transparent"
+        }
+    }
+
+    PropertyAnimation {
+        id: statusFailed
+        target: status
+        properties: "color"
+        to: "red"
+        duration: 250
+        onStopped: {
+            status.visible = false
+            status.color = "transparent"
+        }
+    }
+
+    function showOk() { 
+        status.visible = true;
+        statusOk.start();
+    }
+    function showFailed() { 
+        status.visible = true;
+        statusFailed.start();
+    }
 }

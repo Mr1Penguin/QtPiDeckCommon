@@ -1,12 +1,11 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-#include <QQuickView>
 #include <QQmlContext>
 
 #include "QtPiDeckCommon.hpp"
 #include "Utilities/Literals.hpp"
-
 #include "Utilities/QmlHelpers.hpp"
+#include "ViewModels/CommandViewModel.hpp"
 
 auto main(int argc, char* argv[]) -> int {
 #if QT_VERSION_MAJOR < 6
@@ -20,20 +19,23 @@ auto main(int argc, char* argv[]) -> int {
   QtPiDeckCommon qpdc;
   qpdc.registerTypes();
   engine.addImportPath("qrc:/qml/components"_qs);
-  QtPiDeck::Utilities::QmlHelper helper;
   const QUrl url = "qrc:/qml/app.qml"_qurl;
-  QQuickView view;
+  QtPiDeck::Utilities::QmlHelper helper;
   engine.rootContext()->setContextProperty("qh", &helper);
+  QtPiDeck::ViewModels::CommandViewModel::registerType();
   QObject::connect(
       &engine, &QQmlApplicationEngine::objectCreated, &app,
       [&url, &helper](QObject* obj, const QUrl& objUrl) {
-        if (!obj && url == objUrl)
+        if (obj == nullptr && url == objUrl) {
           QCoreApplication::exit(-1);
+        }
 
         helper.windowCreated();
       },
       Qt::QueuedConnection);
   engine.load(url);
 
-  return app.exec();
+  return QGuiApplication::exec();
 }
+
+//#include "main.moc"
