@@ -16,9 +16,9 @@ jobs:
       matrix:
         cfg:
         - { os: ubuntu-20.04, qt: 5.11.3, cc: gcc-8, cxx: g++-8, gcov: gcov-8, experimental: true, vcpkgtriplet: x64-linux }
-        - { os: ubuntu-20.04, qt: 5.11.3, cc: gcc-11, cxx: g++-11, gcov: gcov-11, experimental: true, vcpkgtriplet: x64-linux }
-        - { os: ubuntu-20.04, qt: 5.15.2, cc: gcc-11, cxx: g++-11, gcov: gcov-11, experimental: false, vcpkgtriplet: x64-linux }
-        - { os: ubuntu-20.04, qt: 6.2.0, cc: gcc-11, cxx: g++-11, gcov: gcov-11, experimental: true, vcpkgtriplet: x64-linux }
+        - { os: ubuntu-20.04, qt: 5.11.3, cc: gcc-10, cxx: g++-10, gcov: gcov-10, experimental: true, vcpkgtriplet: x64-linux }
+        - { os: ubuntu-20.04, qt: 5.15.2, cc: gcc-10, cxx: g++-10, gcov: gcov-10, experimental: false, vcpkgtriplet: x64-linux }
+        - { os: ubuntu-20.04, qt: 6.2.0, cc: gcc-10, cxx: g++-10, gcov: gcov-10, experimental: true, vcpkgtriplet: x64-linux }
 
     name: code coverage [Qt${{ matrix.cfg.qt }}]
     continue-on-error: ${{ matrix.cfg.experimental }}

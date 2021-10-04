@@ -16,10 +16,10 @@ jobs:
       matrix:
         cfg:
         - { os: ubuntu-20.04, qt: 5.11.3, cc: gcc-8, cxx: g++-8, experimental: false, vcpkgtriplet: x64-linux }
-        - { os: ubuntu-20.04, qt: 5.11.3, cc: gcc-11, cxx: g++-11, experimental: true, vcpkgtriplet: x64-linux }
+        - { os: ubuntu-20.04, qt: 5.11.3, cc: gcc-10, cxx: g++-10, experimental: true, vcpkgtriplet: x64-linux }
         - { os: ubuntu-20.04, qt: 5.15.2, cc: gcc-8, cxx: g++-8, experimental: false, vcpkgtriplet: x64-linux }
-        - { os: ubuntu-20.04, qt: 5.15.2, cc: gcc-11, cxx: g++-11, experimental: false, vcpkgtriplet: x64-linux }
-        - { os: ubuntu-20.04, qt: 6.2.0, cc: gcc-11, cxx: g++-11, experimental: false, vcpkgtriplet: x64-linux }
+        - { os: ubuntu-20.04, qt: 5.15.2, cc: gcc-10, cxx: g++-10, experimental: false, vcpkgtriplet: x64-linux }
+        - { os: ubuntu-20.04, qt: 6.2.0, cc: gcc-10, cxx: g++-10, experimental: false, vcpkgtriplet: x64-linux }
         - { os: windows-latest, qt: 5.15.2, cc: cl, cxx: cl, experimental: false, vcpkgtriplet: x64-windows }
         - { os: windows-latest, qt: 6.2.0, cc: cl, cxx: cl, experimental: false, vcpkgtriplet: x64-windows }
         - { os: macos-latest, qt: 5.15.2, cc: clang, cxx: clang++, experimental: false, vcpkgtriplet: x64-osx }
