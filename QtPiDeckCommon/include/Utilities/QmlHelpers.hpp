@@ -20,20 +20,24 @@ public:
   }
 
   void windowCreated() {
-    auto* app = qobject_cast<QGuiApplication*>(QGuiApplication::instance());
-    if (!app) {
+    const auto& windowList = QGuiApplication::allWindows();
+    if (std::empty(windowList)) {
       return;
     }
 
-    // main window sets parameters
-    auto* window = app->allWindows()[0];
+    constexpr size_t mainWindowIndex = 0;
+    const auto* window               = windowList[mainWindowIndex];
     connect(window, &QWindow::screenChanged, this, &QmlHelper::screenChanged);
     connectToLogicalDpiChanged(window->screen());
   }
 
-  Q_INVOKABLE double dp(double value) { return value * (m_dpi / baseDpi); }
+  Q_INVOKABLE double dp(double value) const { // NOLINT(modernize-use-trailing-return-type)
+    return value * (m_dpi / baseDpi);
+  }
   // font size to apply font scale later
-  Q_INVOKABLE double sp(double value) { return dp(value); }
+  Q_INVOKABLE double sp(double value) const { // NOLINT(modernize-use-trailing-return-type)
+    return dp(value);
+  }
 
 private:
   void screenChanged(QScreen* screen) {
