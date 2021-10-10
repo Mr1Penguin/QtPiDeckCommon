@@ -26,6 +26,7 @@ add_common_cpp_test(IocTests src/Services/IocTests.cpp)
 add_common_cpp_test(MessageBusTests src/Services/MessageBusTests.cpp)
 add_common_cpp_test(LiteralTests src/Utilities/LiteralTests.cpp)
 add_common_cpp_test(ConnectionTests src/Utilities/ConnectionTests.cpp)
+add_common_cpp_test(QmlHelperTests src/Utilities/QmlHelperTests.cpp)
 
 # visual studio test manager requires to have these libs in PATH
 # so we just copy required libs to test binary

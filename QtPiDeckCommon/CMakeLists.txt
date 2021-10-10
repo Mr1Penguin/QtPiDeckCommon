@@ -27,7 +27,7 @@ add_library(QtPiDeckCommon SHARED
   include/Utilities/Logging.hpp
   include/Utilities/Literals.hpp
   include/Utilities/Connection.hpp
-  include/Utilities/QmlHelpers.hpp
+  include/Utilities/QmlHelper.hpp
   include/Utilities/Traits.hpp
   include/ViewModels/CommandViewModel.hpp
   qmlCommon.qrc
