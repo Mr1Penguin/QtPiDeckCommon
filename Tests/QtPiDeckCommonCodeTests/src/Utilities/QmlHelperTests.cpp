@@ -55,10 +55,10 @@ class TestScreen : public QObject {
   Q_OBJECT // NOLINT
 public:
   TestScreen()                  = default;
-  TestScreen(const TestScreen&) = default;
+  TestScreen(const TestScreen&) = delete;
   TestScreen(TestScreen&&)      = default;
   ~TestScreen() override        = default;
-  auto operator=(const TestScreen&) -> TestScreen& = default;
+  auto operator=(const TestScreen&) -> TestScreen& = delete;
   auto operator=(TestScreen&&) -> TestScreen& = default;
 
   [[nodiscard]] virtual auto logicalDotsPerInch() const -> qreal = 0;
