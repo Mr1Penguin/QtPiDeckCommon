@@ -20,8 +20,8 @@ public:
 };
 class EmptyScreen {
 public:
-  [[nodiscard]] auto logicalDotsPerInch() const -> qreal { // NOLINT(readability-convert-member-functions-to-static)
-    throw std::logic_error{"Should not be reachable"};     // LCOV_EXCL_LINE
+  [[nodiscard]] static auto logicalDotsPerInch() -> qreal { // LCOV_EXCL_LINE
+    throw std::logic_error{"Should not be reachable"};      // LCOV_EXCL_LINE
   }
 };
 class EmptyWindow {};
@@ -53,15 +53,15 @@ constexpr uint64_t regularDpi = 200;
 
 class SmallDpiScreen {
 public:
-  [[nodiscard]] auto logicalDotsPerInch() const -> qreal { return static_cast<qreal>(smallDpi); }
+  [[nodiscard]] static auto logicalDotsPerInch() -> qreal { return static_cast<qreal>(smallDpi); }
 };
 
 class RegularDpiScreen : public QObject {
   Q_OBJECT // NOLINT
 public:
-  [[nodiscard]] auto logicalDotsPerInch() const -> qreal { return static_cast<qreal>(regularDpi); }
+  [[nodiscard]] static auto logicalDotsPerInch() -> qreal { return static_cast<qreal>(regularDpi); }
 signals:
-  void logicalDotsPerInchChanged(qreal);
+  void logicalDotsPerInchChanged(qreal newValue);
 };
 
 static_assert(smallDpi < regularDpi);
@@ -108,19 +108,18 @@ class Window;
 class GuiApp {
 public:
   [[nodiscard]] static auto allWindows() -> std::vector<Window*>;
-  [[nodiscard]] static auto primaryScreen() -> RegularDpiScreen* { return &m_screen; }
+  [[nodiscard]] static auto primaryScreen() -> const RegularDpiScreen* { return &m_screen; }
 
 private:
-  static inline RegularDpiScreen m_screen;
+  static inline const RegularDpiScreen m_screen;
 };
 
 class Window : public QObject {
   Q_OBJECT // NOLINT
 public:
-  [[nodiscard]] auto screen() -> RegularDpiScreen* { return GuiApp::primaryScreen(); }
-  [[nodiscard]] auto screen() const -> const RegularDpiScreen* { return GuiApp::primaryScreen(); }
+  [[nodiscard]] static auto screen() -> const RegularDpiScreen* { return GuiApp::primaryScreen(); }
 signals:
-  void screenChanged(const RegularDpiScreen*);
+  void screenChanged(const RegularDpiScreen* screen);
 
 private:
 };
