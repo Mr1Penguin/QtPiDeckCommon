@@ -51,15 +51,25 @@ public:
 constexpr uint64_t smallDpi   = 60;
 constexpr uint64_t regularDpi = 200;
 
-class SmallDpiScreen {
-public:
-  [[nodiscard]] static auto logicalDotsPerInch() -> qreal { return static_cast<qreal>(smallDpi); }
-};
-
-class RegularDpiScreen : public QObject {
+class TestScreen : public QObject {
   Q_OBJECT // NOLINT
 public:
-  [[nodiscard]] static auto logicalDotsPerInch() -> qreal { return static_cast<qreal>(regularDpi); }
+  virtual auto logicalDotsPerInch() const -> qreal = 0;
+  virtual ~TestScreen() {}
+
+signals:
+  void logicalDotsPerInchChanged(qreal newValue);
+};
+
+class SmallDpiScreen final : public TestScreen {
+public:
+  [[nodiscard]] auto logicalDotsPerInch() const -> qreal final { return static_cast<qreal>(smallDpi); }
+};
+
+class RegularDpiScreen final : public TestScreen {
+  Q_OBJECT // NOLINT
+public:
+  [[nodiscard]] auto logicalDotsPerInch() const -> qreal final { return static_cast<qreal>(regularDpi); }
 signals:
   void logicalDotsPerInchChanged(qreal newValue);
 };
@@ -103,12 +113,16 @@ CT_BOOST_DATA_TEST_CASE(spShouldBeCalculatedCorrectly, spDataSet, input, expecte
   CT_BOOST_TEST(helper.sp(input, helper.dpi()) == expected);
 }
 
-class Window;
-
+template<class Window>
 class GuiApp {
 public:
-  [[nodiscard]] static auto allWindows() -> std::vector<Window*>;
-  [[nodiscard]] static auto primaryScreen() -> const RegularDpiScreen* { return &m_screen; }
+  [[nodiscard]] static auto allWindows() -> std::vector<Window*> {
+    static Window window{};
+    std::vector<Window*> list;
+    list.push_back(&window);
+    return list;
+  }
+  [[nodiscard]] static auto primaryScreen() -> const TestScreen* { return &m_screen; }
 
 private:
   static inline const RegularDpiScreen m_screen;
@@ -117,22 +131,15 @@ private:
 class Window : public QObject {
   Q_OBJECT // NOLINT
 public:
-  [[nodiscard]] static auto screen() -> const RegularDpiScreen* { return GuiApp::primaryScreen(); }
+  [[nodiscard]] static auto screen() -> const TestScreen* { return GuiApp<Window>::primaryScreen(); }
 signals:
   void screenChanged(const RegularDpiScreen* screen);
 
 private:
 };
 
-auto GuiApp::allWindows() -> std::vector<Window*> {
-  static Window window{};
-  std::vector<Window*> list;
-  list.push_back(&window);
-  return list;
-}
-
 template<class Derived>
-using QmlHelper = QmlHelperPrivate<Derived, GuiApp, Window, RegularDpiScreen>;
+using QmlHelper = QmlHelperPrivate<Derived, GuiApp<Window>, Window, TestScreen>;
 
 template<template<typename> class Parent>
 class UpdateableHelper : public Parent<UpdateableHelper<Parent>> {
@@ -147,6 +154,42 @@ CT_BOOST_AUTO_TEST_CASE(windowCreatedOnPrimaryScreen) {
   const auto dpiBeforeWindow = helper.dpi();
   helper.windowCreated();
   CT_BOOST_TEST(dpiBeforeWindow == helper.dpi());
+}
+
+namespace {
+constexpr uint64_t differentDpi = 260;
+
+class DifferentDpiScreen final : public TestScreen {
+  Q_OBJECT // NOLINT
+public:
+  [[nodiscard]] auto logicalDotsPerInch() const -> qreal final { return static_cast<qreal>(differentDpi); }
+signals:
+  void logicalDotsPerInchChanged(qreal newValue);
+};
+
+class WindowWithScreen : public QObject {
+  Q_OBJECT // NOLINT
+public:
+  [[nodiscard]] static auto screen() -> const TestScreen* {
+    static DifferentDpiScreen screen;
+    return &screen;
+  }
+signals:
+  void screenChanged(const DifferentDpiScreen* screen);
+
+private:
+};
+
+template<class Derived>
+using QmlHelperWithScreen = QmlHelperPrivate<Derived, GuiApp<WindowWithScreen>, WindowWithScreen, TestScreen>;
+}
+
+CT_BOOST_AUTO_TEST_CASE(windowCreatedOnNonPrimaryScreen) {
+  UpdateableHelper<QmlHelperWithScreen> helper;
+  const auto dpiBeforeWindow = helper.dpi();
+  helper.windowCreated();
+  CT_BOOST_TEST(dpiBeforeWindow != helper.dpi());
+  CT_BOOST_TEST(differentDpi == helper.dpi());
 }
 CT_BOOST_AUTO_TEST_SUITE_END()
 
