@@ -81,6 +81,8 @@ private:
 template<class Derived>
 using QmlHelperPrivate = detail::QmlHelperPrivate<Derived>;
 
+// exclude untestabable class
+// LCOV_EXCL_START
 class QTPIDECKCOMMON_EXPORT QmlHelper : public QmlHelperPrivate<QmlHelper> {
   Q_OBJECT // NOLINT
   friend QmlHelperPrivate<QmlHelper>;
@@ -101,8 +103,7 @@ signals:
   void dpiChanged();
 
 private:
-  void updateDpi() {
-    emit dpiChanged();
-  }
+  void updateDpi() { emit dpiChanged(); }
 };
+// LCOV_EXCL_STOP
 }
