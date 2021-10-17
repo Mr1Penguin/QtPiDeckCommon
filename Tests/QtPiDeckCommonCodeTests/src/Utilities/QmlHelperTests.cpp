@@ -54,8 +54,14 @@ constexpr uint64_t regularDpi = 200;
 class TestScreen : public QObject {
   Q_OBJECT // NOLINT
 public:
+  TestScreen()                  = default;
+  TestScreen(const TestScreen&) = default;
+  TestScreen(TestScreen&&)      = default;
+  ~TestScreen() override        = default;
+  auto operator=(const TestScreen&) -> TestScreen& = default;
+  auto operator=(TestScreen&&) -> TestScreen& = default;
+
   [[nodiscard]] virtual auto logicalDotsPerInch() const -> qreal = 0;
-  ~TestScreen() override                                         = default;
 
 signals:
   void logicalDotsPerInchChanged(qreal _t1);
@@ -206,7 +212,7 @@ public:
     emit screenChanged(&m_differentScreen);
   }
 signals:
-  void screenChanged(const TestScreen* screen);
+  void screenChanged(const TestScreen* _t1);
 
 private:
   RegularDpiScreen m_regularScreen;
@@ -216,7 +222,8 @@ private:
 };
 
 template<class Derived>
-using QmlHelperWithChangeableScreen = QmlHelperPrivate<Derived, GuiApp<WindowWithChangeableScreen>, WindowWithChangeableScreen, TestScreen>;
+using QmlHelperWithChangeableScreen =
+    QmlHelperPrivate<Derived, GuiApp<WindowWithChangeableScreen>, WindowWithChangeableScreen, TestScreen>;
 }
 
 CT_BOOST_AUTO_TEST_CASE(screenChangeShouldUpdateDpi) {
