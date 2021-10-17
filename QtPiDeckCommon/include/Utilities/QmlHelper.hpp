@@ -24,12 +24,16 @@ public:
 
   void windowCreated() {
     const auto& windowList = GuiApp::allWindows();
-    if (std::empty(windowList)) {
-      return;
-    }
+    assert(!std::empty(windowList)); // LCOV_EXCL_LINE
 
     constexpr size_t mainWindowIndex = 0;
     const auto* window               = windowList[mainWindowIndex];
+
+    // If windows somehow was created on different screen
+    if (window->screen() != GuiApp::primaryScreen()) {
+      setDpi(window->screen()->logicalDotsPerInch());
+    }
+
     connect(window, &Window::screenChanged, this, &QmlHelperPrivate::screenChanged);
     connectToLogicalDpiChanged(window->screen());
   }
@@ -50,7 +54,7 @@ public:
   constexpr static double minDpi  = 160;
 
 private:
-  void screenChanged(const QScreen* screen) {
+  void screenChanged(const Screen* screen) {
     setDpi(screen->logicalDotsPerInch());
     connectToLogicalDpiChanged(screen);
   }
@@ -84,6 +88,7 @@ class QTPIDECKCOMMON_EXPORT QmlHelper : public QmlHelperPrivate<QmlHelper> {
 public:
   QmlHelper() : QmlHelperPrivate() {}
 
+  // does not work with several windows on several screens with different dpi
   Q_INVOKABLE double dp(double value, double dpi) const { // NOLINT(modernize-use-trailing-return-type)
     return QmlHelperPrivate::dp(value, dpi);
   }
