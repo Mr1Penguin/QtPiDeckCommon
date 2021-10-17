@@ -54,11 +54,11 @@ constexpr uint64_t regularDpi = 200;
 class TestScreen : public QObject {
   Q_OBJECT // NOLINT
 public:
-  virtual auto logicalDotsPerInch() const -> qreal = 0;
-  virtual ~TestScreen() {}
+  [[nodiscard]] virtual auto logicalDotsPerInch() const -> qreal = 0;
+  ~TestScreen() override                                         = default;
 
 signals:
-  void logicalDotsPerInchChanged(qreal newValue);
+  void logicalDotsPerInchChanged(qreal _t1);
 };
 
 class SmallDpiScreen final : public TestScreen {
@@ -71,7 +71,7 @@ class RegularDpiScreen final : public TestScreen {
 public:
   [[nodiscard]] auto logicalDotsPerInch() const -> qreal final { return static_cast<qreal>(regularDpi); }
 signals:
-  void logicalDotsPerInchChanged(qreal newValue);
+  void logicalDotsPerInchChanged(qreal _t1);
 };
 
 static_assert(smallDpi < regularDpi);
@@ -133,7 +133,7 @@ class Window : public QObject {
 public:
   [[nodiscard]] static auto screen() -> const TestScreen* { return GuiApp<Window>::primaryScreen(); }
 signals:
-  void screenChanged(const RegularDpiScreen* screen);
+  void screenChanged(const RegularDpiScreen* _t1);
 
 private:
 };
@@ -164,7 +164,7 @@ class DifferentDpiScreen final : public TestScreen {
 public:
   [[nodiscard]] auto logicalDotsPerInch() const -> qreal final { return static_cast<qreal>(differentDpi); }
 signals:
-  void logicalDotsPerInchChanged(qreal newValue);
+  void logicalDotsPerInchChanged(qreal _t1);
 };
 
 class WindowWithScreen : public QObject {
@@ -175,7 +175,7 @@ public:
     return &screen;
   }
 signals:
-  void screenChanged(const DifferentDpiScreen* screen);
+  void screenChanged(const DifferentDpiScreen* _t1);
 
 private:
 };
@@ -188,6 +188,43 @@ CT_BOOST_AUTO_TEST_CASE(windowCreatedOnNonPrimaryScreen) {
   UpdateableHelper<QmlHelperWithScreen> helper;
   const auto dpiBeforeWindow = helper.dpi();
   helper.windowCreated();
+  CT_BOOST_TEST(dpiBeforeWindow != helper.dpi());
+  CT_BOOST_TEST(differentDpi == helper.dpi());
+}
+
+namespace {
+class WindowWithChangeableScreen : public QObject {
+  Q_OBJECT // NOLINT
+public:
+  [[nodiscard]] auto screen() const -> const TestScreen* {
+    return m_useDifferentScreen ? static_cast<const TestScreen*>(&m_differentScreen)
+                                : static_cast<const TestScreen*>(&m_regularScreen);
+  }
+
+  void changeScreen() {
+    m_useDifferentScreen = true;
+    emit screenChanged(&m_differentScreen);
+  }
+signals:
+  void screenChanged(const TestScreen* screen);
+
+private:
+  RegularDpiScreen m_regularScreen;
+  DifferentDpiScreen m_differentScreen;
+
+  bool m_useDifferentScreen{false};
+};
+
+template<class Derived>
+using QmlHelperWithChangeableScreen = QmlHelperPrivate<Derived, GuiApp<WindowWithChangeableScreen>, WindowWithChangeableScreen, TestScreen>;
+}
+
+CT_BOOST_AUTO_TEST_CASE(screenChangeShouldUpdateDpi) {
+  UpdateableHelper<QmlHelperWithChangeableScreen> helper;
+  const auto dpiBeforeWindow = helper.dpi();
+  helper.windowCreated();
+  CT_BOOST_TEST(dpiBeforeWindow == helper.dpi());
+  GuiApp<WindowWithChangeableScreen>::allWindows()[0]->changeScreen();
   CT_BOOST_TEST(dpiBeforeWindow != helper.dpi());
   CT_BOOST_TEST(differentDpi == helper.dpi());
 }
