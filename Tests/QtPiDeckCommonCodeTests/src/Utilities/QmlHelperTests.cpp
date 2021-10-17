@@ -57,7 +57,7 @@ public:
 };
 
 class RegularDpiScreen : public QObject {
-  Q_OBJECT; // NOLINT
+  Q_OBJECT // NOLINT
 public:
   [[nodiscard]] auto logicalDotsPerInch() const -> qreal { return static_cast<qreal>(smallDpi); }
 signals:
@@ -115,7 +115,7 @@ private:
 };
 
 class Window : public QObject {
-  Q_OBJECT; // NOLINT
+  Q_OBJECT // NOLINT
 public:
   [[nodiscard]] auto screen() -> RegularDpiScreen* { return GuiApp::primaryScreen(); }
   [[nodiscard]] auto screen() const -> const RegularDpiScreen* { return GuiApp::primaryScreen(); }
