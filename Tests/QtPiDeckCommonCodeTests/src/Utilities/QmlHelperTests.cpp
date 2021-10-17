@@ -56,10 +56,10 @@ class TestScreen : public QObject {
 public:
   TestScreen()                  = default;
   TestScreen(const TestScreen&) = delete;
-  TestScreen(TestScreen&&)      = default;
+  TestScreen(TestScreen&&)      = delete;
   ~TestScreen() override        = default;
   auto operator=(const TestScreen&) -> TestScreen& = delete;
-  auto operator=(TestScreen&&) -> TestScreen& = default;
+  auto operator=(TestScreen&&) -> TestScreen& = delete;
 
   [[nodiscard]] virtual auto logicalDotsPerInch() const -> qreal = 0;
 
