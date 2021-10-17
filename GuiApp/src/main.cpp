@@ -4,7 +4,7 @@
 
 #include "QtPiDeckCommon.hpp"
 #include "Utilities/Literals.hpp"
-#include "Utilities/QmlHelpers.hpp"
+#include "Utilities/QmlHelper.hpp"
 #include "ViewModels/CommandViewModel.hpp"
 
 auto main(int argc, char* argv[]) -> int {

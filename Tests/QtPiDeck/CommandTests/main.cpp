@@ -7,7 +7,7 @@
 #include "QmlTreeExplorer.hpp"
 #include "QtPiDeckCommon.hpp"
 #include "TestSetup.hpp"
-#include "Utilities/QmlHelpers.hpp"
+#include "Utilities/QmlHelper.hpp"
 #include "ViewModels/CommandViewModel.hpp"
 #include "Utilities/Literals.hpp"
 

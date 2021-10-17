@@ -12,11 +12,11 @@ Window {
     title: qsTr("Hello World")
 
     function dp(value) {
-        return qh ? qh.dp(value) : value;
+        return qh ? qh.dp(value, qh.dpi) : value;
     }
 
     function sp(value) {
-        return qh ? qh.sp(value) : value;
+        return qh ? qh.sp(value, qh.dpi) : value;
     }
 
     Command {
