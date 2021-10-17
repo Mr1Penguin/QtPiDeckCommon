@@ -59,7 +59,7 @@ public:
 class RegularDpiScreen : public QObject {
   Q_OBJECT // NOLINT
 public:
-  [[nodiscard]] auto logicalDotsPerInch() const -> qreal { return static_cast<qreal>(smallDpi); }
+  [[nodiscard]] auto logicalDotsPerInch() const -> qreal { return static_cast<qreal>(regularDpi); }
 signals:
   void logicalDotsPerInchChanged(qreal);
 };
