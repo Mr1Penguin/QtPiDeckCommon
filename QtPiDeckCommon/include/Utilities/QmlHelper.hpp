@@ -81,7 +81,7 @@ private:
 template<class Derived>
 using QmlHelperPrivate = detail::QmlHelperPrivate<Derived>;
 
-// exclude untestabable class
+// exclude untestable class
 // LCOV_EXCL_START
 class QTPIDECKCOMMON_EXPORT QmlHelper : public QmlHelperPrivate<QmlHelper> {
   Q_OBJECT // NOLINT
