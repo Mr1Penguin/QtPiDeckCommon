@@ -41,4 +41,16 @@ jobs:
     name: Qt${{ matrix.cfg.qt }} - ${{ matrix.cfg.cc }}[${{ matrix.cfg.os }}]
 
     steps:
-      - run: echo "Hello!"
+      - name: Cache Qt
+        id: cache-qt
+        uses: actions/cache@v1
+        with:
+          path: ../Qt
+          key: ${{ matrix.cfg.os }}-QtCache-${{ matrix.cfg.qt }}
+      
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          aqtversion: ==2.0.0
+          version: '${{ matrix.cfg.qt }}'
+          cached: ${{ steps.cache-qt.outputs.cache-hit }}
