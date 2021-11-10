@@ -20,12 +20,12 @@ jobs:
       job-matrix: ${{ steps.set-matrix.outputs.job-matrix }}
     steps:
       - id: set-matrix
-        run: echo "::set-output name=job-matrix::{\"cfg\":[${uqpig8}, ${uqpig10}, ${uq5g8}, ${uq5g8}, ${uq6g8}, ${wq5cl}, ${wq6cl}, ${mq5clang}, ${mq6clang}]}"
+        run: echo "::set-output name=job-matrix::{\"cfg\":[${uqpig8}, ${uqpig10}, ${uq5g8}, ${uq5g10}, ${uq6g8}, ${wq5cl}, ${wq6cl}, ${mq5clang}, ${mq6clang}]}"
         env:
           uqpig8: '{"os":"ubuntu","qt":"${{ env.QTPI }}","cc":"gcc-8","cxx":"g++-8","triplet":"x64-linux"}'
           uqpig10: '{"os":"ubuntu","qt":"${{ env.QTPI }}","cc":"gcc-10","cxx":"g++-10","triplet":"x64-linux"}'
           uq5g8: '{"os":"ubuntu","qt":"${{ env.QT5 }}","cc":"gcc-8","cxx":"g++-8","triplet":"x64-linux"}'
-          uq5g8: '{"os":"ubuntu","qt":"${{ env.QT5 }}","cc":"gcc-10","cxx":"g++-10","triplet":"x64-linux"}'
+          uq5g10: '{"os":"ubuntu","qt":"${{ env.QT5 }}","cc":"gcc-10","cxx":"g++-10","triplet":"x64-linux"}'
           uq6g8: '{"os":"ubuntu","qt":"${{ env.QT6 }}","cc":"gcc-10","cxx":"g++-10","triplet":"x64-linux"}'
           wq5cl: '{"os":"windows","qt":"${{ env.QT5 }}","cc":"cl","cxx":"cl","triplet":"x64-windows"}'
           wq6cl: '{"os":"windows","qt":"${{ env.QT6 }}","cc":"cl","cxx":"cl","triplet":"x64-windows"}'
