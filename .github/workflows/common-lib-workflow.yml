@@ -41,6 +41,8 @@ jobs:
     name: Qt${{ matrix.cfg.qt }} - ${{ matrix.cfg.cc }}[${{ matrix.cfg.os }}]
 
     steps:
+      - uses: lukka/get-cmake@latest
+
       - name: Cache Qt
         id: cache-qt
         uses: actions/cache@v1
@@ -111,8 +113,6 @@ jobs:
 
       - uses: ilammy/msvc-dev-cmd@v1
         if: matrix.cfg.os == 'windows'
-
-      - uses: lukka/get-cmake@latest
 
       - name: Create build directory
         run: cmake -E make_directory "build"
