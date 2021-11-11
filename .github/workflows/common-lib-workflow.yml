@@ -77,6 +77,10 @@ jobs:
           doNotUpdateVcpkg: true
         if: steps.set-outputs.outputs.dependencies != 'nil'
 
+      - name: Install gcc 8
+        run: sudo apt-get install g++-8 -y
+        if: matrix.cfg.cc == 'gcc-8'
+
       - name: Update llvm-clang
         run: |
           brew update
