@@ -178,6 +178,12 @@ jobs:
           fetch-depth: '0'
           submodules: 'recursive'
 
+      - name: Set outputs
+        run: |
+          echo "::set-output name=dependencies::$(python3 ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ matrix.cfg.qt }} ${{ matrix.cfg.os }}-latest)"
+          echo "::set-output name=cacheKey::$(python3 ${{ github.workspace }}/scripts/vcpkgCacheKey.py qt${{ matrix.cfg.qt }} ${{ matrix.cfg.os }}-latest)"
+        id: set-outputs
+
       - uses: lukka/run-vcpkg@v7.3
         with:
           vcpkgDirectory: ${{ github.workspace }}/QtPiDeckCommon/ext/vcpkg
@@ -186,12 +192,6 @@ jobs:
           vcpkgArguments: ${{ steps.set-outputs.outputs.dependencies }}
           doNotUpdateVcpkg: true
         if: steps.set-outputs.outputs.dependencies != 'nil'
-
-      - name: Set outputs
-        run: |
-          echo "::set-output name=dependencies::$(python3 ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ matrix.cfg.qt }} ${{ matrix.cfg.os }}-latest)"
-          echo "::set-output name=cacheKey::$(python3 ${{ github.workspace }}/scripts/vcpkgCacheKey.py qt${{ matrix.cfg.qt }} ${{ matrix.cfg.os }}-latest)"
-        id: set-outputs
 
       - name: Install additional Qt6 dependencies
         run: |
