@@ -186,7 +186,7 @@ jobs:
 
       - uses: lukka/run-vcpkg@v7.3
         with:
-          vcpkgDirectory: ${{ github.workspace }}/QtPiDeckCommon/ext/vcpkg
+          vcpkgDirectory: ${{ github.workspace }}/ext/vcpkg
           appendedCacheKey: ${{ steps.set-outputs.outputs.cacheKey }}
           vcpkgTriplet: ${{ steps.set-outputs.outputs.triplet }}
           vcpkgArguments: ${{ steps.set-outputs.outputs.dependencies }}
