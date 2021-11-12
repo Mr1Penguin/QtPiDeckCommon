@@ -244,3 +244,121 @@ jobs:
         with:
           files: coverage.txt
           fail_ci_if_error: true
+
+  clang-tidy-generator:
+    runs-on: ubuntu-latest
+    outputs:
+      job-matrix: ${{ steps.set-matrix.outputs.job-matrix }}
+    steps:
+      - id: set-matrix
+        run: echo "::set-output name=job-matrix::{\"cfg\":[${uqpi}, ${uq5}, ${uq6}]}"
+        env:
+          clangver: 12
+          uqpi: '{"os":"ubuntu","qt":"${{ env.QTPI }}"}'
+          uq5: '{"os":"ubuntu","qt":"${{ env.QT5 }}"}'
+          uq6: '{"os":"ubuntu","qt":"${{ env.QT6 }}"}'
+
+  clang-tidy:
+    if: github.event_name == 'pull_request'
+    needs: [clang-tidy-generator, test]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{fromJSON(needs.code-checks-generator.outputs.job-matrix)}}
+    env: 
+      clangver: 12
+      clang: "clang-${{ env.clangver }}"
+      clangpp: "clang++-${{ env.clangver }}"
+      clangtidy: "clang-tidy-${{ env.clangver }}"
+      triplet: "x64-linux"
+    steps:
+      - name: Cache Qt
+        id: cache-qt
+        uses: actions/cache@v1
+        with:
+          path: ../Qt
+          key: ubuntu-QtCache-${{ matrix.cfg.qt }}
+      
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          aqtversion: ==2.0.0
+          modules: ${{ matrix.cfg.qt == env.QT6 && 'qtwebsockets' || '' }}
+          version: '${{ matrix.cfg.qt }}'
+          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+          submodules: 'recursive'
+
+      - name: Set outputs
+        run: |
+          echo "::set-output name=dependencies::$(python3 ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ matrix.cfg.qt }} ${{ matrix.cfg.os }}-latest)"
+          echo "::set-output name=cacheKey::$(python3 ${{ github.workspace }}/scripts/vcpkgCacheKey.py qt${{ matrix.cfg.qt }} ${{ matrix.cfg.os }}-latest)"
+        id: set-outputs
+
+      - uses: lukka/run-vcpkg@v7.3
+        with:
+          vcpkgDirectory: ${{ github.workspace }}/ext/vcpkg
+          appendedCacheKey: ${{ steps.set-outputs.outputs.cacheKey }}
+          vcpkgTriplet: ${{ env.triplet }}
+          vcpkgArguments: ${{ steps.set-outputs.outputs.dependencies }}
+          doNotUpdateVcpkg: true
+        if: steps.set-outputs.outputs.dependencies != 'nil'
+
+      - name: Install additional Qt6 dependencies
+        run: |
+          wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
+          sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-${VULKAN_VER}-focal.list https://packages.lunarg.com/vulkan/${VULKAN_VER}/lunarg-vulkan-${VULKAN_VER}-focal.list
+          sudo apt update
+          sudo apt install
+          sudo apt install vulkan-sdk libxkbcommon-dev -y
+        if: matrix.cfg.qt == env.QT6
+
+      - uses: lukka/get-cmake@latest
+
+      - run: sudo apt-get install -y ${clang} ${clangtidy}
+
+      - name: Create build directory
+        run: cmake -E make_directory "build"
+
+      - run: cmake -S . -B build -G Ninja -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/ext/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+        env:
+          CC: clang-${{ env.clangversion }}
+          CXX: clang++-${{ env.clangversion }}
+
+      - run: cmake --build build
+
+      - run: mkdir clang-tidy-reports
+
+      - name: Generate reports
+        run: | 
+          git diff --name-only $(git merge-base origin/master HEAD) HEAD | 
+          grep '\.cpp$' |
+          xargs -P2 -I% bash -c 'v=%; grep -q -e ".*\"file\":.*%" build/compile_commands.json && clang-tidy-${clangversion} -p build --config-file=${{ github.workspace }}/.clang-tidy % > clang-tidy-reports/${v//\//.}.txt || true'
+
+      - run: find clang-tidy-reports -name '*.txt' -empty -exec rm -v {} \; 
+
+      - run: echo ::set-output name=count::$(find clang-tidy-reports -name '*.txt' | wc -l)
+        id: reports-number
+
+      - name: Export report
+        uses: actions/upload-artifact@v2
+        with:
+          name: clang-tidy-reports-${{ matrix.qt }}
+          path: clang-tidy-reports
+        if: steps.reports-number.outputs.count != 0
+
+      - name: Fail if clang-tidy found something
+        if: steps.reports-number.outputs.count != 0
+        uses: actions/github-script@v3
+        with:
+          script: |
+            core.setFailed('clang-tidy detected errors. Check job artifacts')
+
+  done:
+    if: github.event_name == 'pull_request'
+    needs: [clang-tidy, code-coverage]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "DONE"
