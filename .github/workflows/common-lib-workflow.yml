@@ -202,6 +202,10 @@ jobs:
           sudo apt install vulkan-sdk libxkbcommon-dev -y
         if: matrix.cfg.qt == env.QT6
 
+      - name: Install gcc 8
+        run: sudo apt-get install g++-8 -y
+        if: matrix.cfg.cc == 'gcc-8'
+
       - uses: lukka/get-cmake@latest
 
       - name: Create build directory
