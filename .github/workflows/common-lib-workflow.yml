@@ -138,3 +138,105 @@ jobs:
         working-directory: build
         env:
           LD_LIBRARY_PATH: ./QtPiDeckCommon
+
+  code-coverage-generator:
+    runs-on: ubuntu-latest
+    outputs:
+      job-matrix: ${{ steps.set-matrix.outputs.job-matrix }}
+    steps:
+      - id: set-matrix
+        run: echo "::set-output name=job-matrix::{\"cfg\":[${uqpig8}, ${uqpig10}, ${uq5g10}, ${uq6g8}]}"
+        env:
+          uqpig8: '{"os":"ubuntu","qt":"${{ env.QTPI }}","cc":"gcc-8","cxx":"g++-8","triplet":"x64-linux", "gcov":"gcov-8"}'
+          uqpig10: '{"os":"ubuntu","qt":"${{ env.QTPI }}","cc":"gcc-10","cxx":"g++-10","triplet":"x64-linux", "gcov":"gcov-10"}'
+          uq5g10: '{"os":"ubuntu","qt":"${{ env.QT5 }}","cc":"gcc-10","cxx":"g++-10","triplet":"x64-linux", "gcov":"gcov-10"}'
+          uq6g8: '{"os":"ubuntu","qt":"${{ env.QT6 }}","cc":"gcc-10","cxx":"g++-10","triplet":"x64-linux", "gcov":"gcov-10"}'
+
+  code-coverage:
+    needs: [code-coverage-generator, test]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{fromJSON(needs.code-coverage-generator.outputs.job-matrix)}}
+
+    steps:
+      - name: Cache Qt
+        id: cache-qt
+        uses: actions/cache@v1
+        with:
+          path: ../Qt
+          key: ubuntu-QtCache-${{ matrix.cfg.qt }}
+      
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          aqtversion: ==2.0.0
+          version: '${{ matrix.cfg.qt }}'
+          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+          submodules: 'recursive'
+
+      - uses: lukka/run-vcpkg@v7.3
+        with:
+          vcpkgDirectory: ${{ github.workspace }}/QtPiDeckCommon/ext/vcpkg
+          appendedCacheKey: ${{ steps.set-outputs.outputs.cacheKey }}
+          vcpkgTriplet: ${{ steps.set-outputs.outputs.triplet }}
+          vcpkgArguments: ${{ steps.set-outputs.outputs.dependencies }}
+          doNotUpdateVcpkg: true
+        if: steps.set-outputs.outputs.dependencies != 'nil'
+
+      - name: Set outputs
+        run: |
+          echo "::set-output name=dependencies::$(python3 ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ matrix.cfg.qt }} ${{ matrix.cfg.os }}-latest)"
+          echo "::set-output name=cacheKey::$(python3 ${{ github.workspace }}/scripts/vcpkgCacheKey.py qt${{ matrix.cfg.qt }} ${{ matrix.cfg.os }}-latest)"
+        id: set-outputs
+
+      - name: Install additional Qt6 dependencies
+        run: |
+          wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
+          sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-${VULKAN_VER}-focal.list https://packages.lunarg.com/vulkan/${VULKAN_VER}/lunarg-vulkan-${VULKAN_VER}-focal.list
+          sudo apt update
+          sudo apt install
+          sudo apt install vulkan-sdk libxkbcommon-dev -y
+        if: matrix.cfg.qt == env.QT6
+
+      - uses: lukka/get-cmake@latest
+
+      - name: Create build directory
+        run: cmake -E make_directory "build"
+
+      - name: Run cmake
+        run:  cmake -S . -B build -G Ninja -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/ext/vcpkg/scripts/buildsystems/vcpkg.cmake -DCODECOV=ON -DCMAKE_BUILD_TYPE=Debug
+        env:
+          CC: ${{ matrix.cfg.cc }}
+          CXX: ${{ matrix.cfg.cxx }}
+
+      - run: cmake --build build
+
+      - name: Install lcov
+        run: sudo apt update && sudo apt install -y lcov
+
+      - name: Initial lcov run
+        run: lcov --rc lcov_branch_coverage=1 --no-external --capture --initial --directory . --output-file before.txt --gcov-tool ${{ matrix.cfg.gcov }}
+
+      - name: Test project
+        run: ctest --output-on-failure
+        working-directory: build
+
+      - name: Post-test lcov run
+        run: lcov --rc lcov_branch_coverage=1 --capture --directory . --output-file coverage.txt --gcov-tool ${{ matrix.cfg.gcov }}
+
+      - name: Merge lcov reports
+        run: |
+            lcov --rc lcov_branch_coverage=1 --add-tracefile before.txt --add-tracefile coverage.txt --output-file coverage.txt --gcov-tool ${{ matrix.cfg.gcov }}
+            rm before.txt
+
+      - name: Clean up report
+        run: lcov --rc lcov_branch_coverage=1 --remove coverage.txt -o coverage.txt '/usr/*' '*Tests/*' '*build/*' '*boost*' --gcov-tool ${{ matrix.cfg.gcov }}
+
+      - uses: codecov/codecov-action@v2
+        with:
+          files: coverage.txt
+          fail_ci_if_error: true
