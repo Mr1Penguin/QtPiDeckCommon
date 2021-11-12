@@ -265,10 +265,9 @@ jobs:
     strategy:
       matrix: ${{fromJSON(needs.code-checks-generator.outputs.job-matrix)}}
     env: 
-      clangver: 12
-      clang: "clang-${{ env.clangver }}"
-      clangpp: "clang++-${{ env.clangver }}"
-      clangtidy: "clang-tidy-${{ env.clangver }}"
+      clang: "clang-12"
+      clangpp: "clang++-12"
+      clangtidy: "clang-tidy-12"
       triplet: "x64-linux"
     steps:
       - name: Cache Qt
