@@ -322,8 +322,8 @@ jobs:
 
       - run: cmake -S . -B build -G Ninja -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/ext/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
         env:
-          CC: clang-${{ env.clangversion }}
-          CXX: clang++-${{ env.clangversion }}
+          CC: ${{ env.clang }}
+          CXX: ${{ env.clangpp }}
 
       - run: cmake --build build
 
@@ -333,7 +333,7 @@ jobs:
         run: | 
           git diff --name-only $(git merge-base origin/master HEAD) HEAD | 
           grep '\.cpp$' |
-          xargs -P2 -I% bash -c 'v=%; grep -q -e ".*\"file\":.*%" build/compile_commands.json && clang-tidy-${clangversion} -p build --config-file=${{ github.workspace }}/.clang-tidy % > clang-tidy-reports/${v//\//.}.txt || true'
+          xargs -P2 -I% bash -c 'v=%; grep -q -e ".*\"file\":.*%" build/compile_commands.json && ${clangtidy} -p build --config-file=${{ github.workspace }}/.clang-tidy % > clang-tidy-reports/${v//\//.}.txt || true'
 
       - run: find clang-tidy-reports -name '*.txt' -empty -exec rm -v {} \; 
 
