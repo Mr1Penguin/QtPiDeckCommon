@@ -4,7 +4,7 @@
 
 #include <QByteArray>
 
-#include "Utilities/qbautils.hpp"
+#include "Utilities/QBAutils.hpp"
 
 namespace QtPiDeck::Bus {
 struct Message {

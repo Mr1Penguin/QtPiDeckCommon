@@ -30,7 +30,7 @@ add_library(QtPiDeckCommon SHARED
   include/Utilities/QmlHelper.hpp
   include/Utilities/QmlHelperDetail.hpp
   include/Utilities/Traits.hpp
-  include/Utilities/qbautils.hpp
+  include/Utilities/QBAutils.hpp
   include/ViewModels/CommandViewModel.hpp
   qmlCommon.qrc
   icons.qrc)
