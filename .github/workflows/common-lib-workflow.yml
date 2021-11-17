@@ -233,6 +233,8 @@ jobs:
         env:
           LLVM_PROFILE_FILE: ${{ github.workspace }}/coverage/%p.profraw
 
+      - run: ls coverage
+
       - run: llvm-profdata-13 merge -sparse *.profraw -o coverage.profdata
         working-directory: coverage
 
