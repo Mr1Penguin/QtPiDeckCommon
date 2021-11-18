@@ -157,8 +157,8 @@ jobs:
     strategy:
       matrix: ${{fromJSON(needs.code-checks-generator.outputs.job-matrix)}}
     env:
-      clang: "clang-13"
-      clangpp: "clang++-13"
+      clang: "clang-12"
+      clangpp: "clang++-12"
       triplet: "x64-linux"
 
     steps:
@@ -209,8 +209,8 @@ jobs:
         run: |
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
-          sudo ./llvm.sh 13
-          sudo apt-get install -y llvm-13
+          sudo ./llvm.sh 12
+          sudo apt-get install -y llvm-12
 
       - uses: lukka/get-cmake@latest
 
@@ -235,10 +235,10 @@ jobs:
 
       - run: ls coverage -lh
 
-      - run: llvm-profdata-13 merge -sparse *.profraw -o coverage.profdata
+      - run: llvm-profdata-12 merge -sparse *.profraw -o coverage.profdata
         working-directory: coverage
 
-      - run: llvm-cov-13 show $(find ${{ github.workspace }}/build/Tests/QtPiDeckCommonCodeTests/ -type f -executable | sed ':a; N; $!ba; s/\n/ -object /g') -instr-profile=coverage.profdata --show-branches=count -show-line-counts -ignore-filename-regex='Tests' > coverage.txt
+      - run: llvm-cov-12 show $(find ${{ github.workspace }}/build/Tests/QtPiDeckCommonCodeTests/ -type f -executable | sed ':a; N; $!ba; s/\n/ -object /g') -instr-profile=coverage.profdata --show-branches=count -show-line-counts -ignore-filename-regex='Tests' > coverage.txt
         working-directory: coverage
 
       - uses: codecov/codecov-action@v2
