@@ -45,8 +45,8 @@ target_compile_definitions(
     $<$<AND:$<BOOL:${VISUAL_STUDIO}>,$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>>:QT_QML_DEBUG_NO_WARNING>
 )
 
-if(CODECOV AND CMAKE_BUILD_TYPE STREQUAL "Debug")
-   if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+if(CODECOV)
+   if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_BUILD_TYPE STREQUAL "Debug")
         target_compile_options(QtPiDeckCommon PUBLIC --coverage)
         target_link_options(QtPiDeckCommon PUBLIC --coverage)
    else() # clang
