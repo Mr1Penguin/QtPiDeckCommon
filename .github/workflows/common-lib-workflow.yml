@@ -218,7 +218,7 @@ jobs:
         run: cmake -E make_directory "build"
 
       - name: Run cmake
-        run: cmake -S . -B build -G Ninja -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/ext/vcpkg/scripts/buildsystems/vcpkg.cmake -DCODECOV=ON # -DCMAKE_BUILD_TYPE=Debug
+        run: cmake -S . -B build -G Ninja -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/ext/vcpkg/scripts/buildsystems/vcpkg.cmake -DCODECOV=ON -DCMAKE_BUILD_TYPE=Debug
         env:
           CC: ${{ env.clang }}
           CXX: ${{ env.clangpp }}
