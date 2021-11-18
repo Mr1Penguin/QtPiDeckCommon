@@ -235,6 +235,8 @@ jobs:
 
       - run: ls coverage -lh
 
+      - run: llvm-profdata-13 merge --version
+
       - run: llvm-profdata-13 merge -sparse *.profraw -o coverage.profdata
         working-directory: coverage
 
