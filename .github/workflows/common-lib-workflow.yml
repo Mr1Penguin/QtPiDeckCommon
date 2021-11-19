@@ -240,7 +240,7 @@ jobs:
 
       - run: find ${{ github.workspace }}/build/Tests/ -type f -executable
 
-      - run: llvm-cov-12 show $(find ${{ github.workspace }}/build/Tests/ -type f \( -executable -and -name '*Tests' \) -or -name '*.o' | sed ':a; N; $!ba; s/\n/ -object /g') --debugify-level="location+variables" -instr-profile=coverage.profdata --show-branches=count -show-line-counts -ignore-filename-regex='Tests' > coverage.txt # 
+      - run: llvm-cov-12 show $(find ${{ github.workspace }}/build/ -type f \( -executable -and -name '*Tests' \) -or -name '*.o' | sed ':a; N; $!ba; s/\n/ -object /g') --debugify-level="location+variables" -instr-profile=coverage.profdata --show-branches=count -show-line-counts -ignore-filename-regex='Tests' > coverage.txt # 
         working-directory: coverage
 
       - run: cat coverage.txt  | grep -A3 '\.cpp:'
