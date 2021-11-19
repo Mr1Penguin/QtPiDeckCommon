@@ -210,7 +210,7 @@ jobs:
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
           sudo ./llvm.sh 12
-          sudo apt-get install -y llvm-12
+          sudo apt-get install -y llvm-12 binutils-gold
 
       - uses: lukka/get-cmake@latest
 

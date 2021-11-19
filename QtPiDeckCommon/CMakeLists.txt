@@ -51,7 +51,7 @@ if(CODECOV)
         target_link_options(QtPiDeckCommon PUBLIC --coverage)
    else() # clang
         target_compile_options(QtPiDeckCommon PUBLIC -fprofile-instr-generate -fcoverage-mapping)
-        target_link_options(QtPiDeckCommon PUBLIC -fprofile-instr-generate -fcoverage-mapping)
+        target_link_options(QtPiDeckCommon PUBLIC -fprofile-instr-generate -fcoverage-mapping -fuse-ld=gold)
    endif()
 endif()
 
