@@ -1,5 +1,4 @@
-// NOLINTNEXTLINE
-#define BOOST_TEST_MODULE LiteralTests
+#define BOOST_TEST_MODULE LiteralTests // NOLINT
 #include "BoostUnitTest.hpp"
 
 #include <QString>
