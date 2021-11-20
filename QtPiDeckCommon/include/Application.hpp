@@ -25,6 +25,7 @@ public:
   [[nodiscard]] auto ioc() const -> const Services::Ioc& { return m_ioc; }
 
   static auto current() -> Application* { return s_current; }
+  static auto ccurrent() -> const Application* { return s_current; }
 
 protected:
   virtual auto mainPage() -> QUrl = 0;

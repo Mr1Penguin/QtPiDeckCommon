@@ -23,4 +23,11 @@ CT_BOOST_AUTO_TEST_CASE(CurrentFieldShouldPointToActiveApplicationAfterCreation)
   CT_BOOST_TEST(TestApplication::current() != current);
   CT_BOOST_TEST(TestApplication::current() == &app);
 }
+
+CT_BOOST_AUTO_TEST_CASE(CCurrentFieldShouldPointToActiveApplicationAfterCreation) {
+  const auto* current = TestApplication::ccurrent();
+  TestApplication app;
+  CT_BOOST_TEST(TestApplication::ccurrent() != current);
+  CT_BOOST_TEST(TestApplication::ccurrent() == &app);
+}
 CT_BOOST_AUTO_TEST_SUITE_END()
