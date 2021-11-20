@@ -33,4 +33,14 @@ CT_BOOST_AUTO_TEST_CASE(CCurrentFieldShouldPointToActiveApplicationAfterCreation
   CT_BOOST_TEST(TestApplication::ccurrent() != current);
   CT_BOOST_TEST(TestApplication::ccurrent() == &app);
 }
+
+CT_BOOST_AUTO_TEST_CASE(iocReturnsSameObjectEachTime) {
+  TestApplication app;
+  const auto& ioc = app.ioc();
+  const auto& constIoc = std::as_const(app).ioc();
+
+  CT_BOOST_TEST(&ioc == &app.ioc());
+  CT_BOOST_TEST(&constIoc == &std::as_const(app).ioc());
+  CT_BOOST_TEST(&ioc == &constIoc);
+}
 CT_BOOST_AUTO_TEST_SUITE_END()
