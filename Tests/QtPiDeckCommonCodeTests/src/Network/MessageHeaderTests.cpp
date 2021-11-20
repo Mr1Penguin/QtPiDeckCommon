@@ -7,6 +7,7 @@
 #include "Network/DeckDataStream.hpp"
 #include "Network/MessageHeader.hpp"
 #include "Utilities/Literals.hpp"
+#include "QtVersion.hpp"
 
 #include "Utilities/Logging.hpp"
 
@@ -37,7 +38,7 @@ using namespace QtPiDeck::Network;
 using namespace QtPiDeck::Utilities;
 
 CT_BOOST_AUTO_TEST_CASE(shouldBeSerializedAndDeserialized) {
-  const MessageHeader messageHeader{0, MessageType::Pong, QStringLiteral("a-random-id")};
+  const MessageHeader messageHeader{0, MessageType::Pong, "a-random-id"_qs};
   QByteArray qba;
   QDataStream in{&qba, DeckDataStream::OpenModeFlag::WriteOnly};
   in << messageHeader;
