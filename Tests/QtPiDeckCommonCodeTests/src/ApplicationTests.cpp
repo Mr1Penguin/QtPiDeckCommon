@@ -11,6 +11,7 @@ auto main(int argc, char* argv[]) -> int {
 
 namespace {
 class TestApplication final : public QtPiDeck::Application {
+public:
 protected:
   auto mainPage() -> QUrl final { return QUrl(); }
 };
@@ -18,15 +19,17 @@ protected:
 
 CT_BOOST_AUTO_TEST_SUITE(ApplicationTests)
 CT_BOOST_AUTO_TEST_CASE(CurrentFieldShouldPointToActiveApplicationAfterCreation) {
+  { [[maybe_unused]] const auto _ = std::make_unique<TestApplication>(); } // reset s_current;
   const auto* current = TestApplication::current();
-  TestApplication app;
+  const TestApplication app;
   CT_BOOST_TEST(TestApplication::current() != current);
   CT_BOOST_TEST(TestApplication::current() == &app);
 }
 
 CT_BOOST_AUTO_TEST_CASE(CCurrentFieldShouldPointToActiveApplicationAfterCreation) {
+  { [[maybe_unused]] const auto _ = std::make_unique<TestApplication>(); } // reset s_current;
   const auto* current = TestApplication::ccurrent();
-  TestApplication app;
+  const TestApplication app;
   CT_BOOST_TEST(TestApplication::ccurrent() != current);
   CT_BOOST_TEST(TestApplication::ccurrent() == &app);
 }
