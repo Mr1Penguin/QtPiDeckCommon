@@ -28,6 +28,7 @@ add_library(QtPiDeckCommon SHARED
   include/Utilities/Literals.hpp
   include/Utilities/Connection.hpp
   include/Utilities/QmlHelper.hpp
+  include/Utilities/QmlHelperDetail.hpp
   include/Utilities/Traits.hpp
   include/ViewModels/CommandViewModel.hpp
   qmlCommon.qrc
@@ -45,9 +46,14 @@ target_compile_definitions(
     $<$<AND:$<BOOL:${VISUAL_STUDIO}>,$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>>:QT_QML_DEBUG_NO_WARNING>
 )
 
-if(CODECOV AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_BUILD_TYPE STREQUAL "Debug")
-    target_compile_options(QtPiDeckCommon PUBLIC --coverage)
-    target_link_options(QtPiDeckCommon PUBLIC --coverage)
+if(CODECOV)
+   if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+        target_compile_options(QtPiDeckCommon PUBLIC --coverage)
+        target_link_options(QtPiDeckCommon PUBLIC --coverage)
+   else() # clang
+        target_compile_options(QtPiDeckCommon PUBLIC -fprofile-instr-generate -fcoverage-mapping)
+        target_link_options(QtPiDeckCommon PUBLIC -fprofile-instr-generate -fcoverage-mapping -fuse-ld=gold)
+   endif()
 endif()
 
 set_warnings_flags(QtPiDeckCommon)

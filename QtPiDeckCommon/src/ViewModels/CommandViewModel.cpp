@@ -44,8 +44,8 @@ public:
   static void operator delete(void* ptr) { // NOLINT
     ::operator delete(ptr);
   }
-  static void operator delete(void*, void*) { // NOLINT
-  }
+  /* static void operator delete(void*, void*) { // NOLINT
+  }*/
 };
 
 template<>

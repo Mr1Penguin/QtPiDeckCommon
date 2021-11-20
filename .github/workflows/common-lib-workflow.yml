@@ -139,24 +139,27 @@ jobs:
         env:
           LD_LIBRARY_PATH: ./QtPiDeckCommon
 
-  code-coverage-generator:
+  code-checks-generator:
     runs-on: ubuntu-latest
     outputs:
       job-matrix: ${{ steps.set-matrix.outputs.job-matrix }}
     steps:
       - id: set-matrix
-        run: echo "::set-output name=job-matrix::{\"cfg\":[${uqpig8}, ${uqpig10}, ${uq5g10}, ${uq6g8}]}"
+        run: echo "::set-output name=job-matrix::{\"cfg\":[${uqpi}, ${uq5}, ${uq6}]}"
         env:
-          uqpig8: '{"os":"ubuntu","qt":"${{ env.QTPI }}","cc":"gcc-8","cxx":"g++-8","triplet":"x64-linux", "gcov":"gcov-8"}'
-          uqpig10: '{"os":"ubuntu","qt":"${{ env.QTPI }}","cc":"gcc-10","cxx":"g++-10","triplet":"x64-linux", "gcov":"gcov-10"}'
-          uq5g10: '{"os":"ubuntu","qt":"${{ env.QT5 }}","cc":"gcc-10","cxx":"g++-10","triplet":"x64-linux", "gcov":"gcov-10"}'
-          uq6g8: '{"os":"ubuntu","qt":"${{ env.QT6 }}","cc":"gcc-10","cxx":"g++-10","triplet":"x64-linux", "gcov":"gcov-10"}'
+          uqpi: '{"os":"ubuntu","qt":"${{ env.QTPI }}"}'
+          uq5: '{"os":"ubuntu","qt":"${{ env.QT5 }}"}'
+          uq6: '{"os":"ubuntu","qt":"${{ env.QT6 }}"}'
 
   code-coverage:
-    needs: [code-coverage-generator, test]
+    needs: [code-checks-generator, test]
     runs-on: ubuntu-latest
     strategy:
-      matrix: ${{fromJSON(needs.code-coverage-generator.outputs.job-matrix)}}
+      matrix: ${{fromJSON(needs.code-checks-generator.outputs.job-matrix)}}
+    env:
+      clang: "clang-12"
+      clangpp: "clang++-12"
+      triplet: "x64-linux"
 
     steps:
       - name: Cache Qt
@@ -188,7 +191,7 @@ jobs:
         with:
           vcpkgDirectory: ${{ github.workspace }}/ext/vcpkg
           appendedCacheKey: ${{ steps.set-outputs.outputs.cacheKey }}
-          vcpkgTriplet: ${{ steps.set-outputs.outputs.triplet }}
+          vcpkgTriplet: ${{ env.triplet }}
           vcpkgArguments: ${{ steps.set-outputs.outputs.dependencies }}
           doNotUpdateVcpkg: true
         if: steps.set-outputs.outputs.dependencies != 'nil'
@@ -202,9 +205,12 @@ jobs:
           sudo apt install vulkan-sdk libxkbcommon-dev -y
         if: matrix.cfg.qt == env.QT6
 
-      - name: Install gcc 8
-        run: sudo apt-get install g++-8 -y
-        if: matrix.cfg.cc == 'gcc-8'
+      - name: Install llvm
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 12
+          sudo apt-get install -y llvm-12 binutils-gold
 
       - uses: lukka/get-cmake@latest
 
@@ -212,57 +218,50 @@ jobs:
         run: cmake -E make_directory "build"
 
       - name: Run cmake
-        run:  cmake -S . -B build -G Ninja -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/ext/vcpkg/scripts/buildsystems/vcpkg.cmake -DCODECOV=ON -DCMAKE_BUILD_TYPE=Debug
+        run: cmake -S . -B build -G Ninja -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/ext/vcpkg/scripts/buildsystems/vcpkg.cmake -DCODECOV=ON -DCMAKE_BUILD_TYPE=Debug
         env:
-          CC: ${{ matrix.cfg.cc }}
-          CXX: ${{ matrix.cfg.cxx }}
+          CC: ${{ env.clang }}
+          CXX: ${{ env.clangpp }}
 
       - run: cmake --build build
 
-      - name: Install lcov
-        run: sudo apt update && sudo apt install -y lcov
-
-      - name: Initial lcov run
-        run: lcov --rc lcov_branch_coverage=1 --no-external --capture --initial --directory . --output-file before.txt --gcov-tool ${{ matrix.cfg.gcov }}
+      - run: mkdir coverage
 
       - name: Test project
         run: ctest --output-on-failure
         working-directory: build
+        env:
+          LLVM_PROFILE_FILE: ${{ github.workspace }}/coverage/%p.profraw
 
-      - name: Post-test lcov run
-        run: lcov --rc lcov_branch_coverage=1 --capture --directory . --output-file coverage.txt --gcov-tool ${{ matrix.cfg.gcov }}
+      - run: ls coverage -lh
 
-      - name: Merge lcov reports
+      - run: llvm-profdata-12 merge *.profraw -o coverage.profdata # -sparse
+        working-directory: coverage
+
+      - run: find ${{ github.workspace }}/build/Tests/ -type f -executable
+
+      - name: Prepare report
         run: |
-            lcov --rc lcov_branch_coverage=1 --add-tracefile before.txt --add-tracefile coverage.txt --output-file coverage.txt --gcov-tool ${{ matrix.cfg.gcov }}
-            rm before.txt
+          llvm-cov-12 show \
+          $(find ${{ github.workspace }}/build/ -type f \( -executable -and -name '*Tests' \) -or -name '*.o' | sed ':a; N; $!ba; s/\n/ -object /g') \
+          -ignore-filename-regex="$(find ../QtPiDeckCommon/ \( -name '*.cpp' -or -name '*.hpp' -or -name '*.inl' \) -exec awk '/NOCOVERAGE/ {print FILENAME} {nextfile;}' {} + | sed 's|^.*QtPiDeckCommon/||;s/\./\\./' | sed ':a; N; $!ba; s/\n/|/g')" \
+          -instr-profile=coverage.profdata --show-branches=count -show-line-counts -ignore-filename-regex='Tests' > coverage.txt
+        working-directory: coverage
 
-      - name: Clean up report
-        run: lcov --rc lcov_branch_coverage=1 --remove coverage.txt -o coverage.txt '/usr/*' '*Tests/*' '*build/*' '*boost*' --gcov-tool ${{ matrix.cfg.gcov }}
+      - run: cat coverage.txt  | grep -A3 '\.cpp:'
+        working-directory: coverage
 
       - uses: codecov/codecov-action@v2
         with:
-          files: coverage.txt
+          files: coverage/coverage.txt
           fail_ci_if_error: true
-
-  clang-tidy-generator:
-    runs-on: ubuntu-latest
-    outputs:
-      job-matrix: ${{ steps.set-matrix.outputs.job-matrix }}
-    steps:
-      - id: set-matrix
-        run: echo "::set-output name=job-matrix::{\"cfg\":[${uqpi}, ${uq5}, ${uq6}]}"
-        env:
-          uqpi: '{"os":"ubuntu","qt":"${{ env.QTPI }}"}'
-          uq5: '{"os":"ubuntu","qt":"${{ env.QT5 }}"}'
-          uq6: '{"os":"ubuntu","qt":"${{ env.QT6 }}"}'
 
   clang-tidy:
     if: github.event_name == 'pull_request'
-    needs: [clang-tidy-generator, test]
+    needs: [code-checks-generator, test]
     runs-on: ubuntu-latest
     strategy:
-      matrix: ${{fromJSON(needs.clang-tidy-generator.outputs.job-matrix)}}
+      matrix: ${{fromJSON(needs.code-checks-generator.outputs.job-matrix)}}
     env: 
       clang: "clang-12"
       clangpp: "clang++-12"
