@@ -7,12 +7,12 @@ public:
   explicit Connection(QMetaObject::Connection connection) : m_connection(connection) {}
   Connection(const Connection&) = delete;
   Connection(Connection&& other) noexcept {
-    m_connection = std::move(other.m_connection);
+    m_connection = std::move(*other.m_connection);
     other.m_connection.reset();
   }
   auto operator=(const Connection&) -> Connection& = delete;
   auto operator                                    =(Connection&& other) noexcept -> Connection& {
-    m_connection = std::move(other.m_connection);
+    m_connection = std::move(*other.m_connection);
     other.m_connection.reset();
     return *this;
   };

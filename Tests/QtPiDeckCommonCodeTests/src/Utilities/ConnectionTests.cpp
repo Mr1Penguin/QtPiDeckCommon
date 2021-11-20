@@ -48,15 +48,15 @@ CT_BOOST_AUTO_TEST_CASE(SubscripionExpiresOnReset) {
 CT_BOOST_AUTO_TEST_CASE(SubscripionDoesNotAffectConnectionAfterMove) {
   SignalEmitter emitter;
   int counter       = 0;
-  auto Connection = std::make_unique<QtPiDeck::Utilities::Connection>(
+  auto connection = std::make_unique<QtPiDeck::Utilities::Connection>(
       QObject::connect(&emitter, &SignalEmitter::signal, [&counter] { ++counter; }));
   emitter.emitSignal();
   CT_BOOST_TEST(counter == 1);
-  auto Connection2 = std::make_unique<QtPiDeck::Utilities::Connection>(std::move(*Connection));
-  Connection.reset();
+  auto connection2 = std::make_unique<QtPiDeck::Utilities::Connection>(std::move(*connection));
+  connection.reset();
   emitter.emitSignal();
   CT_BOOST_TEST(counter == 2);
-  Connection2.reset();
+  connection2.reset();
   emitter.emitSignal();
   CT_BOOST_TEST(counter == 2);
 }
@@ -64,15 +64,32 @@ CT_BOOST_AUTO_TEST_CASE(SubscripionDoesNotAffectConnectionAfterMove) {
 CT_BOOST_AUTO_TEST_CASE(SubscripionIsEmptyAfterMove) {
   SignalEmitter emitter;
   int counter       = 0;
-  auto Connection = std::make_unique<QtPiDeck::Utilities::Connection>(
+  auto connection = std::make_unique<QtPiDeck::Utilities::Connection>(
       QObject::connect(&emitter, &SignalEmitter::signal, [&counter] { ++counter; }));
   emitter.emitSignal();
   CT_BOOST_TEST(counter == 1);
-  auto Connection2 = std::make_unique<QtPiDeck::Utilities::Connection>(std::move(*Connection));
-  Connection2.reset();
+  auto connection2 = std::make_unique<QtPiDeck::Utilities::Connection>(std::move(*connection));
+  connection2.reset();
   emitter.emitSignal();
   CT_BOOST_TEST(counter == 1);
-  Connection.reset();
+  connection.reset();
+  emitter.emitSignal();
+  CT_BOOST_TEST(counter == 1);
+}
+
+CT_BOOST_AUTO_TEST_CASE(SubscripionIsEmptyAfterMoveAssign) {
+  SignalEmitter emitter;
+  int counter     = 0;
+  auto connection = std::make_unique<QtPiDeck::Utilities::Connection>(
+      QObject::connect(&emitter, &SignalEmitter::signal, [&counter] { ++counter; }));
+  emitter.emitSignal();
+  CT_BOOST_TEST(counter == 1);
+  auto connection2 = std::make_unique<QtPiDeck::Utilities::Connection>();
+  *connection2     = std::move(*connection);
+  connection2.reset();
+  emitter.emitSignal();
+  CT_BOOST_TEST(counter == 1);
+  connection.reset();
   emitter.emitSignal();
   CT_BOOST_TEST(counter == 1);
 }
