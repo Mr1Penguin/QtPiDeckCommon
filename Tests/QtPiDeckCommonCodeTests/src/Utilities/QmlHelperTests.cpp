@@ -2,7 +2,7 @@
 #include "BoostUnitTest.hpp"
 
 #include "Utilities/Logging.hpp"
-#include "Utilities/QmlHelper.hpp"
+#include "Utilities/QmlHelperDetail.hpp"
 
 auto main(int argc, char* argv[]) -> int {
   QtPiDeck::Utilities::initLogging("QmlHelpersTests");
