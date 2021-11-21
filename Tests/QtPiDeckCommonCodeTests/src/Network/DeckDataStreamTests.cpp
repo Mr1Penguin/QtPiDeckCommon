@@ -14,10 +14,6 @@ auto main(int argc, char* argv[]) -> int {
 CT_BOOST_AUTO_TEST_SUITE(MessageHeaderTests)
 using namespace QtPiDeck::Network;
 
-/*explicit DeckDataStream(QIODevice* device) : QDataStream(device) { setStreamParams(); }
-DeckDataStream(QByteArray* array, OpenMode flags) : QDataStream(array, flags) { setStreamParams(); }
-DeckDataStream(const QByteArray& array) : QDataStream(array) { setStreamParams(); }*/
-
 CT_BOOST_AUTO_TEST_CASE(shouldSetStreamConfigurationsDefaultConstructor) {
   const DeckDataStream dds;
   CT_BOOST_TEST(dds.byteOrder() == DeckDataStream::BigEndian);

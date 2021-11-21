@@ -29,6 +29,8 @@ add_common_cpp_test(LiteralTests src/Utilities/LiteralTests.cpp)
 add_common_cpp_test(ConnectionTests src/Utilities/ConnectionTests.cpp)
 add_common_cpp_test(QmlHelperTests src/Utilities/QmlHelperTests.cpp)
 add_common_cpp_test(QBAutilsTests src/Utilities/QBAutilsTests.cpp)
+add_common_cpp_test(CommandViewModelTests src/ViewModels/CommandViewModelTests.cpp)
+target_link_libraries(CommandViewModelTests PRIVATE CodeTestsUtils)
 
 # visual studio test manager requires to have these libs in PATH
 # so we just copy required libs to test binary
