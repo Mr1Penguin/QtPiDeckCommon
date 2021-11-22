@@ -12,7 +12,7 @@
 namespace QtPiDeck {
 namespace detail {
 template<class GuiApplication = QGuiApplication, class ApplicationEngine = QQmlApplicationEngine>
-class Application {
+class QTPIDECKCOMMON_EXPORT Application {
 public:
   Application();
   Application(const Application&) = delete;
