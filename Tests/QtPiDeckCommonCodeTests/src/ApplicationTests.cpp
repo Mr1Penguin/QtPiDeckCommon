@@ -118,7 +118,7 @@ protected:
   auto mainPage() const -> QUrl final { return "someUrl"_qurl; }
   void initialPreparations() final { ++m_initialPreparationsCalls; }
   void appCreated() final { ++m_appCreatedCalls; }
-  void engineCreated(TestApplicationEngine& engine) final { ++m_engineCreatedCalls; }
+  void engineCreated(TestApplicationEngine& /*engine*/) final { ++m_engineCreatedCalls; }
 
 private:
   std::size_t m_initialPreparationsCalls{0};
