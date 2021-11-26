@@ -27,7 +27,7 @@ auto Application<GuiApplication, ApplicationEngine>::start(int argc, char** argv
         }
 
         m_qmlHelper.windowCreated();
-      }h,
+      },
       Qt::QueuedConnection);
   engine.load(pageUrl);
   return GuiApplication::exec();
