@@ -31,7 +31,7 @@ public:
   [[nodiscard]] static auto ccurrent() -> const Application*;
 
 protected:
-  virtual auto mainPage() -> QUrl = 0;
+  virtual auto mainPage() const -> QUrl = 0;
   virtual void initialPreparations();
   virtual void appCreated();
   virtual void engineCreated(ApplicationEngine& engine);

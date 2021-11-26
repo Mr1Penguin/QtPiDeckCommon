@@ -2,6 +2,8 @@
 
 #include "Application.hpp"
 
+#include "Utilities/Literals.hpp"
+
 namespace QtPiDeck::detail {
 template<class GuiApplication, class ApplicationEngine>
 Application<GuiApplication, ApplicationEngine>::Application() {
@@ -25,7 +27,7 @@ auto Application<GuiApplication, ApplicationEngine>::start(int argc, char** argv
         }
 
         m_qmlHelper.windowCreated();
-      },
+      }h,
       Qt::QueuedConnection);
   engine.load(pageUrl);
   return GuiApplication::exec();
@@ -59,6 +61,7 @@ void Application<GuiApplication, ApplicationEngine>::appCreated() {}
 
 template<class GuiApplication, class ApplicationEngine>
 void Application<GuiApplication, ApplicationEngine>::engineCreated(ApplicationEngine& engine) {
-  engine.rootContext()->setContextProperty("qh", &m_qmlHelper);
+  using namespace Utilities::literals;
+  engine.rootContext()->setContextProperty("qh"_qs, &m_qmlHelper);
 }
 }

@@ -21,6 +21,7 @@ endfunction()
 # this is the only way to enable 
 # custom main and cross platform
 add_common_cpp_test(ApplicationTests src/ApplicationTests.cpp)
+target_link_libraries(ApplicationTests PRIVATE CodeTestsUtils)
 add_common_cpp_test(DeckDataStreamTests src/Network/DeckDataStreamTests.cpp)
 add_common_cpp_test(MessageHeaderTests src/Network/MessageHeaderTests.cpp)
 add_common_cpp_test(IocTests src/Services/IocTests.cpp)
