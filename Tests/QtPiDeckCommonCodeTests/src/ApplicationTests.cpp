@@ -63,7 +63,7 @@ public:
 enum class ObjectCreatedResult { None, Null, WrongObject, Both, Ok };
 
 class TestApplicationEngine : public QObject {
-  Q_OBJECT
+  Q_OBJECT // NOLINT
 public:
   TestApplicationEngine() : QObject(nullptr) { s_current = this; }
   void load(const QUrl& /*url*/) {
@@ -71,23 +71,23 @@ public:
   }
 
   auto rootContext() -> TestContext* { return &m_testContext; }
-  auto loadCalled() const -> bool { return m_loadCalled; }
+  [[nodiscard]] auto loadCalled() const -> bool { return m_loadCalled; }
 
   static auto current() -> TestApplicationEngine* { return s_current; }
 
 signals:
-  void objectCreated(QObject*, const QUrl&);
+  void objectCreated(QObject* /*obj*/, const QUrl& /*url*/);
 
 private:
   TestContext m_testContext;
 
   bool m_loadCalled{false};
 
-  static inline TestApplicationEngine* s_current{nullptr};
+  static inline TestApplicationEngine* s_current{nullptr}; // NOLINT
 };
 
 class TestGuiApplication : public QObject {
-  Q_OBJECT
+  Q_OBJECT // NOLINT
 public:
   TestGuiApplication(int /*argc*/, char** /*argv*/) { s_exitCalled = false; }
   static void exit(int /*code*/) { s_exitCalled = true; }
@@ -101,8 +101,8 @@ public:
   static auto execCalled() -> bool { return s_execCalled; }
 
 private:
-  static inline bool s_exitCalled{false};
-  static inline bool s_execCalled{false};
+  static inline bool s_exitCalled{false}; // NOLINT
+  static inline bool s_execCalled{false}; // NOLINT
 };
 
 class CustomTestApplication final
@@ -133,32 +133,32 @@ CT_BOOST_AUTO_TEST_CASE(startShouldCallDerivedAppCreated) {
 }
 
 CT_BOOST_AUTO_TEST_CASE(startShouldCallDerivedInitialPreparations) {
-  char arg0[]     = "TEST";
-  std::array argv = {arg0};
+  char arg0[]     = "TEST"; // NOLINT
+  std::array argv = {arg0}; // NOLINT
   CustomTestApplication app;
   app.start(argv.size(), argv.data());
   CT_BOOST_TEST(app.appCreatedCalls() == 1);
 }
 
 CT_BOOST_AUTO_TEST_CASE(startShouldCallDerivedEngineCreated) {
-  char arg0[]     = "TEST";
-  std::array argv = {arg0};
+  char arg0[]     = "TEST"; // NOLINT
+  std::array argv = {arg0}; // NOLINT
   CustomTestApplication app;
   app.start(argv.size(), argv.data());
   CT_BOOST_TEST(app.engineCreatedCalls() == 1);
 }
 
 CT_BOOST_AUTO_TEST_CASE(startShouldCallGuiApplicationExec) {
-  char arg0[]     = "TEST";
-  std::array argv = {arg0};
+  char arg0[]     = "TEST"; // NOLINT
+  std::array argv = {arg0}; // NOLINT
   CustomTestApplication app;
   app.start(argv.size(), argv.data());
   CT_BOOST_TEST(TestGuiApplication::execCalled());
 }
 
 CT_BOOST_AUTO_TEST_CASE(startShouldCallApplicationEngineLoad) {
-  char arg0[]     = "TEST";
-  std::array argv = {arg0};
+  char arg0[]     = "TEST"; // NOLINT
+  std::array argv = {arg0}; // NOLINT
   CustomTestApplication app;
   app.start(argv.size(), argv.data());
   const auto res = TestApplicationEngine::current()->loadCalled();
