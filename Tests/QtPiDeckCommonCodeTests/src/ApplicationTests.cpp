@@ -82,7 +82,6 @@ private:
   TestContext m_testContext;
 
   bool m_loadCalled{false};
-  bool m_emitObjectCreated{false};
 
   static inline TestApplicationEngine* s_current{nullptr};
 };
@@ -109,7 +108,6 @@ private:
 class CustomTestApplication final
     : public QtPiDeck::detail::Application<TestGuiApplication, TestApplicationEngine> {
 public:
-  CustomTestApplication(QCoreApplication* coreApp = nullptr) : m_coreApp(coreApp) {}
   auto initialPreparationsCalls() const -> std::size_t { return m_initialPreparationsCalls; }
   auto appCreatedCalls() const -> std::size_t { return m_appCreatedCalls; }
   auto engineCreatedCalls() const -> std::size_t { return m_engineCreatedCalls; }
@@ -124,7 +122,6 @@ private:
   std::size_t m_initialPreparationsCalls{0};
   std::size_t m_appCreatedCalls{0};
   std::size_t m_engineCreatedCalls{0};
-  QCoreApplication* m_coreApp;
 };
 
 CT_BOOST_AUTO_TEST_CASE(startShouldCallDerivedAppCreated) {
@@ -164,7 +161,8 @@ CT_BOOST_AUTO_TEST_CASE(startShouldCallApplicationEngineLoad) {
   std::array argv = {arg0};
   CustomTestApplication app;
   app.start(argv.size(), argv.data());
-  CT_BOOST_TEST(TestApplicationEngine::current()->loadCalled());
+  const auto res = TestApplicationEngine::current()->loadCalled();
+  CT_BOOST_TEST(res == true);
 }
 
 CT_BOOST_AUTO_TEST_SUITE_END()
