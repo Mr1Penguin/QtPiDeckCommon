@@ -125,8 +125,8 @@ private:
 };
 
 CT_BOOST_AUTO_TEST_CASE(startShouldCallDerivedAppCreated) {
-  char arg0[]     = "TEST";
-  std::array argv = {arg0};
+  char arg0[]     = "TEST"; // NOLINT
+  std::array argv = {arg0}; // NOLINT
   CustomTestApplication app;
   app.start(argv.size(), argv.data());
   CT_BOOST_TEST(app.initialPreparationsCalls() == 1);
