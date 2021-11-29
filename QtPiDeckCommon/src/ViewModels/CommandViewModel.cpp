@@ -54,7 +54,7 @@ void createInto<ViewModels::CommandViewModel>(void* memory, void*) { // NOLINT
 #else
 void createInto<ViewModels::CommandViewModel>(void* memory) {
 #endif
-  const auto& ioc          = Application::current()->ioc();
+  const auto& ioc          = Application::ccurrent()->ioc();
   using viewModelType      = QQmlElement<ViewModels::CommandViewModel>;
   [[maybe_unused]] auto* _ = ioc.make<viewModelType, Services::CreationType::RawInMemory>(memory);
 }

@@ -21,6 +21,8 @@ endfunction()
 # this is the only way to enable 
 # custom main and cross platform
 add_common_cpp_test(ApplicationTests src/ApplicationTests.cpp)
+target_link_libraries(ApplicationTests PRIVATE CodeTestsUtils)
+add_common_cpp_test(DeckDataStreamTests src/Network/DeckDataStreamTests.cpp)
 add_common_cpp_test(MessageHeaderTests src/Network/MessageHeaderTests.cpp)
 add_common_cpp_test(IocTests src/Services/IocTests.cpp)
 add_common_cpp_test(MessageBusTests src/Services/MessageBusTests.cpp)
@@ -28,6 +30,8 @@ add_common_cpp_test(LiteralTests src/Utilities/LiteralTests.cpp)
 add_common_cpp_test(ConnectionTests src/Utilities/ConnectionTests.cpp)
 add_common_cpp_test(QmlHelperTests src/Utilities/QmlHelperTests.cpp)
 add_common_cpp_test(QBAutilsTests src/Utilities/QBAutilsTests.cpp)
+add_common_cpp_test(CommandViewModelTests src/ViewModels/CommandViewModelTests.cpp)
+target_link_libraries(CommandViewModelTests PRIVATE CodeTestsUtils)
 
 # visual studio test manager requires to have these libs in PATH
 # so we just copy required libs to test binary

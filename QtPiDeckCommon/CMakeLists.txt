@@ -13,6 +13,7 @@ add_library(QtPiDeckCommon SHARED
   src/Utilities/Logging.cpp
   src/ViewModels/CommandViewModel.cpp
   include/Application.hpp
+  include/Application.inl
   include/QtPiDeckCommon.hpp
   include/QtPiDeckCommon_global.hpp
   include/Bus/Message.hpp
