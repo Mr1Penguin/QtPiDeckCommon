@@ -78,16 +78,16 @@ public:
   TestApplicationEngine() : QObject(nullptr) {}
   TestApplicationEngine(const TestApplicationEngine& other)
       : QObject(nullptr), m_testContext(other.m_testContext), m_loadCalled(other.m_loadCalled) {}
-  TestApplicationEngine(TestApplicationEngine&& other)
+  TestApplicationEngine(TestApplicationEngine&& other) noexcept
       : QObject(nullptr), m_testContext(std::move(other.m_testContext)), m_loadCalled(other.m_loadCalled) {}
-  ~TestApplicationEngine() { setLastEngine(*this); }
+  ~TestApplicationEngine() override { setLastEngine(*this); }
   auto operator=(const TestApplicationEngine& other) -> TestApplicationEngine& {
     m_testContext = other.m_testContext;
     m_loadCalled  = other.m_loadCalled;
     return *this;
   }
 
-  auto operator=(TestApplicationEngine&& other) -> TestApplicationEngine& {
+  auto operator=(TestApplicationEngine&& other) noexcept -> TestApplicationEngine& {
     m_testContext = std::move(other.m_testContext);
     m_loadCalled  = other.m_loadCalled;
     return *this;
