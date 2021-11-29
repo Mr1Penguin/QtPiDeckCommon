@@ -77,7 +77,7 @@ class TestApplicationEngine : public QObject {
 public:
   TestApplicationEngine() : QObject(nullptr) {}
   ~TestApplicationEngine() { setLastEngine(*this); }
-  auto operator=(const TestApplicationEngine& other) -> TestApplicationEngine& { 
+  auto operator=(const TestApplicationEngine& other) -> TestApplicationEngine& {
     m_testContext = other.m_testContext;
     m_loadCalled  = other.m_loadCalled;
     return *this;
@@ -123,9 +123,7 @@ public:
   auto appCreatedCalls() const -> std::size_t { return m_appCreatedCalls; }
   auto engineCreatedCalls() const -> std::size_t { return m_engineCreatedCalls; }
 
-  auto engine() -> TestApplicationEngine& { 
-    return m_engine; 
-  }
+  auto engine() -> TestApplicationEngine& { return m_engine; }
 
 protected:
   auto mainPage() const -> QUrl final { return "someUrl"_qurl; }
@@ -190,11 +188,12 @@ CT_BOOST_AUTO_TEST_CASE(startShouldAddQmlHelper) {
   std::array argv = {arg0}; // NOLINT
   [[maybe_unused]] CustomTestApplication app;
   app.start(argv.size(), argv.data());
-  const auto props    = g_last.rootContext()->contextProperties();
-  const auto key      = "qh"s;
-  const auto contains = props.contains(key);
-  CT_BOOST_TEST(contains);
-  const auto val = props.at(key);
+  const auto props = g_last.rootContext()->contextProperties();
+  const auto key   = "qh"s;
+  const auto it = props.find(key);
+  const auto contains = it != props.end();
+  CT_BOOST_TEST(contains == true);
+  const auto val = it->second;
   CT_BOOST_TEST(dynamic_cast<const QmlHelper*>(val) != nullptr);
 }
 
