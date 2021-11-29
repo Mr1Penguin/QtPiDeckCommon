@@ -77,9 +77,9 @@ class TestApplicationEngine : public QObject {
 public:
   TestApplicationEngine() : QObject(nullptr) {}
   TestApplicationEngine(const TestApplicationEngine& other)
-      : m_testContext(other.m_testContext), m_loadCalled(other.m_loadCalled) {}
+      : QObject(nullptr), m_testContext(other.m_testContext), m_loadCalled(other.m_loadCalled) {}
   TestApplicationEngine(TestApplicationEngine&& other)
-      : m_testContext(std::move(other.m_testContext)), m_loadCalled(other.m_loadCalled) {}
+      : QObject(nullptr), m_testContext(std::move(other.m_testContext)), m_loadCalled(other.m_loadCalled) {}
   ~TestApplicationEngine() { setLastEngine(*this); }
   auto operator=(const TestApplicationEngine& other) -> TestApplicationEngine& {
     m_testContext = other.m_testContext;
