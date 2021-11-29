@@ -2,11 +2,12 @@
 #include "BoostUnitTest.hpp"
 
 #include <array>
-#include <chrono>
-#include <thread>
+#include <memory>
+#include <unordered_map>
 
 #include <QAbstractEventDispatcher>
 #include <QEventLoop>
+//#include <QHash>
 
 #include "Application.inl"
 #include "SignalCatcher.hpp"
@@ -26,8 +27,9 @@ protected:
 }
 
 CT_BOOST_AUTO_TEST_SUITE(ApplicationTests)
-using namespace QtPiDeck::Utilities::literals;
+using namespace QtPiDeck::Utilities;
 using namespace QtPiDeck::Tests;
+using namespace std::string_literals;
 
 CT_BOOST_AUTO_TEST_CASE(CurrentFieldShouldPointToActiveApplicationAfterCreation) {
   { [[maybe_unused]] const auto _ = std::make_unique<TestApplication>(); } // reset s_current;
@@ -57,34 +59,45 @@ CT_BOOST_AUTO_TEST_CASE(iocReturnsSameObjectEachTime) {
 
 class TestContext {
 public:
-  void setContextProperty(const QString& /*name*/, QObject* /*object*/) {}
+  void setContextProperty(const QString& name, QObject* object) {
+    m_contextProperties.emplace(name.toStdString(), object);
+  }
+  auto contextProperties() const -> std::unordered_map<std::string, QObject*> { return m_contextProperties; }
+
+private:
+  std::unordered_map<std::string, QObject*> m_contextProperties;
 };
 
-enum class ObjectCreatedResult { None, Null, WrongObject, Both, Ok };
+class TestApplicationEngine;
+
+void setLastEngine(const TestApplicationEngine&);
 
 class TestApplicationEngine : public QObject {
   Q_OBJECT // NOLINT
 public:
-  TestApplicationEngine() : QObject(nullptr) { s_current = this; }
-  void load(const QUrl& /*url*/) {
-    m_loadCalled = true;
+  TestApplicationEngine() : QObject(nullptr) {}
+  ~TestApplicationEngine() { setLastEngine(*this); }
+  auto operator=(const TestApplicationEngine& other) -> TestApplicationEngine& { 
+    m_testContext = other.m_testContext;
+    m_loadCalled  = other.m_loadCalled;
+    return *this;
   }
+  void load(const QUrl& /*url*/) { m_loadCalled = true; }
 
   auto rootContext() -> TestContext* { return &m_testContext; }
   [[nodiscard]] auto loadCalled() const -> bool { return m_loadCalled; }
-
-  static auto current() -> TestApplicationEngine* { return s_current; }
 
 signals:
   void objectCreated(QObject* /*obj*/, const QUrl& /*url*/);
 
 private:
   TestContext m_testContext;
-
   bool m_loadCalled{false};
-
-  static inline TestApplicationEngine* s_current{nullptr}; // NOLINT
 };
+
+TestApplicationEngine g_last{};
+
+void setLastEngine(const TestApplicationEngine& eng) { g_last = eng; }
 
 class TestGuiApplication : public QObject {
   Q_OBJECT // NOLINT
@@ -93,7 +106,6 @@ public:
   static void exit(int /*code*/) { s_exitCalled = true; }
   static auto exec() -> int {
     s_execCalled = true;
-    // TestApplicationEngine::current()->emitObjectCreated();
     return 0;
   }
 
@@ -105,23 +117,31 @@ private:
   static inline bool s_execCalled{false}; // NOLINT
 };
 
-class CustomTestApplication final
-    : public QtPiDeck::detail::Application<TestGuiApplication, TestApplicationEngine> {
+class CustomTestApplication final : public QtPiDeck::detail::Application<TestGuiApplication, TestApplicationEngine> {
 public:
   auto initialPreparationsCalls() const -> std::size_t { return m_initialPreparationsCalls; }
   auto appCreatedCalls() const -> std::size_t { return m_appCreatedCalls; }
   auto engineCreatedCalls() const -> std::size_t { return m_engineCreatedCalls; }
 
+  auto engine() -> TestApplicationEngine& { 
+    return m_engine; 
+  }
+
 protected:
   auto mainPage() const -> QUrl final { return "someUrl"_qurl; }
   void initialPreparations() final { ++m_initialPreparationsCalls; }
   void appCreated() final { ++m_appCreatedCalls; }
-  void engineCreated(TestApplicationEngine& /*engine*/) final { ++m_engineCreatedCalls; }
+  void engineCreated(TestApplicationEngine& engine) final {
+    ++m_engineCreatedCalls;
+    m_engine = engine;
+  }
 
 private:
   std::size_t m_initialPreparationsCalls{0};
   std::size_t m_appCreatedCalls{0};
   std::size_t m_engineCreatedCalls{0};
+
+  TestApplicationEngine m_engine{};
 };
 
 CT_BOOST_AUTO_TEST_CASE(startShouldCallDerivedAppCreated) {
@@ -161,8 +181,21 @@ CT_BOOST_AUTO_TEST_CASE(startShouldCallApplicationEngineLoad) {
   std::array argv = {arg0}; // NOLINT
   CustomTestApplication app;
   app.start(argv.size(), argv.data());
-  const auto res = TestApplicationEngine::current()->loadCalled();
+  const auto res = g_last.loadCalled();
   CT_BOOST_TEST(res == true);
+}
+
+CT_BOOST_AUTO_TEST_CASE(startShouldAddQmlHelper) {
+  char arg0[]     = "TEST"; // NOLINT
+  std::array argv = {arg0}; // NOLINT
+  [[maybe_unused]] CustomTestApplication app;
+  app.start(argv.size(), argv.data());
+  const auto props    = g_last.rootContext()->contextProperties();
+  const auto key      = "qh"s;
+  const auto contains = props.contains(key);
+  CT_BOOST_TEST(contains);
+  const auto val = props.at(key);
+  CT_BOOST_TEST(dynamic_cast<const QmlHelper*>(val) != nullptr);
 }
 
 CT_BOOST_AUTO_TEST_SUITE_END()

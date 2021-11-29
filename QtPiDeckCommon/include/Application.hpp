@@ -37,6 +37,10 @@ protected:
   virtual void engineCreated(ApplicationEngine& engine);
 
 private:
+  void initialPreparationsBase();
+  void appCreatedBase();
+  void engineCreatedBase(ApplicationEngine& engine);
+
   Services::Ioc m_ioc;
   Utilities::QmlHelper m_qmlHelper;
 

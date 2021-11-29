@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Application.hpp"
+#include "ApplicationExt.inl"
 
 #include "Utilities/Literals.hpp"
 
@@ -12,11 +12,11 @@ Application<GuiApplication, ApplicationEngine>::Application() {
 
 template<class GuiApplication, class ApplicationEngine>
 auto Application<GuiApplication, ApplicationEngine>::start(int argc, char** argv) -> int {
-  initialPreparations();
+  initialPreparationsBase();
   GuiApplication app{argc, argv};
-  appCreated();
+  appCreatedBase();
   ApplicationEngine engine;
-  engineCreated(engine);
+  engineCreatedBase(engine);
   auto pageUrl = mainPage();
   QObject::connect(
       &engine, &ApplicationEngine::objectCreated, // clazy:exclude=connect-non-signal
@@ -54,14 +54,19 @@ template<class GuiApplication, class ApplicationEngine>
 }
 
 template<class GuiApplication, class ApplicationEngine>
-void Application<GuiApplication, ApplicationEngine>::initialPreparations() {}
+void Application<GuiApplication, ApplicationEngine>::initialPreparationsBase() {
+  initialPreparations();
+}
 
 template<class GuiApplication, class ApplicationEngine>
-void Application<GuiApplication, ApplicationEngine>::appCreated() {}
+void Application<GuiApplication, ApplicationEngine>::appCreatedBase() {
+  appCreated();
+}
 
 template<class GuiApplication, class ApplicationEngine>
-void Application<GuiApplication, ApplicationEngine>::engineCreated(ApplicationEngine& engine) {
+void Application<GuiApplication, ApplicationEngine>::engineCreatedBase(ApplicationEngine& engine) {
   using namespace Utilities::literals;
   engine.rootContext()->setContextProperty("qh"_qs, &m_qmlHelper);
+  engineCreated(engine);
 }
 }
