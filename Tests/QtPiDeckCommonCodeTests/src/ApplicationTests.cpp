@@ -70,15 +70,25 @@ private:
 
 class TestApplicationEngine;
 
-void setLastEngine(const TestApplicationEngine&);
+void setLastEngine(const TestApplicationEngine& /*eng*/);
 
 class TestApplicationEngine : public QObject {
   Q_OBJECT // NOLINT
 public:
   TestApplicationEngine() : QObject(nullptr) {}
+  TestApplicationEngine(const TestApplicationEngine& other)
+      : m_testContext(other.m_testContext), m_loadCalled(other.m_loadCalled) {}
+  TestApplicationEngine(TestApplicationEngine&& other)
+      : m_testContext(std::move(other.m_testContext)), m_loadCalled(other.m_loadCalled) {}
   ~TestApplicationEngine() { setLastEngine(*this); }
   auto operator=(const TestApplicationEngine& other) -> TestApplicationEngine& {
     m_testContext = other.m_testContext;
+    m_loadCalled  = other.m_loadCalled;
+    return *this;
+  }
+
+  auto operator=(TestApplicationEngine&& other) -> TestApplicationEngine& {
+    m_testContext = std::move(other.m_testContext);
     m_loadCalled  = other.m_loadCalled;
     return *this;
   }
@@ -95,7 +105,7 @@ private:
   bool m_loadCalled{false};
 };
 
-TestApplicationEngine g_last{};
+TestApplicationEngine g_last{}; // NOLINT
 
 void setLastEngine(const TestApplicationEngine& eng) { g_last = eng; }
 
@@ -188,12 +198,12 @@ CT_BOOST_AUTO_TEST_CASE(startShouldAddQmlHelper) {
   std::array argv = {arg0}; // NOLINT
   [[maybe_unused]] CustomTestApplication app;
   app.start(argv.size(), argv.data());
-  const auto props = g_last.rootContext()->contextProperties();
-  const auto key   = "qh"s;
-  const auto it = props.find(key);
+  const auto props    = g_last.rootContext()->contextProperties();
+  const auto key      = "qh"s;
+  const auto it       = props.find(key);
   const auto contains = it != props.end();
   CT_BOOST_TEST(contains == true);
-  const auto val = it->second;
+  const auto* val = it->second;
   CT_BOOST_TEST(dynamic_cast<const QmlHelper*>(val) != nullptr);
 }
 
