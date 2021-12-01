@@ -1,13 +1,7 @@
-#define BOOST_TEST_MODULE QmlHelpersTests // NOLINT
 #include "BoostUnitTest.hpp"
 
 #include "Utilities/Logging.hpp"
 #include "Utilities/QmlHelperDetail.hpp"
-
-auto main(int argc, char* argv[]) -> int {
-  QtPiDeck::Utilities::initLogging("QmlHelpersTests");
-  return boost::unit_test::unit_test_main(&init_unit_test, argc, argv);
-}
 
 CT_BOOST_AUTO_TEST_SUITE(QmlHelpersTests)
 

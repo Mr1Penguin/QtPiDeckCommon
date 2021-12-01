@@ -22,14 +22,14 @@ if(VISUAL_STUDIO)
     endif()
 
     add_custom_target(
-        CopyQtPiDeckCommon
+        CopyQtPiDeckCommonGuiApp
         COMMAND ${CMAKE_COMMAND} -E copy
             $<TARGET_FILE:QtPiDeckCommon>
             $<TARGET_FILE:Boost::log>
             ${CMAKE_CURRENT_BINARY_DIR}
         DEPENDS QtPiDeckCommon)
 
-    add_dependencies(GuiApp CopyQtPiDeckCommon)
+    add_dependencies(GuiApp CopyQtPiDeckCommonGuiApp)
 
     add_custom_command(
         TARGET GuiApp POST_BUILD

@@ -1,10 +1,10 @@
 #if defined(_MSC_VER) && defined(__clang__) && defined(__INTELLISENSE__)
 #pragma push_macro("__clang__")
 #undef __clang__
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #pragma pop_macro("__clang__")
 #else
-#include <boost/test/included/unit_test.hpp>
+#include <boost/test/unit_test.hpp>
 #endif
 
 #include <boost/test/data/test_case.hpp>

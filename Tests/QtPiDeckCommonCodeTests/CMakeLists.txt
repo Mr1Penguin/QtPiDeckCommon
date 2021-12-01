@@ -1,49 +1,64 @@
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Core REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick REQUIRED)
 
-function(add_common_cpp_test testName filename)
-    add_executable(${testName}
-                   ${filename})
-    target_link_libraries(${testName}
-        PRIVATE
-        BoostTestWrapper
-        QtPiDeckCommon)
-    set_warnings_flags(${testName})
-    add_test(NAME ${testName} COMMAND ${testName})
-    target_compile_definitions(${testName}
-        PRIVATE
-            BOOST_TEST_NO_MAIN
-            BOOST_TEST_ALTERNATIVE_INIT_API
-            $<$<AND:$<BOOL:${WIN32}>,$<EQUAL:${QT_VERSION_MAJOR},5>>:NOMINMAX>)
-endfunction()
+add_executable(QtPiDeckCommonCodeTests
+    src/main.cpp
+    src/ApplicationTests.cpp
+    src/Network/DeckDataStreamTests.cpp
+    src/Network/MessageHeaderTests.cpp
+    src/Services/IocTests.cpp
+    src/Services/MessageBusTests.cpp
+    src/Utilities/ConnectionTests.cpp
+    src/Utilities/LiteralTests.cpp
+    src/Utilities/QBAutilsTests.cpp
+    src/Utilities/QmlHelperTests.cpp
+    src/ViewModels/CommandViewModelTests.cpp)
 
-# I don't like file-per-test but 
-# this is the only way to enable 
-# custom main and cross platform
-add_common_cpp_test(ApplicationTests src/ApplicationTests.cpp)
-target_link_libraries(ApplicationTests PRIVATE CodeTestsUtils)
-add_common_cpp_test(DeckDataStreamTests src/Network/DeckDataStreamTests.cpp)
-add_common_cpp_test(MessageHeaderTests src/Network/MessageHeaderTests.cpp)
-add_common_cpp_test(IocTests src/Services/IocTests.cpp)
-add_common_cpp_test(MessageBusTests src/Services/MessageBusTests.cpp)
-add_common_cpp_test(LiteralTests src/Utilities/LiteralTests.cpp)
-add_common_cpp_test(ConnectionTests src/Utilities/ConnectionTests.cpp)
-add_common_cpp_test(QmlHelperTests src/Utilities/QmlHelperTests.cpp)
-add_common_cpp_test(QBAutilsTests src/Utilities/QBAutilsTests.cpp)
-add_common_cpp_test(CommandViewModelTests src/ViewModels/CommandViewModelTests.cpp)
-target_link_libraries(CommandViewModelTests PRIVATE CodeTestsUtils)
+target_link_libraries(QtPiDeckCommonCodeTests
+    PRIVATE
+      Qt${QT_VERSION_MAJOR}::Quick
+      BoostTestWrapper
+      QtPiDeckCommon
+      CodeTestsUtils)
+
+set_warnings_flags(QtPiDeckCommonCodeTests)
+add_test(NAME QtPiDeckCommonCodeTests COMMAND QtPiDeckCommonCodeTests)
+target_compile_definitions(QtPiDeckCommonCodeTests
+    PRIVATE
+      $<$<BOOL:${WIN32}>:BOOST_TEST_DYN_LINK>
+      $<$<AND:$<BOOL:${WIN32}>,$<EQUAL:${QT_VERSION_MAJOR},5>>:NOMINMAX>)
 
 # visual studio test manager requires to have these libs in PATH
 # so we just copy required libs to test binary
 if(VISUAL_STUDIO)
-    find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Qml Gui Network REQUIRED)
-    add_custom_command(
-        TARGET ApplicationTests POST_BUILD
+    get_target_property(_qmake_executable Qt${QT_VERSION_MAJOR}::qmake IMPORTED_LOCATION)
+    get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
+    find_program(WINDEPLOYQT_EXECUTABLE windeployqt HINTS "${_qt_bin_dir}")
+
+    if (CMAKE_BUILD_TYPE EQUAL "RELEASE")
+        set(RELEASE_FLAG "--release")
+    endif()
+
+    add_custom_target(
+        CopyQtPiDeckCommonTests
         COMMAND ${CMAKE_COMMAND} -E copy
-        $<TARGET_FILE:QtPiDeckCommon>
-        $<TARGET_FILE:Qt${QT_VERSION_MAJOR}::Core>
-        $<TARGET_FILE:Qt${QT_VERSION_MAJOR}::Qml>
-        $<TARGET_FILE:Qt${QT_VERSION_MAJOR}::Gui>
-        $<TARGET_FILE:Qt${QT_VERSION_MAJOR}::Network>
-        ${CMAKE_CURRENT_BINARY_DIR})
+            $<TARGET_FILE:QtPiDeckCommon>
+            #$<TARGET_FILE:Boost::log>
+            ${CMAKE_CURRENT_BINARY_DIR}
+        DEPENDS QtPiDeckCommon)
+
+    add_dependencies(QtPiDeckCommonCodeTests CopyQtPiDeckCommonTests)
+
+    add_custom_command(
+        TARGET QtPiDeckCommonCodeTests POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E
+        env PATH="${_qt_bin_dir}" "${WINDEPLOYQT_EXECUTABLE}"
+            --verbose 0
+            --qmldir ${CMAKE_CURRENT_SOURCE_DIR}
+            --no-compiler-runtime
+            ${RELEASE_FLAG}
+            \"$<TARGET_FILE:QtPiDeckCommonCodeTests>\"
+            \"$<TARGET_FILE:QtPiDeckCommon>\")
+
+    unset(RELEASE_FLAG)
 endif()
