@@ -7,4 +7,4 @@ struct GlobalInit {
   GlobalInit() { QtPiDeck::Utilities::initLogging("QtPiDeckCommonCodeTests"); }
 };
 
-GlobalInit init;
+const GlobalInit init;
