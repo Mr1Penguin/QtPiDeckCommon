@@ -1,22 +1,10 @@
-#define BOOST_TEST_MODULE ApplicationTests // NOLINT
 #include "BoostUnitTest.hpp"
 
 #include <array>
-#include <memory>
-#include <unordered_map>
-
-#include <QAbstractEventDispatcher>
-#include <QEventLoop>
-//#include <QHash>
 
 #include "Application.inl"
 #include "SignalCatcher.hpp"
 #include "Utilities/Logging.hpp"
-
-auto main(int argc, char* argv[]) -> int {
-  QtPiDeck::Utilities::initLogging("ApplicationTests");
-  return boost::unit_test::unit_test_main(&init_unit_test, argc, argv);
-}
 
 namespace {
 class TestApplication final : public QtPiDeck::Application {

@@ -1,8 +1,6 @@
-#include <QDataStream>
-
-// NOLINTNEXTLINE
-#define BOOST_TEST_MODULE MessageHeaderTests
 #include "BoostUnitTest.hpp"
+
+#include <QDataStream>
 
 #include "Network/DeckDataStream.hpp"
 #include "Network/MessageHeader.hpp"
@@ -10,11 +8,6 @@
 #include "QtVersion.hpp"
 
 #include "Utilities/Logging.hpp"
-
-auto main(int argc, char* argv[]) -> int {
-  QtPiDeck::Utilities::initLogging("MessageHeaderTests");
-  return boost::unit_test::unit_test_main(&init_unit_test, argc, argv);
-}
 
 namespace QtPiDeck::Network {
 auto operator<<(std::ostream& ostr, const MessageType& right) -> std::ostream& {

@@ -1,4 +1,3 @@
-#define BOOST_TEST_MODULE CommandViewModelTests // NOLINT
 #include "BoostUnitTest.hpp"
 
 #include <QQmlEngine>
@@ -7,11 +6,6 @@
 #include "Utilities/Logging.hpp"
 #include "SignalCatcher.hpp"
 #include "Utilities/Literals.hpp"
-
-auto main(int argc, char* argv[]) -> int {
-  QtPiDeck::Utilities::initLogging("CommandViewModelTests");
-  return boost::unit_test::unit_test_main(&init_unit_test, argc, argv);
-}
 
 CT_BOOST_AUTO_TEST_SUITE(CommandViewModelTests)
 using namespace QtPiDeck::ViewModels;

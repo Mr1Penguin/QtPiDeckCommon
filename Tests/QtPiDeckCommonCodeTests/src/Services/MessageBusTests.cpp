@@ -1,18 +1,11 @@
-#include <QDataStream>
-
-// NOLINTNEXTLINE
-#define BOOST_TEST_MODULE MessageBusTests
 #include "BoostUnitTest.hpp"
+
+#include <QDataStream>
 
 #include "Network/DeckDataStream.hpp"
 #include "Services/MessageBus.hpp"
 
 #include "Utilities/Logging.hpp"
-
-auto main(int argc, char* argv[]) -> int {
-  QtPiDeck::Utilities::initLogging("MessageBusTests");
-  return boost::unit_test::unit_test_main(&init_unit_test, argc, argv);
-}
 
 struct MessageBusFixture {
   std::unique_ptr<QtPiDeck::Services::MessageBus> messageBus{std::make_unique<QtPiDeck::Services::MessageBus>(nullptr)};
