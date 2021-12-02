@@ -20,7 +20,7 @@ struct Hello {
   static inline uint32_t s_currentInterfaceVersion{20211202};
   static inline uint32_t s_qcharSize{sizeof(decltype(std::declval<QChar>().unicode()))};
 
-  constexpr auto getMessageSize() const -> uint64_t { return sizeof(interfaceVersion) + sizeof(qcharSize); }
+  auto getMessageSize() const -> uint64_t { return sizeof(interfaceVersion) + sizeof(qcharSize); }
   static auto getMessageHeader(QString requestId, const Hello& message) -> MessageHeader {
     return MessageHeader{message.getMessageSize(), MessageType::Hello, std::move(requestId)};
   }

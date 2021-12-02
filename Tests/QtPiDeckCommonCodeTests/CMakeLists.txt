@@ -6,6 +6,7 @@ add_executable(QtPiDeckCommonCodeTests
     src/ApplicationTests.cpp
     src/Network/DeckDataStreamTests.cpp
     src/Network/MessageHeaderTests.cpp
+    src/Network/Messages/HelloMessageTests.cpp
     src/Services/IocTests.cpp
     src/Services/MessageBusTests.cpp
     src/Utilities/ConnectionTests.cpp
