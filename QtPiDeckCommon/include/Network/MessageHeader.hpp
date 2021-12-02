@@ -11,7 +11,7 @@
 #include "QtVersion.hpp"
 
 namespace QtPiDeck::Network {
-enum class MessageType : uint32_t { Ping, Pong };
+enum class MessageType : uint32_t { Ping, Pong, Hello, AcceptConnection, RejectConnection };
 
 struct MessageHeader {
   uint64_t dataSize;
