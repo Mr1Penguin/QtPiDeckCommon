@@ -28,5 +28,4 @@ CT_BOOST_AUTO_TEST_CASE(qurlReturnsQUrl) {
   const auto type    = QUrl{QLatin1String{"str"}};
   CT_BOOST_TEST(literal == type);
 }
-
 CT_BOOST_AUTO_TEST_SUITE_END()
