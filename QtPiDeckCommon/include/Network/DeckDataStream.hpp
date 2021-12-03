@@ -2,8 +2,6 @@
 
 #include <QDataStream>
 
-#include "MessageTraits.hpp"
-
 namespace QtPiDeck::Network {
 class DeckDataStream : public QDataStream {
 public:

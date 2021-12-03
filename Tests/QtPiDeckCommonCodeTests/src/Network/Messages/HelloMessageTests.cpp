@@ -8,6 +8,7 @@
 #include "Utilities/Literals.hpp"
 
 namespace QtPiDeck::Network {
+auto operator<<(std::ostream& ostr, const MessageType& right) -> std::ostream&;
 inline namespace Messages {
 auto operator<<(std::ostream& ostr, const Hello& right) -> std::ostream& {
   ostr << "Hello{ interfaceVersion: " << right.interfaceVersion << ", qcharSize: " << right.qcharSize << " }";
