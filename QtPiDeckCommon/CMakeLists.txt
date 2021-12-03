@@ -17,9 +17,9 @@ add_library(QtPiDeckCommon SHARED
   include/Application.inl
   include/QtPiDeckCommon.hpp
   include/QtPiDeckCommon_global.hpp
-  include/Bus/Message.hpp
   include/Network/DeckDataStream.hpp
   include/Network/MessageHeader.hpp
+  include/Network/Messages/HelloMessage.hpp
   include/Services/IMessageBus.hpp
   include/Services/Ioc.hpp
   include/Services/ISettingsStorage.hpp
@@ -29,6 +29,8 @@ add_library(QtPiDeckCommon SHARED
   include/Utilities/Logging.hpp
   include/Utilities/Literals.hpp
   include/Utilities/Connection.hpp
+  include/Utilities/MessageHelpers.hpp
+  include/Utilities/MessageTraits.hpp
   include/Utilities/QmlHelper.hpp
   include/Utilities/QmlHelperDetail.hpp
   include/Utilities/Traits.hpp

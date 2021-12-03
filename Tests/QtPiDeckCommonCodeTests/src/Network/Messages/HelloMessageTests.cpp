@@ -25,16 +25,23 @@ using namespace QtPiDeck::Network;
 using namespace QtPiDeck::Utilities;
 
 CT_BOOST_AUTO_TEST_CASE(shouldBeSerializedAndDeserialized) {
-  const Messages::Hello helloMessage;
-  QByteArray qba;
-  QDataStream in{&qba, DeckDataStream::OpenModeFlag::WriteOnly};
+  const auto helloMessage = Messages::Hello{};
+  auto qba                = QByteArray{};
+  auto in                 = QDataStream{&qba, DeckDataStream::OpenModeFlag::WriteOnly};
   in << helloMessage;
-  QDataStream out{&qba, DeckDataStream::OpenModeFlag::ReadOnly};
-  Messages::Hello outMessage{0, 0};
+  auto out        = QDataStream{&qba, DeckDataStream::OpenModeFlag::ReadOnly};
+  auto outMessage = Messages::Hello{0, 0};
   out >> outMessage;
   CT_BOOST_TEST(outMessage == helloMessage);
 }
 
-CT_BOOST_AUTO_TEST_SUITE_END()
+CT_BOOST_AUTO_TEST_CASE(getAppropiateHeader) {
+  const auto helloMessage = Messages::Hello{};
+  const auto requestId    = "request"_qs;
+  const auto header       = helloMessage.messageHeader(requestId);
+  CT_BOOST_TEST(header.dataSize == helloMessage.messageSize());
+  CT_BOOST_TEST(header.messageType == MessageType::Hello);
+  CT_BOOST_TEST(header.requestId == requestId);
+}
 
-//#include "MessageHeaderTests.moc"
+CT_BOOST_AUTO_TEST_SUITE_END()
