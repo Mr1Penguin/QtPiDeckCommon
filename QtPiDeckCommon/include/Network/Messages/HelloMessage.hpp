@@ -24,7 +24,7 @@ struct Hello {
   static inline uint32_t s_qcharSize{sizeof(decltype(std::declval<QChar>().unicode()))};
 };
 
-QTPIDECKCOMMON_EXPORT auto operator<<(QDataStream& str, const Hello& header) -> QDataStream&;
-QTPIDECKCOMMON_EXPORT auto operator>>(QDataStream& str, Hello& header) -> QDataStream&;
+QTPIDECKCOMMON_EXPORT auto operator<<(QDataStream& str, const Hello& message) -> QDataStream&;
+QTPIDECKCOMMON_EXPORT auto operator>>(QDataStream& str, Hello& message) -> QDataStream&;
 }
 }

@@ -5,8 +5,8 @@
 #include <QString>
 #include <QTcpSocket>
 
-#include "Network/MessageHeader.hpp"
 #include "Network/DeckDataStream.hpp"
+#include "Network/MessageHeader.hpp"
 
 namespace QtPiDeck::Utilities {
 BOOST_TTI_HAS_MEMBER_FUNCTION(messageSize)
@@ -27,22 +27,23 @@ inline auto headerSize(const Network::MessageHeader& header) -> std::size_t {
          header.requestId.size() * charSize + qstringHeaderSize;
 }
 
-inline void sendHeader(const Network::MessageHeader& header, QTcpSocket& socket) {
+template<class Socket = QTcpSocket>
+inline void sendHeader(const Network::MessageHeader& header, Socket& socket) {
   QByteArray tmp;
   tmp.reserve(headerSize(header));
   Network::DeckDataStream outStream{&tmp, QIODevice::WriteOnly};
   outStream << header;
-  socket.write(tmp);
+  [[maybe_unused]] const auto bytes = socket.write(tmp);
 }
 
-template<class Message>
-void sendMessage(const Message& message, QTcpSocket& socket) {
+template<class Message, class Socket = QTcpSocket>
+void sendMessage(const Message& message, Socket& socket, const QString& requestId) {
   static_assert(is_valid_message<Message>);
-  const auto header = message.messageHeader();
+  const auto header = message.messageHeader(requestId);
   QByteArray tmp;
   tmp.reserve(headerSize(header) + header.dataSize);
   Network::DeckDataStream outStream{&tmp, QIODevice::WriteOnly};
   outStream << header << message;
-  socket.write(tmp);
+  [[maybe_unused]] const auto bytes = socket.write(tmp);
 }
 }
