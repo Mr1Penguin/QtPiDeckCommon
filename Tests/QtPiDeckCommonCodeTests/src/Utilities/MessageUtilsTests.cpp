@@ -79,7 +79,8 @@ CT_BOOST_AUTO_TEST_CASE(sendHeaderSuccess) {
 }
 
 struct Message {
-  uint8_t c;
+  uint8_t c; // NOLINT
+
   [[nodiscard]] auto messageSize() const -> uint64_t // NOLINT
   {
     return 1;
