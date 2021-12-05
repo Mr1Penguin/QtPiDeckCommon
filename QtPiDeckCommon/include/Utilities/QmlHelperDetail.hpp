@@ -14,6 +14,11 @@ namespace detail {
 template<class Derived, class GuiApp = QGuiApplication, class Window = QWindow, class Screen = QScreen>
 class QmlHelperPrivate : public QObject {
 public:
+#if defined(_MSC_VER)
+  // weird false(?) positive for unreachable code when compiling with test template arguments
+#pragma warning(push)
+#pragma warning(disable : 4702)
+#endif
   QmlHelperPrivate() : QObject(nullptr), m_dpi(minDpi) {
     if (const auto* screen = GuiApp::primaryScreen(); screen != nullptr) {
       if (const auto newDpi = screen->logicalDotsPerInch(); newDpi > m_dpi) {
@@ -21,6 +26,9 @@ public:
       }
     }
   }
+#if defined(_MSC_VER)
+#pragma warning(pop)
+#endif
 
   void windowCreated() {
     const auto& windowList = GuiApp::allWindows();

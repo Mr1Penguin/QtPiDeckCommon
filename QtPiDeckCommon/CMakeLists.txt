@@ -67,4 +67,5 @@ target_link_libraries(QtPiDeckCommon
   Qt${QT_VERSION_MAJOR}::Core
   Qt${QT_VERSION_MAJOR}::Quick
   Boost::log
-  QtChecker)
+  QtChecker
+  QtDefinitions)

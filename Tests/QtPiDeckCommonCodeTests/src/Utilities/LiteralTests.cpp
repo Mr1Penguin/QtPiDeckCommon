@@ -11,21 +11,10 @@ auto operator<<(std::ostream& ostr, const QUrl& right) -> std::ostream& {
 using namespace QtPiDeck::Utilities::literals;
 
 CT_BOOST_AUTO_TEST_SUITE(LiteralTests)
-CT_BOOST_AUTO_TEST_CASE(qsReturnsQString) {
-  const auto literal = "str"_qs;
-  const auto type    = QString{"str"};
-  CT_BOOST_TEST(literal == type);
-}
 
 CT_BOOST_AUTO_TEST_CASE(qlsReturnsQLatin1String) {
   const auto literal = "str"_qls;
   const auto type    = QLatin1String{"str"};
-  CT_BOOST_TEST(literal == type);
-}
-
-CT_BOOST_AUTO_TEST_CASE(qurlReturnsQUrl) {
-  const auto literal = "str"_qurl;
-  const auto type    = QUrl{QLatin1String{"str"}};
   CT_BOOST_TEST(literal == type);
 }
 CT_BOOST_AUTO_TEST_SUITE_END()
