@@ -4,10 +4,8 @@
 
 #include "Network/DeckDataStream.hpp"
 #include "Network/MessageHeader.hpp"
-#include "Utilities/Literals.hpp"
+#include "QtDefinitions.hpp"
 #include "QtVersion.hpp"
-
-#include "Utilities/Logging.hpp"
 
 namespace QtPiDeck::Network {
 auto operator<<(std::ostream& ostr, const MessageType& right) -> std::ostream& {
@@ -28,10 +26,9 @@ auto operator==(const QtPiDeck::Network::MessageHeader& left, const QtPiDeck::Ne
 
 CT_BOOST_AUTO_TEST_SUITE(MessageHeaderTests)
 using namespace QtPiDeck::Network;
-using namespace QtPiDeck::Utilities;
 
 CT_BOOST_AUTO_TEST_CASE(shouldBeSerializedAndDeserialized) {
-  const MessageHeader messageHeader{0, MessageType::Pong, "a-random-id"_qs};
+  const MessageHeader messageHeader{0, MessageType::Pong, CT_QStringLiteral("a-random-id")};
   QByteArray qba;
   QDataStream in{&qba, DeckDataStream::OpenModeFlag::WriteOnly};
   in << messageHeader;
@@ -43,7 +40,7 @@ CT_BOOST_AUTO_TEST_CASE(shouldBeSerializedAndDeserialized) {
 
 CT_BOOST_AUTO_TEST_CASE(shouldGetHeaderWithZeroDataSize) {
   const auto messageType   = MessageType::Ping;
-  const auto requestId     = "PingId"_qs;
+  const auto requestId     = CT_QStringLiteral("PingId");
   const auto messageHeader = getEmptyMessageHeader(messageType, requestId);
   CT_BOOST_TEST(messageHeader.dataSize == 0);
   CT_BOOST_TEST(messageHeader.messageType == messageType);

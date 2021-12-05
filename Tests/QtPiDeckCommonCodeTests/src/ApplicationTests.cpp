@@ -3,6 +3,7 @@
 #include <array>
 
 #include "Application.inl"
+#include "QtDefinitions.hpp"
 #include "SignalCatcher.hpp"
 #include "Utilities/Logging.hpp"
 
@@ -124,7 +125,7 @@ public:
   auto engine() -> TestApplicationEngine& { return m_engine; }
 
 protected:
-  auto mainPage() const -> QUrl final { return "someUrl"_qurl; }
+  auto mainPage() const -> QUrl final { return QUrl{CT_QStringLiteral("someUrl")}; }
   void initialPreparations() final { ++m_initialPreparationsCalls; }
   void appCreated() final { ++m_appCreatedCalls; }
   void engineCreated(TestApplicationEngine& engine) final {

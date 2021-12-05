@@ -2,7 +2,7 @@
 
 #include "ApplicationExt.inl"
 
-#include "Utilities/Literals.hpp"
+#include "QtDefinitions.hpp"
 
 namespace QtPiDeck::detail {
 template<class GuiApplication, class ApplicationEngine>
@@ -65,8 +65,7 @@ void Application<GuiApplication, ApplicationEngine>::appCreatedBase() {
 
 template<class GuiApplication, class ApplicationEngine>
 void Application<GuiApplication, ApplicationEngine>::engineCreatedBase(ApplicationEngine& engine) {
-  using namespace Utilities::literals;
-  engine.rootContext()->setContextProperty("qh"_qs, &m_qmlHelper);
+  engine.rootContext()->setContextProperty(CT_QStringLiteral("qh"), &m_qmlHelper);
   engineCreated(engine);
 }
 }

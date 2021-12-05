@@ -2,6 +2,7 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 
+#include "QtDefinitions.hpp"
 #include "QtPiDeckCommon.hpp"
 #include "Utilities/Literals.hpp"
 #include "Utilities/QmlHelper.hpp"
@@ -18,8 +19,8 @@ auto main(int argc, char* argv[]) -> int {
   using namespace QtPiDeck::Utilities::literals;
   QtPiDeckCommon qpdc;
   qpdc.registerTypes();
-  engine.addImportPath("qrc:/qml/components"_qs);
-  const QUrl url = "qrc:/qml/app.qml"_qurl;
+  engine.addImportPath(CT_QStringLiteral("qrc:/qml/components"));
+  const auto url = QUrl{CT_QStringLiteral("qrc:/qml/app.qml")};
   QtPiDeck::Utilities::QmlHelper helper;
   engine.rootContext()->setContextProperty("qh", &helper);
   QtPiDeck::ViewModels::CommandViewModel::registerType();

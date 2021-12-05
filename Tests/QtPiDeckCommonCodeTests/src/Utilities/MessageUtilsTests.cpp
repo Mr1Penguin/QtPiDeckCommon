@@ -1,6 +1,6 @@
 #include "BoostUnitTest.hpp"
 
-#include "Utilities/Literals.hpp"
+#include "QtDefinitions.hpp"
 #include "Utilities/MessageUtils.hpp"
 
 namespace QtPiDeck::Network {
@@ -51,7 +51,7 @@ CT_BOOST_AUTO_TEST_CASE(is_valid_messageInvalidHeader) { CT_BOOST_TEST(!is_valid
 
 CT_BOOST_AUTO_TEST_CASE(headerSizeReturnsCorrectSizeNoRequestId) { CT_BOOST_TEST(headerSize({}) == 16); }
 CT_BOOST_AUTO_TEST_CASE(headerSizeReturnsCorrectSizeRequestId) {
-  CT_BOOST_TEST(headerSize({0, MessageType::Ping, "Hello"_qs}) == 26);
+  CT_BOOST_TEST(headerSize({0, MessageType::Ping, CT_QStringLiteral("Hello")}) == 26);
 }
 
 class MockSocket {
@@ -67,7 +67,7 @@ private:
 };
 
 CT_BOOST_AUTO_TEST_CASE(sendHeaderSuccess) {
-  const auto header = MessageHeader{0, MessageType::Ping, "Hello"_qs};
+  const auto header = MessageHeader{0, MessageType::Ping, CT_QStringLiteral("Hello")};
   auto socket       = MockSocket{};
   sendHeader(header, socket);
   const auto& byteArray = socket.byteArray();
@@ -108,15 +108,15 @@ auto operator<<(std::ostream& ostr, const Message& right) -> std::ostream& {
 auto operator==(const Message& left, const Message& right) -> bool { return left.c == right.c; }
 
 CT_BOOST_AUTO_TEST_CASE(sendMessageSuccess) {
-  const auto requestId = "Hello"_qs;
+  const auto requestId = CT_QStringLiteral("Hello");
   const auto message   = Message{'o'};
   auto socket          = MockSocket{};
   sendMessage(message, socket, requestId);
   const auto& byteArray = socket.byteArray();
   CT_BOOST_TEST(byteArray.size() == 27);
-  auto parsedHeader = MessageHeader{};
+  auto parsedHeader  = MessageHeader{};
   auto parsedMessage = Message{};
-  auto stream = DeckDataStream{byteArray};
+  auto stream        = DeckDataStream{byteArray};
   stream >> parsedHeader;
   CT_BOOST_TEST(parsedHeader == message.messageHeader(requestId));
   stream >> parsedMessage;
