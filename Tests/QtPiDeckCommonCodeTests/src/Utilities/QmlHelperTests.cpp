@@ -1,6 +1,5 @@
 #include "BoostUnitTest.hpp"
 
-#include "Utilities/Logging.hpp"
 #include "Utilities/QmlHelperDetail.hpp"
 
 CT_BOOST_AUTO_TEST_SUITE(QmlHelpersTests)

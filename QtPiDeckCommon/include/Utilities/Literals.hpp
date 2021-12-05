@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QString>
+#include <qstringliteral.h>
 #include <QUrl>
 
 namespace QtPiDeck::Utilities {
