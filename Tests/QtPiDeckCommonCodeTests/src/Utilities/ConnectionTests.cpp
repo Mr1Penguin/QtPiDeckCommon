@@ -42,7 +42,7 @@ CT_BOOST_AUTO_TEST_CASE(SubscripionExpiresOnReset) {
 
 CT_BOOST_AUTO_TEST_CASE(SubscripionDoesNotAffectConnectionAfterMove) {
   SignalEmitter emitter;
-  int counter       = 0;
+  int counter     = 0;
   auto connection = std::make_unique<QtPiDeck::Utilities::Connection>(
       QObject::connect(&emitter, &SignalEmitter::signal, [&counter] { ++counter; }));
   emitter.emitSignal();
@@ -58,7 +58,7 @@ CT_BOOST_AUTO_TEST_CASE(SubscripionDoesNotAffectConnectionAfterMove) {
 
 CT_BOOST_AUTO_TEST_CASE(SubscripionIsEmptyAfterMove) {
   SignalEmitter emitter;
-  int counter       = 0;
+  int counter     = 0;
   auto connection = std::make_unique<QtPiDeck::Utilities::Connection>(
       QObject::connect(&emitter, &SignalEmitter::signal, [&counter] { ++counter; }));
   emitter.emitSignal();
@@ -87,6 +87,12 @@ CT_BOOST_AUTO_TEST_CASE(SubscripionIsEmptyAfterMoveAssign) {
   connection.reset();
   emitter.emitSignal();
   CT_BOOST_TEST(counter == 1);
+}
+
+CT_BOOST_AUTO_TEST_CASE(moveFromEmpty) {
+  auto emptyConnection   = QtPiDeck::Utilities::Connection{};
+  auto connection        = std::move(emptyConnection);
+  auto anotherConnection = QtPiDeck::Utilities::Connection{std::move(connection)};
 }
 
 CT_BOOST_AUTO_TEST_SUITE_END()
