@@ -3,6 +3,7 @@
 #include <QByteArray>
 #include <QString>
 
+#include "QtDefinitions.hpp"
 #include "Bus/Message.hpp"
 
 CT_BOOST_AUTO_TEST_SUITE(ConnectionTests)
@@ -21,7 +22,7 @@ CT_BOOST_AUTO_TEST_CASE(createMessageOneArgument) {
 }
 
 CT_BOOST_AUTO_TEST_CASE(createMessageThreeArguments) {
-  const auto message = createMessage(1, uint32_t{42}, uint8_t{1}, QStringLiteral("12"));
+  const auto message = createMessage(1, uint32_t{42}, uint8_t{1}, CT_QStringLiteral("12"));
   CT_BOOST_TEST(message.payload.size() == sizeof(uint32_t) + sizeof(uint8_t) + 8);
 }
 
