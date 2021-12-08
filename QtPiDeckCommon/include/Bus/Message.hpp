@@ -3,6 +3,7 @@
 #include <cstdint>
 
 #include <QByteArray>
+#include <QDataStream>
 
 #include "Utilities/QBAutils.hpp"
 
