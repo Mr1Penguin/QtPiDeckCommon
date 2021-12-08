@@ -4,6 +4,7 @@
 
 #include <QByteArray>
 #include <QDataStream>
+#include <QIODevice>
 
 #include "Utilities/QBAutils.hpp"
 
