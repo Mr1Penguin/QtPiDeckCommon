@@ -14,29 +14,112 @@ env:
   VULKAN_VER_FULL: 1.2.189.0
 
 jobs:
-  generator:
+  ubuntu-jobs-generator:
     runs-on: ubuntu-latest
     outputs:
       job-matrix: ${{ steps.set-matrix.outputs.job-matrix }}
     steps:
       - id: set-matrix
-        run: echo "::set-output name=job-matrix::{\"cfg\":[${uqpig8}, ${uqpig10}, ${uq5g8}, ${uq5g10}, ${uq6g8}, ${wq5cl}, ${wq6cl}, ${mq5clang}, ${mq6clang}]}"
+        run: echo "::set-output name=job-matrix::{\"cfg\":[${uqpig8}, ${uqpig10}, ${uq5g8}, ${uq5g10}, ${uq6g8}]}"
         env:
           uqpig8: '{"os":"ubuntu","qt":"${{ env.QTPI }}","cc":"gcc-8","cxx":"g++-8","triplet":"x64-linux"}'
           uqpig10: '{"os":"ubuntu","qt":"${{ env.QTPI }}","cc":"gcc-10","cxx":"g++-10","triplet":"x64-linux"}'
           uq5g8: '{"os":"ubuntu","qt":"${{ env.QT5 }}","cc":"gcc-8","cxx":"g++-8","triplet":"x64-linux"}'
           uq5g10: '{"os":"ubuntu","qt":"${{ env.QT5 }}","cc":"gcc-10","cxx":"g++-10","triplet":"x64-linux"}'
           uq6g8: '{"os":"ubuntu","qt":"${{ env.QT6 }}","cc":"gcc-10","cxx":"g++-10","triplet":"x64-linux"}'
+
+  win-mac-jobs-generator:
+    runs-on: ubuntu-latest
+    outputs:
+      job-matrix: ${{ steps.set-matrix.outputs.job-matrix }}
+    steps:
+      - id: set-matrix
+        run: echo "::set-output name=job-matrix::{\"cfg\":[${wq5cl}, ${wq6cl}, ${mq5clang}, ${mq6clang}]}"
+        env:
           wq5cl: '{"os":"windows","qt":"${{ env.QT5 }}","cc":"cl","cxx":"cl","triplet":"x64-windows"}'
           wq6cl: '{"os":"windows","qt":"${{ env.QT6 }}","cc":"cl","cxx":"cl","triplet":"x64-windows"}'
           mq5clang: '{"os":"macos","qt":"${{ env.QT5 }}","cc":"/usr/local/opt/llvm/bin/clang","cxx":"/usr/local/opt/llvm/bin/clang++","triplet":"x64-osx"}'
           mq6clang: '{"os":"macos","qt":"${{ env.QT6 }}","cc":"/usr/local/opt/llvm/bin/clang","cxx":"/usr/local/opt/llvm/bin/clang++","triplet":"x64-osx"}'
 
-  test:
-    needs: [generator]
+  ubuntu-test:
+    needs: [ubuntu-jobs-generator]
     runs-on: ${{ format('{0}-latest', matrix.cfg.os) }}
     strategy:
-      matrix: ${{fromJSON(needs.generator.outputs.job-matrix)}}
+      matrix: ${{fromJSON(needs.ubuntu-jobs-generator.outputs.job-matrix)}}
+    
+    name: Qt${{ matrix.cfg.qt }} - ${{ matrix.cfg.cc }}[${{ matrix.cfg.os }}]
+
+    steps:
+      - uses: lukka/get-cmake@latest
+
+      - name: Cache Qt
+        id: cache-qt
+        uses: actions/cache@v1
+        with:
+          path: ../Qt
+          key: ${{ matrix.cfg.os }}-QtCache-${{ matrix.cfg.qt }}
+      
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          aqtversion: ==2.0.0
+          version: '${{ matrix.cfg.qt }}'
+          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+          submodules: 'recursive'
+
+      - name: Set outputs
+        run: |
+          echo "::set-output name=dependencies::$(python3 ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ matrix.cfg.qt }} ${{ matrix.cfg.os }}-latest)"
+          echo "::set-output name=cacheKey::$(python3 ${{ github.workspace }}/scripts/vcpkgCacheKey.py qt${{ matrix.cfg.qt }} ${{ matrix.cfg.os }}-latest)"
+        id: set-outputs
+
+      - uses: lukka/run-vcpkg@v7.3
+        with:
+          vcpkgDirectory: ${{ github.workspace }}/ext/vcpkg
+          appendedCacheKey: ${{ steps.set-outputs.outputs.cacheKey }}
+          vcpkgTriplet: ${{ matrix.cfg.triplet }}
+          vcpkgArguments: ${{ steps.set-outputs.outputs.dependencies }}
+          doNotUpdateVcpkg: true
+        if: steps.set-outputs.outputs.dependencies != 'nil'
+
+      - name: Install gcc 8
+        run: sudo apt-get install g++-8 -y
+        if: matrix.cfg.cc == 'gcc-8'
+
+      - name: Install additional Qt6 dependencies
+        run: |
+          wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
+          sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-${VULKAN_VER}-focal.list https://packages.lunarg.com/vulkan/${VULKAN_VER}/lunarg-vulkan-${VULKAN_VER}-focal.list
+          sudo apt update
+          sudo apt install
+          sudo apt install vulkan-sdk libxkbcommon-dev -y
+        if: matrix.cfg.os == 'ubuntu' && matrix.cfg.qt == env.QT6
+
+      - name: Create build directory
+        run: cmake -E make_directory "build"
+
+      - run: cmake -S . -B build -G Ninja -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/ext/vcpkg/scripts/buildsystems/vcpkg.cmake
+        env:
+          CC: ${{ matrix.cfg.cc }}
+          CXX: ${{ matrix.cfg.cxx }}
+
+      - run: cmake --build build
+
+      - name: Test project
+        run: ctest --output-on-failure
+        working-directory: build
+        env:
+          LD_LIBRARY_PATH: ./QtPiDeckCommon
+
+  win-mac-test:
+    needs: [win-mac-jobs-generator]
+    runs-on: ${{ format('{0}-latest', matrix.cfg.os) }}
+    strategy:
+      matrix: ${{fromJSON(needs.win-mac-jobs-generator.outputs.job-matrix)}}
     
     name: Qt${{ matrix.cfg.qt }} - ${{ matrix.cfg.cc }}[${{ matrix.cfg.os }}]
 
@@ -86,15 +169,6 @@ jobs:
           brew update
           brew upgrade llvm
         if: matrix.cfg.os == 'macos'
-
-      - name: Install additional Qt6 dependencies
-        run: |
-          wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
-          sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-${VULKAN_VER}-focal.list https://packages.lunarg.com/vulkan/${VULKAN_VER}/lunarg-vulkan-${VULKAN_VER}-focal.list
-          sudo apt update
-          sudo apt install
-          sudo apt install vulkan-sdk libxkbcommon-dev -y
-        if: matrix.cfg.os == 'ubuntu' && matrix.cfg.qt == env.QT6
 
       - name: Cache Vulkan
         id: cache-vulkan
@@ -152,7 +226,7 @@ jobs:
           uq6: '{"os":"ubuntu","qt":"${{ env.QT6 }}"}'
 
   code-coverage:
-    needs: [code-checks-generator, test]
+    needs: [code-checks-generator, ubuntu-test]
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{fromJSON(needs.code-checks-generator.outputs.job-matrix)}}
@@ -258,7 +332,7 @@ jobs:
 
   clang-tidy:
     if: github.event_name == 'pull_request'
-    needs: [code-checks-generator, test]
+    needs: [code-checks-generator, ubuntu-test]
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{fromJSON(needs.code-checks-generator.outputs.job-matrix)}}
@@ -355,7 +429,7 @@ jobs:
 
   done:
     if: github.event_name == 'pull_request'
-    needs: [clang-tidy, code-coverage]
+    needs: [clang-tidy, code-coverage, win-mac-test]
     runs-on: ubuntu-latest
     steps:
       - run: echo "DONE"
