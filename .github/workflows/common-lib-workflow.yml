@@ -45,7 +45,7 @@ jobs:
     needs: [ubuntu-jobs-generator]
     runs-on: ${{ format('{0}-latest', matrix.cfg.os) }}
     strategy:
-      matrix: ${{fromJSON(needs.generator.outputs.job-matrix)}}
+      matrix: ${{fromJSON(needs.ubuntu-jobs-generator.outputs.job-matrix)}}
     
     name: Qt${{ matrix.cfg.qt }} - ${{ matrix.cfg.cc }}[${{ matrix.cfg.os }}]
 
@@ -119,7 +119,7 @@ jobs:
     needs: [win-mac-jobs-generator]
     runs-on: ${{ format('{0}-latest', matrix.cfg.os) }}
     strategy:
-      matrix: ${{fromJSON(needs.generator.outputs.job-matrix)}}
+      matrix: ${{fromJSON(needs.win-mac-jobs-generator.outputs.job-matrix)}}
     
     name: Qt${{ matrix.cfg.qt }} - ${{ matrix.cfg.cc }}[${{ matrix.cfg.os }}]
 
