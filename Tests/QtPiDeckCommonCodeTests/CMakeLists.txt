@@ -4,6 +4,7 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick REQUIRED)
 add_executable(QtPiDeckCommonCodeTests
     src/main.cpp
     src/ApplicationTests.cpp
+    src/Bus/MessageTests.cpp
     src/Network/DeckDataStreamTests.cpp
     src/Network/MessageHeaderTests.cpp
     src/Network/Messages/HelloMessageTests.cpp
