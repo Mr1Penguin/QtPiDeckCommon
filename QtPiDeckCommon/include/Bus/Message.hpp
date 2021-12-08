@@ -18,7 +18,7 @@ auto convertPayload(const Message& message) -> T {
 }
 
 namespace detail {
-template<class TArg>
+template<class TArg>    
 void addData(QDataStream& stream, TArg&& arg) {
   stream << arg;
 };
@@ -28,7 +28,7 @@ template<class... TArgs>
 auto createMessage(uint64_t messageType, TArgs&&... args) -> Message {
   auto message = Message{messageType, {}};
   if constexpr (sizeof...(TArgs) != 0) {
-    auto stream         = QDataStream{&message.payload, QDataStream::WriteOnly};
+    auto stream = QDataStream{&message.payload, QIODevice::WriteOnly};
     (detail::addData(stream, std::forward<TArgs>(args)), ...);
   }
 
