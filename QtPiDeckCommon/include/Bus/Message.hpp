@@ -21,7 +21,7 @@ namespace detail {
 template<class TArg>    
 void addData(QDataStream& stream, TArg&& arg) {
   stream << arg;
-};
+}
 }
 
 template<class... TArgs>
