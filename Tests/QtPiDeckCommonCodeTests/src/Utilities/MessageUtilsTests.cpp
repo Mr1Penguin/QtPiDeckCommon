@@ -66,6 +66,15 @@ private:
   QByteArray m_byteArray;
 };
 
+CT_BOOST_AUTO_TEST_CASE(shouldGetHeaderWithZeroDataSize) {
+  const auto messageType   = MessageType::Ping;
+  const auto requestId     = CT_QStringLiteral("PingId");
+  const auto messageHeader = getEmptyMessageHeader(messageType, requestId);
+  CT_BOOST_TEST(messageHeader.dataSize == 0);
+  CT_BOOST_TEST(messageHeader.messageType == messageType);
+  CT_BOOST_TEST(messageHeader.requestId == requestId);
+}
+
 CT_BOOST_AUTO_TEST_CASE(sendHeaderSuccess) {
   const auto header = MessageHeader{0, MessageType::Ping, CT_QStringLiteral("Hello")};
   auto socket       = MockSocket{};
@@ -76,6 +85,21 @@ CT_BOOST_AUTO_TEST_CASE(sendHeaderSuccess) {
   auto stream = DeckDataStream{byteArray};
   stream >> parsed;
   CT_BOOST_TEST(parsed == header);
+}
+
+CT_BOOST_AUTO_TEST_CASE(sendHeaderRawSuccess) {
+  const auto type = MessageType::Ping;
+  const auto id   = CT_QStringLiteral("Hello");
+  auto socket     = MockSocket{};
+  sendHeader(type, id, socket);
+  const auto& byteArray = socket.byteArray();
+  CT_BOOST_TEST(byteArray.size() == 26);
+  auto parsed = MessageHeader{};
+  auto stream = DeckDataStream{byteArray};
+  stream >> parsed;
+  CT_BOOST_TEST(parsed.dataSize == 0);
+  CT_BOOST_TEST(parsed.messageType == type);
+  CT_BOOST_TEST(parsed.requestId == id);
 }
 
 struct Message {
