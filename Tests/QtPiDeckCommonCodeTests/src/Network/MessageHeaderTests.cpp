@@ -38,15 +38,6 @@ CT_BOOST_AUTO_TEST_CASE(shouldBeSerializedAndDeserialized) {
   CT_BOOST_TEST(outMessageHeader == messageHeader);
 }
 
-CT_BOOST_AUTO_TEST_CASE(shouldGetHeaderWithZeroDataSize) {
-  const auto messageType   = MessageType::Ping;
-  const auto requestId     = CT_QStringLiteral("PingId");
-  const auto messageHeader = getEmptyMessageHeader(messageType, requestId);
-  CT_BOOST_TEST(messageHeader.dataSize == 0);
-  CT_BOOST_TEST(messageHeader.messageType == messageType);
-  CT_BOOST_TEST(messageHeader.requestId == requestId);
-}
-
 CT_BOOST_AUTO_TEST_SUITE_END()
 
 //#include "MessageHeaderTests.moc"

@@ -19,10 +19,6 @@ struct MessageHeader {
   QString requestId;
 };
 
-inline auto getEmptyMessageHeader(MessageType messageType, QString requestId) noexcept {
-  return MessageHeader{0, messageType, std::move(requestId)};
-}
-
 QTPIDECKCOMMON_EXPORT auto operator<<(QDataStream& str, const MessageHeader& header) noexcept -> QDataStream&;
 QTPIDECKCOMMON_EXPORT auto operator>>(QDataStream& str, MessageHeader& header) noexcept -> QDataStream&;
 #if (QT_VERSION == QTPI4_VERSION)

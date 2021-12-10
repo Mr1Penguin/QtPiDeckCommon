@@ -27,6 +27,10 @@ inline auto headerSize(const Network::MessageHeader& header) -> std::size_t {
          header.requestId.size() * charSize + qstringHeaderSize;
 }
 
+inline auto getEmptyMessageHeader(Network::MessageType messageType, QString requestId) -> Network::MessageHeader {
+  return Network::MessageHeader{0, messageType, std::move(requestId)};
+}
+
 template<class Socket = QTcpSocket>
 inline void sendHeader(const Network::MessageHeader& header, Socket& socket) {
   QByteArray tmp;
@@ -34,6 +38,11 @@ inline void sendHeader(const Network::MessageHeader& header, Socket& socket) {
   Network::DeckDataStream outStream{&tmp, QIODevice::WriteOnly};
   outStream << header;
   [[maybe_unused]] const auto bytes = socket.write(tmp);
+}
+
+template<class Socket = QTcpSocket>
+inline void sendHeader(Network::MessageType messageType, QString requestId, Socket& socket) {
+  return sendHeader(getEmptyMessageHeader(messageType, std::move(requestId)), socket);
 }
 
 template<class Message, class Socket = QTcpSocket>
