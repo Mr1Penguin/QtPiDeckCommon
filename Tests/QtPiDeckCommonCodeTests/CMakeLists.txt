@@ -13,6 +13,7 @@ add_executable(QtPiDeckCommonCodeTests
     src/Utilities/ConnectionTests.cpp
     src/Utilities/LiteralTests.cpp
     src/Utilities/MessageUtilsTests.cpp
+    src/Utilities/OnExitTests.cpp
     src/Utilities/QBAutilsTests.cpp
     src/Utilities/QmlHelperTests.cpp
     src/ViewModels/CommandViewModelTests.cpp)
