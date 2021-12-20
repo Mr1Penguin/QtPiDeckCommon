@@ -40,7 +40,7 @@ template<class TMessage>
 auto repack(QTcpSocket& socket, std::size_t dataSize) -> QByteArray {
   auto payload = QByteArray{};
   if (dataSize) {
-#if QT_VERSION_MAJOR == 5 && defined(_MSC_VER)
+#if QT_VERSION_MAJOR == 5
     assert(dataSize < std::numeric_limits<int>::max());
     payload.reserve(static_cast<int>(dataSize));
 #else
@@ -61,7 +61,7 @@ const std::unordered_map<Network::MessageType, repackSignature> repackMap = {
 }
 
 void MessageReceiver::readData() {
-  auto socket        = service<Services::ISocketHolder>()->socket();
+  auto* socket       = service<Services::ISocketHolder>()->socket();
   const auto& header = m_savedHeader.has_value() ? m_savedHeader : readObject<Network::MessageHeader>(*socket);
   if (!header.has_value()) {
     return;
@@ -85,7 +85,7 @@ void MessageReceiver::readData() {
       payload = repackMap.at(header->messageType)(*socket, header->dataSize);
     } catch (const std::out_of_range& /*e*/) {
       BOOST_LOG_SEV(m_slg, Utilities::severity::error)
-          << "Unable to process " << Network::messageTypeNames[static_cast<std::size_t>(header->messageType)]
+          << "Unable to process " << Network::messageTypeNames.at(static_cast<std::size_t>(header->messageType))
           << " message. Skipping message.";
 
       // send ERROR as response?

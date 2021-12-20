@@ -1,9 +1,9 @@
 #include "Services/MessageSender.hpp"
 
+#include <cassert>
+
 #include "Network/DeckDataStream.hpp"
 #include "Utilities/ISerializable.hpp"
-
-#include <boost/pool/pool.hpp>
 
 namespace QtPiDeck::Services {
 namespace {
@@ -18,8 +18,14 @@ auto headerSize(const Network::MessageHeader& header) -> std::size_t {
 void MessageSender::send(const Network::Messages::Message& message, const QString& id) {
   const auto& asSerializable = dynamic_cast<const Utilities::ISerializable&>(message);
   const auto header          = message.messageHeader(id);
+  const auto size            = headerSize(header) + header.dataSize;
   QByteArray buffer;
-  buffer.reserve(headerSize(header) + header.dataSize);
+#if QT_VERSION_MAJOR == 5
+  assert(size < std::numeric_limits<int>::max());
+  buffer.reserve(static_cast<int>(size));
+#else
+  buffer.reserve(size);
+#endif
   Network::DeckDataStream outStream{&buffer, QIODevice::WriteOnly};
   header.write(outStream);
   asSerializable.write(outStream);
@@ -27,8 +33,14 @@ void MessageSender::send(const Network::Messages::Message& message, const QStrin
 }
 
 void MessageSender::send(const Network::MessageHeader& header) {
+  const auto size = headerSize(header);
   QByteArray buffer;
-  buffer.reserve(headerSize(header));
+#if QT_VERSION_MAJOR == 5
+  assert(size < std::numeric_limits<int>::max());
+  buffer.reserve(static_cast<int>(size));
+#else
+  buffer.reserve(size);
+#endif
   Network::DeckDataStream outStream{&buffer, QIODevice::WriteOnly};
   header.write(outStream);
   send(buffer);
