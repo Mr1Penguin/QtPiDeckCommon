@@ -92,7 +92,11 @@ public:
   template<class TObject, CreationType creationType = CreationType::UniquePointer>
   [[nodiscard]] auto make(void* memory = nullptr) const noexcept {
     if constexpr (!std::is_base_of_v<detail::HasDependecies, TObject>) {
-      return createImpl<TObject, creationType>(memory);
+      if constexpr (std::is_constructible_v<TObject, QObject*>) {
+        return createImpl<TObject, creationType>(memory, static_cast<QObject*>(nullptr));
+      } else {
+        return createImpl<TObject, creationType>(memory);
+      }
     } else {
       return makeWithDependencies<TObject, creationType>(static_cast<TObject*>(nullptr), memory);
     }
@@ -142,7 +146,6 @@ private:
       return std::make_unique<TImplementation>(args...);
     } else if constexpr (creationType == CreationType::Raw) {
       return new TImplementation(args...); // NOLINT(cppcoreguidelines-owning-memory)
-                                           // I really don't want to include gsl for now
     } else if constexpr (creationType == CreationType::Copy) {
       return TImplementation{args...};
     } else {

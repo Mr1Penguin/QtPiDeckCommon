@@ -29,8 +29,10 @@ CT_BOOST_AUTO_TEST_CASE(shouldBeSerializedAndDeserialized) {
   auto qba                = QByteArray{};
   auto in                 = QDataStream{&qba, DeckDataStream::OpenModeFlag::WriteOnly};
   in << helloMessage;
-  auto out        = QDataStream{&qba, DeckDataStream::OpenModeFlag::ReadOnly};
-  auto outMessage = Messages::Hello{0, 0};
+  auto out                    = QDataStream{&qba, DeckDataStream::OpenModeFlag::ReadOnly};
+  auto outMessage             = Messages::Hello{};
+  outMessage.interfaceVersion = 0;
+  outMessage.qcharSize        = 0;
   out >> outMessage;
   CT_BOOST_TEST(outMessage == helloMessage);
 }

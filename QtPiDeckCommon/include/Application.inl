@@ -3,6 +3,10 @@
 #include "ApplicationExt.inl"
 
 #include "QtDefinitions.hpp"
+#include "Services/DeckMessageToBusMessageMapper.hpp"
+#include "Services/MessageBus.hpp"
+#include "Services/MessageSender.hpp"
+#include "Services/SocketHolder.hpp"
 
 namespace QtPiDeck::detail {
 template<class GuiApplication, class ApplicationEngine>
@@ -55,6 +59,12 @@ template<class GuiApplication, class ApplicationEngine>
 
 template<class GuiApplication, class ApplicationEngine>
 void Application<GuiApplication, ApplicationEngine>::initialPreparationsBase() {
+  using namespace Services;
+  m_ioc.registerSingleton<IMessageBus>(m_ioc.make<MessageBus, CreationType::SharedPointer>());
+  m_ioc.registerSingleton<ISocketHolder>(m_ioc.make<SocketHolder, CreationType::SharedPointer>());
+  m_ioc.registerService<IMessageSender, MessageSender>();
+  m_ioc.registerService<IDeckMessageToBusMessageMapper, DeckMessageToBusMessageMapper>();
+
   initialPreparations();
 }
 

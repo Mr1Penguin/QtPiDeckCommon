@@ -31,10 +31,10 @@ CT_BOOST_AUTO_TEST_CASE(shouldBeSerializedAndDeserialized) {
   const MessageHeader messageHeader{0, MessageType::Pong, CT_QStringLiteral("a-random-id")};
   QByteArray qba;
   QDataStream in{&qba, DeckDataStream::OpenModeFlag::WriteOnly};
-  in << messageHeader;
+  messageHeader.write(in);
   QDataStream out{&qba, DeckDataStream::OpenModeFlag::ReadOnly};
   MessageHeader outMessageHeader{};
-  out >> outMessageHeader;
+  outMessageHeader.read(out);
   CT_BOOST_TEST(outMessageHeader == messageHeader);
 }
 
