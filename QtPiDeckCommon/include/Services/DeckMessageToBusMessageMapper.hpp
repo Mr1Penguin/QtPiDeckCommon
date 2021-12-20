@@ -29,7 +29,7 @@ public:
   }
 
 protected:
-  [[nodiscard]] virtual auto getType(Network::MessageType deckType) const
+  [[nodiscard]] virtual auto getType(Network::MessageType /*deckType*/) const
       -> std::optional<decltype(Bus::Message::messageType)> {
     return std::nullopt;
   };

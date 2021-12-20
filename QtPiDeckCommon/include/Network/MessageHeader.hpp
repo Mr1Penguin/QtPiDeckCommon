@@ -14,7 +14,7 @@
 
 namespace QtPiDeck::Network {
 enum class MessageType : uint32_t { Ping, Pong, Hello, AcceptConnection, RejectConnection };
-constexpr std::array messageTypeNames = {"Ping", "Pong", "Hello", "AcceptConnection", "RejectConnection"};
+constexpr inline std::array messageTypeNames = {"Ping", "Pong", "Hello", "AcceptConnection", "RejectConnection"};
 
 struct QTPIDECKCOMMON_EXPORT MessageHeader final : public Utilities::ISerializable {
   MessageHeader() : dataSize(uint64_t{}), messageType(MessageType{}), requestId(QString{}) {}

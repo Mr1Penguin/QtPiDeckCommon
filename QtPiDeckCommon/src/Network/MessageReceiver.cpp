@@ -71,16 +71,7 @@ void MessageReceiver::readData() {
       return;
     }
 
-    // todo: replace with lambda-based generic scope guard
-    struct clear {
-      clear(MessageReceiver* _this) : m_this(_this) {}
-      ~clear() { m_this->m_savedHeader.reset(); }
-
-    private:
-      MessageReceiver* m_this;
-    };
-
-    clear _{this};
+    auto guard = OnExit([this] { m_savedHeader.reset(); });
 
     try {
       payload = repackMap.at(header->messageType)(*socket, header->dataSize);
