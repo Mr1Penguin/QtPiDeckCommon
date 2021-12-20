@@ -1,5 +1,7 @@
 #include "Network/MessageReceiver.hpp"
 
+#include <cassert>
+
 #include "Network/DeckDataStream.hpp"
 #include "Network/Messages.hpp"
 #include "Utilities/ISerializable.hpp"
@@ -37,7 +39,12 @@ template<class TMessage>
 auto repack(QTcpSocket& socket, std::size_t dataSize) -> QByteArray {
   auto payload = QByteArray{};
   if (dataSize) {
+#if QT_VERSION_MAJOR == 5 && defined(_MSC_VER)
+    assert(dataSize < std::numeric_limits<int>::max());
+    payload.reserve(static_cast<int>(dataSize));
+#else
     payload.reserve(dataSize);
+#endif
   }
 
   const auto message = readObject<TMessage>(socket);
