@@ -1,6 +1,7 @@
 #include "Network/MessageReceiver.hpp"
 
 #include <cassert>
+#include <unordered_map>
 
 #include "Network/DeckDataStream.hpp"
 #include "Network/Messages.hpp"
