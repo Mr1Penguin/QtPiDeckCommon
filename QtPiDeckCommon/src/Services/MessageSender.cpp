@@ -25,7 +25,7 @@ void MessageSender::send(const Network::Messages::Message& message, const QStrin
 #else
   using argType = qsizetype;
 #endif
-  assert(size < std::numeric_limits<argType>::max()); // NOLINT
+  assert(size < static_cast<std::size_t>(std::numeric_limits<argType>::max())); // NOLINT
   buffer.reserve(static_cast<argType>(size));
   Network::DeckDataStream outStream{&buffer, QIODevice::WriteOnly};
   header.write(outStream);
@@ -41,7 +41,7 @@ void MessageSender::send(const Network::MessageHeader& header) {
 #else
   using argType = qsizetype;
 #endif
-  assert(size < std::numeric_limits<argType>::max()); // NOLINT
+  assert(size < static_cast<std::size_t>(std::numeric_limits<argType>::max())); // NOLINT
   buffer.reserve(static_cast<argType>(size));
   Network::DeckDataStream outStream{&buffer, QIODevice::WriteOnly};
   header.write(outStream);

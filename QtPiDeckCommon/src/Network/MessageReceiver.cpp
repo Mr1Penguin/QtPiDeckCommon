@@ -45,7 +45,7 @@ auto repack(QTcpSocket& socket, std::size_t dataSize) -> QByteArray {
 #else
     using argType = qsizetype;
 #endif
-    assert(dataSize < std::numeric_limits<argType>::max()); // NOLINT
+    assert(dataSize < static_cast<std::size_t>(std::numeric_limits<argType>::max())); // NOLINT
     payload.reserve(static_cast<argType>(dataSize));
   }
 
