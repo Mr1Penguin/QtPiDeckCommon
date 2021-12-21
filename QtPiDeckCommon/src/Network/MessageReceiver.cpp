@@ -41,11 +41,12 @@ auto repack(QTcpSocket& socket, std::size_t dataSize) -> QByteArray {
   auto payload = QByteArray{};
   if (dataSize) {
 #if QT_VERSION_MAJOR == 5
-    assert(dataSize < std::numeric_limits<int>::max()); // NOLINT
-    payload.reserve(static_cast<int>(dataSize));
+    using argType = int;
 #else
-    payload.reserve(dataSize);
+    using argType = qsizetype;
 #endif
+    assert(dataSize < std::numeric_limits<argType>::max()); // NOLINT
+    payload.reserve(static_cast<argType>(dataSize));
   }
 
   const auto message = readObject<TMessage>(socket);

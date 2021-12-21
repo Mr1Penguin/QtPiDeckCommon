@@ -21,11 +21,12 @@ void MessageSender::send(const Network::Messages::Message& message, const QStrin
   const auto size            = headerSize(header) + header.dataSize;
   QByteArray buffer;
 #if QT_VERSION_MAJOR == 5
-  assert(size < std::numeric_limits<int>::max()); // NOLINT
-  buffer.reserve(static_cast<int>(size));
+  using argType = int;
 #else
-  buffer.reserve(size);
+  using argType = qsizetype;
 #endif
+  assert(size < std::numeric_limits<argType>::max()); // NOLINT
+  buffer.reserve(static_cast<argType>(size));
   Network::DeckDataStream outStream{&buffer, QIODevice::WriteOnly};
   header.write(outStream);
   asSerializable.write(outStream);
@@ -36,11 +37,12 @@ void MessageSender::send(const Network::MessageHeader& header) {
   const auto size = headerSize(header);
   QByteArray buffer;
 #if QT_VERSION_MAJOR == 5
-  assert(size < std::numeric_limits<int>::max()); // NOLINT
-  buffer.reserve(static_cast<int>(size));
+  using argType = int;
 #else
-  buffer.reserve(size);
+  using argType = qsizetype;
 #endif
+  assert(size < std::numeric_limits<argType>::max()); // NOLINT
+  buffer.reserve(static_cast<argType>(size));
   Network::DeckDataStream outStream{&buffer, QIODevice::WriteOnly};
   header.write(outStream);
   send(buffer);
