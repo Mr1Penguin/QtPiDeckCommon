@@ -21,7 +21,11 @@ struct QTPIDECKCOMMON_EXPORT Hello final : public Utilities::ISerializable, publ
   // Message
   auto messageSize() const -> uint64_t final { return sizeof(interfaceVersion) + sizeof(qcharSize); }
   auto messageHeader(const QString& requestId) const -> MessageHeader final {
-    return MessageHeader{messageSize(), MessageType::Hello, requestId};
+    auto header        = MessageHeader{};
+    header.dataSize    = messageSize();
+    header.messageType = MessageType::Hello;
+    header.requestId   = requestId;
+    return header;
   }
 
   // ISerializable

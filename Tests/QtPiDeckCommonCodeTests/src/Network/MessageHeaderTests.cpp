@@ -28,7 +28,13 @@ CT_BOOST_AUTO_TEST_SUITE(MessageHeaderTests)
 using namespace QtPiDeck::Network;
 
 CT_BOOST_AUTO_TEST_CASE(shouldBeSerializedAndDeserialized) {
-  const MessageHeader messageHeader{0, MessageType::Pong, CT_QStringLiteral("a-random-id")};
+  const auto messageHeader = []() {
+    auto header        = MessageHeader{};
+    header.dataSize    = 0;
+    header.messageType = MessageType::Pong;
+    header.requestId   = CT_QStringLiteral("a-random-id");
+    return header;
+  }();
   QByteArray qba;
   QDataStream in{&qba, DeckDataStream::OpenModeFlag::WriteOnly};
   messageHeader.write(in);
