@@ -32,7 +32,7 @@ void MessageHeader::write(QDataStream& stream) const {
 
 #if (QT_VERSION == QTPI4_VERSION)
 auto operator>>(QDataStream& str, MessageType& messageType) noexcept -> QDataStream& {
-  uint32_t v;
+  auto v = uint32_t{};
   str >> v;
   messageType = static_cast<MessageType>(v);
   return str;
