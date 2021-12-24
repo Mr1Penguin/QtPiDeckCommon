@@ -15,7 +15,7 @@ inline auto operator<<(std::ostream& ostr, const std::optional<T>& right) -> std
   return ostr;
 }
 
-inline auto operator<<(std::ostream& ostr, const std::nullopt_t& right) -> std::ostream& {
+inline auto operator<<(std::ostream& ostr, const std::nullopt_t& /*right*/) -> std::ostream& {
   ostr << "(nil)";
   return ostr;
 }
