@@ -5,8 +5,6 @@
 
 #include "Services/Ioc.hpp"
 
-#include "Utilities/Logging.hpp"
-
 struct IocFixture {
   std::unique_ptr<QtPiDeck::Services::Ioc> ioc{std::make_unique<QtPiDeck::Services::Ioc>()};
 };

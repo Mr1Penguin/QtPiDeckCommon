@@ -1,9 +1,8 @@
 #pragma once
 
 #include <optional>
-#include <unordered_map>
-#include <variant>
 
+#include "Bus/CommonMessageIds.hpp"
 #include "Services/IDeckMessageToBusMessageMapper.hpp"
 
 namespace QtPiDeck::Services {
@@ -21,8 +20,9 @@ public:
       return typeFromDerived;
     }
 
-    if (const auto it = m_map.find(deckType); it != std::cend(m_map)) {
-      return it->second;
+    switch (deckType) {
+    case Network::MessageType::Dummy:
+      return Bus::Dummy::DummyId;
     }
 
     return std::nullopt;
@@ -33,8 +33,5 @@ protected:
       -> std::optional<decltype(Bus::Message::messageType)> {
     return std::nullopt;
   };
-
-private:
-  const static inline std::unordered_map<Network::MessageType, decltype(Bus::Message::messageType)> m_map = {};
 };
 }

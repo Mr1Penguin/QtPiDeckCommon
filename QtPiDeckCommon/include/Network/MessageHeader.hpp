@@ -13,8 +13,17 @@
 #include "Utilities/ISerializable.hpp"
 
 namespace QtPiDeck::Network {
-enum class MessageType : uint32_t { Ping, Pong, Hello, AcceptConnection, RejectConnection };
-constexpr inline std::array messageTypeNames = {"Ping", "Pong", "Hello", "AcceptConnection", "RejectConnection"};
+enum class MessageType : uint32_t {
+  Dummy,
+  Ping,
+  Pong,
+  Hello,
+  AcceptConnection,
+  RejectConnection,
+  Reserved = std::numeric_limits<uint32_t>::max()
+};
+constexpr inline std::array messageTypeNames = {"Dummy",           "Ping", "Pong", "Hello", "AcceptConnection",
+                                                "RejectConnection"};
 
 struct QTPIDECKCOMMON_EXPORT MessageHeader final : public Utilities::ISerializable {
   uint64_t dataSize;

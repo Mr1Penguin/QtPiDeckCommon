@@ -7,14 +7,10 @@
 #include "QtDefinitions.hpp"
 #include "QtVersion.hpp"
 
-namespace QtPiDeck::Network {
-auto operator<<(std::ostream& ostr, const MessageType& right) -> std::ostream&;
-inline namespace Messages {
-auto operator<<(std::ostream& ostr, const Hello& right) -> std::ostream& {
-  ostr << "Hello{ interfaceVersion: " << right.interfaceVersion << ", qcharSize: " << right.qcharSize << " }";
-  return ostr;
-}
+#include "printers.hpp"
 
+namespace QtPiDeck::Network {
+inline namespace Messages {
 auto operator==(const QtPiDeck::Network::Hello& left, const QtPiDeck::Network::Hello& right) -> bool {
   return left.interfaceVersion == right.interfaceVersion && left.qcharSize == right.qcharSize;
 }

@@ -4,10 +4,12 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick REQUIRED)
 add_executable(QtPiDeckCommonCodeTests
     src/main.cpp
     src/ApplicationTests.cpp
+    src/printers.hpp
     src/Bus/MessageTests.cpp
     src/Network/DeckDataStreamTests.cpp
     src/Network/MessageHeaderTests.cpp
     src/Network/Messages/HelloMessageTests.cpp
+    src/Services/DeckMessageToBusMessageMapperTests.cpp
     src/Services/IocTests.cpp
     src/Services/MessageBusTests.cpp
     src/Utilities/ConnectionTests.cpp
@@ -16,6 +18,9 @@ add_executable(QtPiDeckCommonCodeTests
     src/Utilities/QBAutilsTests.cpp
     src/Utilities/QmlHelperTests.cpp
     src/ViewModels/CommandViewModelTests.cpp)
+
+target_include_directories(QtPiDeckCommonCodeTests
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 target_link_libraries(QtPiDeckCommonCodeTests
     PRIVATE
