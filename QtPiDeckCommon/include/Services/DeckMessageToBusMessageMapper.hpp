@@ -23,9 +23,9 @@ public:
     switch (deckType) {
     case Network::MessageType::Dummy:
       return Bus::Dummy::DummyId;
+    default:
+      return std::nullopt;
     }
-
-    return std::nullopt;
   }
 
 protected:
