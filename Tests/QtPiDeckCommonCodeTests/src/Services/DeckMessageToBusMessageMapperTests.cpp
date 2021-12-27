@@ -25,7 +25,7 @@ CT_BOOST_AUTO_TEST_CASE(returnValueForKnownType) {
 template<bool hasValue>
 class derived final : public DeckMessageToBusMessageMapper {
 protected:
-  auto getType(MessageType) const -> std::optional<decltype(QtPiDeck::Bus::Message::messageType)> final {
+  auto getType(MessageType /*type*/) const -> std::optional<decltype(QtPiDeck::Bus::Message::messageType)> final {
     if (hasValue) {
       return uint64_t{1};
     }
