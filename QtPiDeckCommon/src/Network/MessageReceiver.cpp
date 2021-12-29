@@ -21,7 +21,7 @@ MessageReceiver::MessageReceiver(std::shared_ptr<Services::ISocketHolder> holder
 
 namespace {
 template<class T>
-auto readObject(QTcpSocket& socket) -> std::optional<T> {
+auto readObject(QIODevice& socket) -> std::optional<T> {
   auto inStream = Network::DeckDataStream{&socket};
   static_assert(std::is_base_of_v<ISerializable, T>);
   T object{};
@@ -37,7 +37,7 @@ auto readObject(QTcpSocket& socket) -> std::optional<T> {
 }
 
 template<class TMessage>
-auto repack(QTcpSocket& socket, std::size_t dataSize) -> QByteArray {
+auto repack(QIODevice& socket, std::size_t dataSize) -> QByteArray {
   auto payload = QByteArray{};
   if (dataSize) {
 #if QT_VERSION_MAJOR == 5
@@ -55,7 +55,7 @@ auto repack(QTcpSocket& socket, std::size_t dataSize) -> QByteArray {
   return payload;
 }
 
-using repackSignature = std::function<QByteArray(QTcpSocket& socket, std::size_t dataSize)>;
+using repackSignature = std::function<QByteArray(QIODevice& socket, std::size_t dataSize)>;
 
 const std::unordered_map<Network::MessageType, repackSignature> repackMap = {
     {Network::MessageType::Hello, repack<Network::Messages::Hello>}};

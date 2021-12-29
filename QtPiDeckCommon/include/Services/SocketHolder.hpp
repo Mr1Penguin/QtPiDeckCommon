@@ -17,15 +17,20 @@ public:
     setService(std::move(bus));
   }
 
-  auto socket() -> QTcpSocket* final { return m_socket; }
+  auto socket() -> QIODevice* final { return m_socket; }
   void requestWrite(const QByteArray& data) final { emit writeRequested(data); }
-  void setSocket(QTcpSocket* socket) final {
+  void setSocket(QIODevice* socket) final {
+    Q_ASSERT(socket != nullptr);
     if (m_socket->isOpen()) {
       m_socket->close();
     }
 
     m_socket->deleteLater();
-    m_socket = socket;
+    if (auto* casted = qobject_cast<QTcpSocket*>(socket); casted != nullptr) {
+      m_socket = casted;
+    } else {
+      throw std::runtime_error("Provided socket is not QTcpSocket(or inherited from it)");
+    }
     service<IMessageBus>()->sendMessage(Bus::createMessage(Bus::SocketChanged));
   }
 
