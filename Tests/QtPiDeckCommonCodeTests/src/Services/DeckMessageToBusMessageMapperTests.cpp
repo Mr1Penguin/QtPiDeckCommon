@@ -11,7 +11,7 @@ using namespace QtPiDeck::Services;
 using namespace QtPiDeck::Network;
 
 CT_BOOST_AUTO_TEST_CASE(returnNulloptForUnknownType) {
-  const auto mapper = DeckMessageToBusMessageMapper{};
+  const auto mapper   = DeckMessageToBusMessageMapper{};
   constexpr auto type = MessageType::Reserved;
   CT_BOOST_TEST(mapper.getBusMessageType(type) == std::nullopt);
 }
@@ -25,11 +25,12 @@ CT_BOOST_AUTO_TEST_CASE(returnValueForKnownType) {
 template<bool hasValue>
 class derived final : public DeckMessageToBusMessageMapper {
 protected:
-  auto getType(MessageType /*type*/) const -> std::optional<decltype(QtPiDeck::Bus::Message::messageType)> final {
+  [[nodiscard]] auto getType(MessageType /*type*/) const
+      -> std::optional<decltype(QtPiDeck::Bus::Message::messageType)> final {
     if (hasValue) {
       return uint64_t{1};
     }
-    
+
     return std::nullopt;
   }
 };

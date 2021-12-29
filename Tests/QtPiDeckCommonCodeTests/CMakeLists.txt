@@ -12,6 +12,7 @@ add_executable(QtPiDeckCommonCodeTests
     src/Services/DeckMessageToBusMessageMapperTests.cpp
     src/Services/IocTests.cpp
     src/Services/MessageBusTests.cpp
+    src/Services/MessageSenderTests.cpp
     src/Utilities/ConnectionTests.cpp
     src/Utilities/LiteralTests.cpp
     src/Utilities/OnExitTests.cpp
