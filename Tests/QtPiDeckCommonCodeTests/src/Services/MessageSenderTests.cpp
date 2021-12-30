@@ -14,6 +14,7 @@ using namespace QtPiDeck::Utilities;
 namespace {
 class Socket : public QIODevice {
   Q_OBJECT // NOLINT
+protected:
   // QIODevice
   auto readData(char* /*data*/, qint64 /*maxlen*/) -> qint64 final { return qint64{}; }
   auto writeData(const char* /*data*/, qint64 /*len*/) -> qint64 final { return qint64{}; }
@@ -37,7 +38,7 @@ private:
 
 struct TestMessage final : public ISerializable, public Messages::Message {
   // Message
-  auto messageSize() const -> uint64_t final { return uint64_t{1}; }
+  auto messageSize() const -> uint64_t final { return uint64_t{2}; }
   auto messageHeader(const QString& requestId) const -> MessageHeader final {
 
     auto header        = MessageHeader{};
@@ -48,7 +49,7 @@ struct TestMessage final : public ISerializable, public Messages::Message {
   }
   // ISerializable
   void read(QDataStream& /*stream*/) final { throw std::logic_error("The method or operation is not implemented."); }
-  void write(QDataStream& stream) const final { stream << ';'; }
+  void write(QDataStream& stream) const final { stream << QChar{';'}; }
 };
 
 struct Fixture {
@@ -87,8 +88,8 @@ CT_BOOST_AUTO_TEST_CASE(shouldRequestWriteOfHeader) {
 }
 
 CT_BOOST_AUTO_TEST_CASE(shouldRequestWriteOfMessage) {
-  const auto message = TestMessage{};
-  constexpr auto headerSize = size_t{19};
+  const auto message        = TestMessage{};
+  constexpr auto headerSize = size_t{20};
   Fixture::messageSender().send(message, QStringLiteral("."));
   const auto& requestedWrites = Fixture::socketHolder().requestedWrites();
   CT_BOOST_TEST(requestedWrites.size() == 1);
