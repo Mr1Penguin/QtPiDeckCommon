@@ -15,8 +15,8 @@ namespace {
 class Socket : public QIODevice {
   Q_OBJECT // NOLINT
   // QIODevice
-  auto readData(char* data, qint64 maxlen) -> qint64 final { return qint64(); }
-  auto writeData(const char* data, qint64 len) -> qint64 final { return qint64(); }
+  auto readData(char* /*data*/, qint64 /*maxlen*/) -> qint64 final { return qint64{}; }
+  auto writeData(const char* /*data*/, qint64 /*len*/) -> qint64 final { return qint64{}; }
 };
 
 class SocketHolder final : public ISocketHolder {
@@ -27,8 +27,8 @@ public:
 
   // ISocketHolder
   void requestWrite(const QByteArray& data) final { m_requestedWrites.push_back(data.size()); }
-  void setSocket(QIODevice* socket) final {}
-  [[nodiscard]] auto socket() -> QIODevice* { return {}; }
+  void setSocket(QIODevice* /*socket*/) final {}
+  [[nodiscard]] auto socket() -> QIODevice* { throw std::logic_error("The method or operation is not implemented."); }
 
 private:
   Socket m_socket;
@@ -47,7 +47,7 @@ struct TestMessage final : public ISerializable, public Messages::Message {
     return header;
   }
   // ISerializable
-  void read(QDataStream& stream) final { throw std::logic_error("The method or operation is not implemented."); }
+  void read(QDataStream& /*stream*/) final { throw std::logic_error("The method or operation is not implemented."); }
   void write(QDataStream& stream) const final { stream << ';'; }
 };
 
@@ -84,7 +84,7 @@ CT_BOOST_AUTO_TEST_CASE(shouldRequestWriteOfHeader) {
   const auto& requestedWrites = Fixture::socketHolder().requestedWrites();
   CT_BOOST_TEST(requestedWrites.size() == 1);
   CT_BOOST_TEST(requestedWrites.front() == headerSize);
-};
+}
 
 CT_BOOST_AUTO_TEST_CASE(shouldRequestWriteOfMessage) {
   const auto message = TestMessage{};
@@ -93,7 +93,8 @@ CT_BOOST_AUTO_TEST_CASE(shouldRequestWriteOfMessage) {
   const auto& requestedWrites = Fixture::socketHolder().requestedWrites();
   CT_BOOST_TEST(requestedWrites.size() == 1);
   CT_BOOST_TEST(requestedWrites.front() == headerSize);
-};
+}
+
 CT_BOOST_AUTO_TEST_SUITE_END()
 
 #include "MessageSenderTests.moc"
