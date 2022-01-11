@@ -30,6 +30,14 @@ void MessageHeader::write(QDataStream& stream) const {
   stream << requestId;
 }
 
+auto MessageHeader::make(uint64_t dataSize, MessageType messageType, QString requestId) -> MessageHeader {
+  auto header        = MessageHeader{};
+  header.dataSize    = dataSize;
+  header.messageType = messageType;
+  header.requestId   = std::move(requestId);
+  return header;
+}
+
 #if (QT_VERSION == QTPI4_VERSION)
 auto operator>>(QDataStream& str, MessageType& messageType) noexcept -> QDataStream& {
   auto v = uint32_t{};

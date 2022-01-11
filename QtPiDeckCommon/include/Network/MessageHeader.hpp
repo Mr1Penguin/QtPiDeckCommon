@@ -33,6 +33,8 @@ struct QTPIDECKCOMMON_EXPORT MessageHeader final : public Utilities::ISerializab
   // ISerializable
   void read(QDataStream& stream) final;
   void write(QDataStream& stream) const final;
+
+  static auto make(uint64_t dataSize, MessageType messageType, QString requestId) -> MessageHeader;
 };
 
 #if (QT_VERSION == QTPI4_VERSION)

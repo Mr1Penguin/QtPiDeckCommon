@@ -22,14 +22,16 @@ protected:
 
 class SocketHolder final : public ISocketHolder {
 public:
-  auto requestedWrites() const -> const std::vector<decltype(std::declval<QByteArray>().size())>& {
+  [[nodiscard]] auto requestedWrites() const -> const std::vector<decltype(std::declval<QByteArray>().size())>& {
     return m_requestedWrites;
   }
 
   // ISocketHolder
   void requestWrite(const QByteArray& data) final { m_requestedWrites.push_back(data.size()); }
   void setSocket(QIODevice* /*socket*/) final {}
-  [[nodiscard]] auto socket() -> QIODevice* { throw std::logic_error("The method or operation is not implemented."); }
+  [[nodiscard]] auto socket() -> QIODevice* final {
+    throw std::logic_error("The method or operation is not implemented.");
+  }
 
 private:
   Socket m_socket;
@@ -38,8 +40,8 @@ private:
 
 struct TestMessage final : public ISerializable, public Messages::Message {
   // Message
-  auto messageSize() const -> uint64_t final { return uint64_t{2}; }
-  auto messageHeader(const QString& requestId) const -> MessageHeader final {
+  [[nodiscard]] auto messageSize() const -> uint64_t final { return uint64_t{2}; }
+  [[nodiscard]] auto messageHeader(const QString& requestId) const -> MessageHeader final {
 
     auto header        = MessageHeader{};
     header.dataSize    = 1;
@@ -54,7 +56,7 @@ struct TestMessage final : public ISerializable, public Messages::Message {
 
 struct Fixture {
 public:
-  Fixture() : m_messageSender(), m_ioc() {
+  Fixture() : m_messageSender() {
     m_ioc.registerSingleton<ISocketHolder>(std::make_shared<SocketHolder>());
     m_messageSender = m_ioc.make<MessageSender, CreationType::UniquePointer>();
   }
@@ -62,7 +64,7 @@ public:
 protected:
   [[nodiscard]] auto messageSender() -> MessageSender& { return *m_messageSender; }
   [[nodiscard]] auto socketHolder() const -> const SocketHolder& {
-    return *static_cast<SocketHolder*>(m_ioc.resolveService<ISocketHolder>().get());
+    return *dynamic_cast<SocketHolder*>(m_ioc.resolveService<ISocketHolder>().get());
   }
 
 private:
@@ -73,13 +75,7 @@ private:
 
 CT_BOOST_FIXTURE_TEST_SUITE(IocTests, Fixture)
 CT_BOOST_AUTO_TEST_CASE(shouldRequestWriteOfHeader) {
-  const auto header = []() -> MessageHeader {
-    auto res        = MessageHeader{};
-    res.dataSize    = 0;
-    res.messageType = MessageType::Dummy;
-    res.requestId   = QStringLiteral(".");
-    return res;
-  }();
+  const auto header         = MessageHeader::make(0, MessageType::Dummy, QStringLiteral("."));
   constexpr auto headerSize = size_t{18};
   Fixture::messageSender().send(header);
   const auto& requestedWrites = Fixture::socketHolder().requestedWrites();
