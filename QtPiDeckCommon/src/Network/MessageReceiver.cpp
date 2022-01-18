@@ -7,12 +7,13 @@
 #include "Network/Messages.hpp"
 #include "Utilities/ISerializable.hpp"
 #include "Utilities/OnExit.hpp"
+#include "Utilities/Traits.hpp"
 
-namespace QtPiDeck::Utilities {
+namespace QtPiDeck::Network {
 MessageReceiver::MessageReceiver(std::shared_ptr<Services::ISocketHolder> holder,
                                  std::shared_ptr<Services::IMessageBus> bus,
                                  std::shared_ptr<Services::IDeckMessageToBusMessageMapper> messageTypeMapper) {
-  initLogger(m_slg, "MessageReceiver");
+  Utilities::initLogger(m_slg, "MessageReceiver");
   connect(holder->socket(), &QTcpSocket::readyRead, this, &MessageReceiver::readData);
   setService(std::move(holder));
   setService(std::move(bus));
@@ -20,15 +21,12 @@ MessageReceiver::MessageReceiver(std::shared_ptr<Services::ISocketHolder> holder
 }
 
 namespace {
-template<class T>
-auto readObject(QIODevice& socket) -> std::optional<T> {
+auto readHeader(QIODevice& socket) -> std::optional<Network::MessageHeader> {
   auto inStream = Network::DeckDataStream{&socket};
-  static_assert(std::is_base_of_v<ISerializable, T>);
-  T object{};
-  auto& asSerializable = static_cast<ISerializable&>(object);
+  auto object   = Network::MessageHeader{};
 
   inStream.startTransaction();
-  asSerializable.read(inStream);
+  object.read(inStream);
   if (inStream.commitTransaction()) {
     return object;
   }
@@ -36,7 +34,24 @@ auto readObject(QIODevice& socket) -> std::optional<T> {
   return std::nullopt;
 }
 
-template<class TMessage>
+#if __cpp_concepts >= 201907L
+template<std::derived_from<Utilities::ISerializable> T>
+#else
+template<class T, std::enable_if_t<derived_from<Utilities::ISerializable, T>, bool> = true>
+#endif
+auto readObject(QIODevice& socket) -> T {
+  auto inStream = Network::DeckDataStream{&socket};
+  auto object   = T{};
+
+  static_cast<Utilities::ISerializable&>(object).read(inStream);
+  return object;
+}
+
+#if __cpp_concepts >= 201907L
+template<std::derived_from<Utilities::ISerializable> TMessage>
+#else
+template<class TMessage, std::enable_if_t<derived_from<Utilities::ISerializable, TMessage>, bool> = true>
+#endif
 auto repack(QIODevice& socket, std::size_t dataSize) -> QByteArray {
   auto payload = QByteArray{};
   if (dataSize) {
@@ -51,7 +66,7 @@ auto repack(QIODevice& socket, std::size_t dataSize) -> QByteArray {
 
   const auto message = readObject<TMessage>(socket);
   auto stream        = QDataStream{&payload, QIODevice::WriteOnly};
-  message->write(stream);
+  message.write(stream);
   return payload;
 }
 
@@ -63,7 +78,7 @@ const std::unordered_map<Network::MessageType, repackSignature> repackMap = {
 
 void MessageReceiver::readData() {
   auto* socket       = service<Services::ISocketHolder>()->socket();
-  const auto& header = m_savedHeader.has_value() ? m_savedHeader : readObject<Network::MessageHeader>(*socket);
+  const auto& header = m_savedHeader.has_value() ? m_savedHeader : readHeader(*socket);
   if (!header.has_value()) {
     return;
   }
@@ -80,14 +95,13 @@ void MessageReceiver::readData() {
       return;
     }
 
-    auto guard = OnExit([this] { m_savedHeader.reset(); });
+    auto guard = Utilities::OnExit([this] { m_savedHeader.reset(); });
 
     try {
       payload = repackMap.at(header->messageType)(*socket, header->dataSize);
     } catch (const std::out_of_range& /*e*/) {
       BOOST_LOG_SEV(m_slg, Utilities::severity::error)
-          << "Unable to process " << Network::messageTypeNames.at(static_cast<std::size_t>(header->messageType))
-          << " message. Skipping message.";
+          << "Unable to process " << getMessageTypeNane(header->messageType) << " message. Skipping message.";
 
       // send ERROR as response?
       return;

@@ -2,6 +2,7 @@
 
 #include "Network/MessageHeader.hpp"
 #include "Network/Messages/Message.hpp"
+#include "QStringLiteral.hpp"
 #include "Services/ISocketHolder.hpp"
 #include "Services/Ioc.hpp"
 #include "Services/MessageSender.hpp"
@@ -75,7 +76,7 @@ private:
 
 CT_BOOST_FIXTURE_TEST_SUITE(IocTests, Fixture)
 CT_BOOST_AUTO_TEST_CASE(shouldRequestWriteOfHeader) {
-  const auto header         = MessageHeader::make(0, MessageType::Dummy, QStringLiteral("."));
+  const auto header         = MessageHeader::make(0, MessageType::Dummy, CT_QStringLiteral("."));
   constexpr auto headerSize = size_t{18};
   Fixture::messageSender().send(header);
   const auto& requestedWrites = Fixture::socketHolder().requestedWrites();

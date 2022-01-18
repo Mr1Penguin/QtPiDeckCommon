@@ -25,6 +25,10 @@ enum class MessageType : uint32_t {
 constexpr inline std::array messageTypeNames = {"Dummy",           "Ping", "Pong", "Hello", "AcceptConnection",
                                                 "RejectConnection"};
 
+constexpr inline auto getMessageTypeNane(MessageType type) -> const char* {
+  return messageTypeNames.at(static_cast<uint32_t>(type));
+}
+
 struct QTPIDECKCOMMON_EXPORT MessageHeader final : public Utilities::ISerializable {
   uint64_t dataSize;
   MessageType messageType;

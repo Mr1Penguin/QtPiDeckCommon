@@ -3,6 +3,12 @@
 #include <type_traits>
 
 namespace QtPiDeck::Utilities {
+#if __cpp_concepts < 201907L
+template<class Derived, class Base>
+using derived_from =
+    std::is_base_of_v<Base, Derived>&& std::is_convertible_v<const volatile Derived*, const volatile Base*>;
+#endif
+
 template<class ViewModel>
 class ViewModelTraits {
 private:

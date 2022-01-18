@@ -11,10 +11,13 @@
 #include "Services/UseServices.hpp"
 #include "Utilities/Logging.hpp"
 
-namespace QtPiDeck::Utilities {
-class MessageReceiver : public QObject,
-                        public Services::UseServices<Services::ISocketHolder, Services::IMessageBus,
-                                                     Services::IDeckMessageToBusMessageMapper> {
+#include "QtPiDeckCommon_global.hpp"
+
+namespace QtPiDeck::Network {
+class QTPIDECKCOMMON_EXPORT MessageReceiver
+    : public QObject,
+      public Services::UseServices<Services::ISocketHolder, Services::IMessageBus,
+                                   Services::IDeckMessageToBusMessageMapper> {
   Q_OBJECT // NOLINT
 public:
   MessageReceiver(std::shared_ptr<Services::ISocketHolder> holder, std::shared_ptr<Services::IMessageBus> bus,
