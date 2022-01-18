@@ -1,7 +1,6 @@
 #include "Network/MessageHeader.hpp"
 
 namespace QtPiDeck::Network {
-
 template<class TNum>
 using addOverload = std::enable_if_t<std::is_same_v<TNum, uint64_t> && !std::is_same_v<quint64, uint64_t>>;
 
@@ -19,23 +18,29 @@ auto operator>>(QDataStream& str, TNum& number) noexcept -> QDataStream& {
   return str;
 }
 
-auto operator<<(QDataStream& str, const MessageHeader& header) noexcept -> QDataStream& {
-  str << header.dataSize;
-  str << header.messageType;
-  str << header.requestId;
-  return str;
+void MessageHeader::read(QDataStream& stream) {
+  stream >> dataSize;
+  stream >> messageType;
+  stream >> requestId;
 }
 
-auto operator>>(QDataStream& str, MessageHeader& header) noexcept -> QDataStream& {
-  str >> header.dataSize;
-  str >> header.messageType;
-  str >> header.requestId;
-  return str;
+void MessageHeader::write(QDataStream& stream) const {
+  stream << dataSize;
+  stream << messageType;
+  stream << requestId;
+}
+
+auto MessageHeader::make(uint64_t dataSize, MessageType messageType, QString requestId) -> MessageHeader {
+  auto header        = MessageHeader{};
+  header.dataSize    = dataSize;
+  header.messageType = messageType;
+  header.requestId   = std::move(requestId);
+  return header;
 }
 
 #if (QT_VERSION == QTPI4_VERSION)
 auto operator>>(QDataStream& str, MessageType& messageType) noexcept -> QDataStream& {
-  uint32_t v;
+  auto v = uint32_t{};
   str >> v;
   messageType = static_cast<MessageType>(v);
   return str;

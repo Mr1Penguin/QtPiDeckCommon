@@ -7,14 +7,10 @@
 #include "QtDefinitions.hpp"
 #include "QtVersion.hpp"
 
-namespace QtPiDeck::Network {
-auto operator<<(std::ostream& ostr, const MessageType& right) -> std::ostream&;
-inline namespace Messages {
-auto operator<<(std::ostream& ostr, const Hello& right) -> std::ostream& {
-  ostr << "Hello{ interfaceVersion: " << right.interfaceVersion << ", qcharSize: " << right.qcharSize << " }";
-  return ostr;
-}
+#include "printers.hpp"
 
+namespace QtPiDeck::Network {
+inline namespace Messages {
 auto operator==(const QtPiDeck::Network::Hello& left, const QtPiDeck::Network::Hello& right) -> bool {
   return left.interfaceVersion == right.interfaceVersion && left.qcharSize == right.qcharSize;
 }
@@ -29,8 +25,10 @@ CT_BOOST_AUTO_TEST_CASE(shouldBeSerializedAndDeserialized) {
   auto qba                = QByteArray{};
   auto in                 = QDataStream{&qba, DeckDataStream::OpenModeFlag::WriteOnly};
   in << helloMessage;
-  auto out        = QDataStream{&qba, DeckDataStream::OpenModeFlag::ReadOnly};
-  auto outMessage = Messages::Hello{0, 0};
+  auto out                    = QDataStream{&qba, DeckDataStream::OpenModeFlag::ReadOnly};
+  auto outMessage             = Messages::Hello{};
+  outMessage.interfaceVersion = 0;
+  outMessage.qcharSize        = 0;
   out >> outMessage;
   CT_BOOST_TEST(outMessage == helloMessage);
 }

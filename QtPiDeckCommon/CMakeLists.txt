@@ -11,26 +11,39 @@ add_library(QtPiDeckCommon SHARED
   src/Services/Ioc.cpp
   src/Services/MessageBus.cpp
   src/Services/ServiceInterface.cpp
+  src/Services/MessageSender.cpp
   src/Utilities/Logging.cpp
+  src/Network/MessageReceiver.cpp
   src/ViewModels/CommandViewModel.cpp
   include/Application.hpp
   include/Application.inl
   include/QtPiDeckCommon.hpp
   include/QtPiDeckCommon_global.hpp
+  include/Bus/Message.hpp
+  include/Bus/CommonMessageIds.hpp
   include/Network/DeckDataStream.hpp
   include/Network/MessageHeader.hpp
   include/Network/Messages/HelloMessage.hpp
   include/Services/IMessageBus.hpp
   include/Services/Ioc.hpp
   include/Services/ISettingsStorage.hpp
+  include/Services/ISocketHolder.hpp
+  include/Services/IMessageSender.hpp
+  include/Services/IDeckMessageToBusMessageMapper.hpp
+  include/Services/DeckMessageToBusMessageMapper.hpp
   include/Services/MessageBus.hpp
   include/Services/ServiceInterface.hpp
+  include/Services/MessageSender.hpp
   include/Services/UseServices.hpp
+  include/Services/SocketHolder.hpp
+  include/Network/Messages/Message.hpp
+  include/Network/Messages.hpp
+  include/Utilities/ISerializable.hpp
   include/Utilities/Logging.hpp
   include/Utilities/Literals.hpp
   include/Utilities/Connection.hpp
-  include/Utilities/MessageUtils.hpp
   include/Utilities/OnExit.hpp
+  include/Network/MessageReceiver.hpp
   include/Utilities/QmlHelper.hpp
   include/Utilities/QmlHelperDetail.hpp
   include/Utilities/Traits.hpp

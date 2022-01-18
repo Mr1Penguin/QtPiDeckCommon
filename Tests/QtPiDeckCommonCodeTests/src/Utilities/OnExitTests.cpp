@@ -4,7 +4,7 @@
 
 #include "Utilities/OnExit.hpp"
 
-CT_BOOST_AUTO_TEST_SUITE(ConnectionTests)
+CT_BOOST_AUTO_TEST_SUITE(OnExitTests)
 
 using namespace QtPiDeck::Utilities;
 
