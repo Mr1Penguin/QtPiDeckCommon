@@ -87,7 +87,7 @@ CT_BOOST_AUTO_TEST_CASE(shouldRequestWriteOfHeader) {
 CT_BOOST_AUTO_TEST_CASE(shouldRequestWriteOfMessage) {
   const auto message        = TestMessage{};
   constexpr auto headerSize = size_t{20};
-  Fixture::messageSender().send(message, QStringLiteral("."));
+  Fixture::messageSender().send(message, CT_QStringLiteral("."));
   const auto& requestedWrites = Fixture::socketHolder().requestedWrites();
   CT_BOOST_TEST(requestedWrites.size() == 1);
   CT_BOOST_TEST(requestedWrites.front() == headerSize);
