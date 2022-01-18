@@ -37,7 +37,7 @@ auto readHeader(QIODevice& socket) -> std::optional<Network::MessageHeader> {
 #if __cpp_concepts >= 201907L
 template<std::derived_from<Utilities::ISerializable> T>
 #else
-template<class T, std::enable_if_t<derived_from<Utilities::ISerializable, T>, bool> = true>
+template<class T, std::enable_if_t<Utilities::derived_from<Utilities::ISerializable, T>, bool> = true>
 #endif
 auto readObject(QIODevice& socket) -> T {
   auto inStream = Network::DeckDataStream{&socket};
@@ -50,7 +50,7 @@ auto readObject(QIODevice& socket) -> T {
 #if __cpp_concepts >= 201907L
 template<std::derived_from<Utilities::ISerializable> TMessage>
 #else
-template<class TMessage, std::enable_if_t<derived_from<Utilities::ISerializable, TMessage>, bool> = true>
+template<class TMessage, std::enable_if_t<Utilities::derived_from<Utilities::ISerializable, TMessage>, bool> = true>
 #endif
 auto repack(QIODevice& socket, std::size_t dataSize) -> QByteArray {
   auto payload = QByteArray{};
