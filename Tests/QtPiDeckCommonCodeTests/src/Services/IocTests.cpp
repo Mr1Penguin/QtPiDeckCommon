@@ -588,6 +588,12 @@ public:
   }
 };
 
+auto operator<<(std::ostream& ostr, const std::unique_ptr<ClassWithTwoDependenciesConstructor>& right)
+    -> std::ostream& {
+  ostr << "ClassWithTwoDependenciesConstructorTuple {" << right.get() << "}";
+  return ostr;
+}
+
 CT_BOOST_AUTO_TEST_CASE(make_unique_pointer_with_two_dependencies_constructor_tuple) {
   ioc->registerService<Interface0, Implementation0>();
   ioc->registerService<Interface1, Implementation1>();
