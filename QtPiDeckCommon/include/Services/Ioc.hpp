@@ -124,8 +124,12 @@ private:
   auto makeWithDependencies(Services::UseServices<TDeps...>* /*deductor*/, void* memory = nullptr) const noexcept {
     if constexpr (std::is_constructible_v<TImplementation, std::shared_ptr<TDeps>...>) {
       return createImpl<TImplementation, creationType>(memory, resolveService<TDeps>()...);
+    } else if constexpr (std::is_constructible_v<TImplementation, std::tuple<std::shared_ptr<TDeps>...>>) {
+      return createImpl<TImplementation, creationType>(memory, std::make_tuple(resolveService<TDeps>()...));
     } else if constexpr (std::is_constructible_v<TImplementation, QObject*, std::shared_ptr<TDeps>...>) {
       return createImpl<TImplementation, creationType>(memory, nullptr, resolveService<TDeps>()...);
+    } else if constexpr (std::is_constructible_v<TImplementation, QObject*, std::tuple<std::shared_ptr<TDeps>...>>) {
+      return createImpl<TImplementation, creationType>(memory, nullptr, std::make_tuple(resolveService<TDeps>()...));
     } else {
       auto p = createImpl<TImplementation, creationType>(memory); // NOLINT(readability-qualified-auto)
       if constexpr (creationType == CreationType::Copy) {
