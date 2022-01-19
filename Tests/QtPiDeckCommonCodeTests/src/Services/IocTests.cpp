@@ -576,6 +576,35 @@ CT_BOOST_AUTO_TEST_CASE(make_raw_with_nested_dependencies_constructor) {
   CT_BOOST_TEST(dynamic_cast<Implementation0*>(castedInterface->ResolvedService<Interface0>().get()) != nullptr);
 }
 
+class ClassWithTwoDependenciesConstructorTuple : public UseServices<Interface0, Interface1> {
+public:
+  ClassWithTwoDependenciesConstructorTuple(dependency_list list) {
+    setServices(std::move(list));
+  }
+
+  template<class TInterface>
+  auto getInterface() -> std::shared_ptr<TInterface> {
+    return service<TInterface>();
+  }
+};
+
+auto operator<<(std::ostream& ostr, const std::unique_ptr<ClassWithTwoDependenciesConstructorTuple>& right)
+    -> std::ostream& {
+  ostr << "ClassWithTwoDependenciesConstructorTuple {" << right.get() << "}";
+  return ostr;
+}
+
+CT_BOOST_AUTO_TEST_CASE(make_unique_pointer_with_two_dependencies_constructor_tuple) {
+  ioc->registerService<Interface0, Implementation0>();
+  ioc->registerService<Interface1, Implementation1>();
+  auto result = ioc->make<ClassWithTwoDependenciesConstructorTuple, CreationType::UniquePointer>();
+  CT_BOOST_TEST(result != nullptr);
+  CT_BOOST_TEST(result->getInterface<Interface0>() != nullptr);
+  CT_BOOST_TEST(result->getInterface<Interface1>() != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation0*>(result->getInterface<Interface0>().get()) != nullptr);
+  CT_BOOST_TEST(dynamic_cast<Implementation1*>(result->getInterface<Interface1>().get()) != nullptr);
+}
+
 CT_BOOST_AUTO_TEST_SUITE_END()
 
 //#include "IocTests.moc"
