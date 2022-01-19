@@ -588,7 +588,7 @@ public:
   }
 };
 
-auto operator<<(std::ostream& ostr, const std::unique_ptr<ClassWithTwoDependenciesConstructor>& right)
+auto operator<<(std::ostream& ostr, const std::unique_ptr<ClassWithTwoDependenciesConstructorTuple>& right)
     -> std::ostream& {
   ostr << "ClassWithTwoDependenciesConstructorTuple {" << right.get() << "}";
   return ostr;
