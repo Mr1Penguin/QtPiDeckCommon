@@ -25,7 +25,7 @@ enum class MessageType : uint32_t {
 constexpr inline std::array messageTypeNames = {"Dummy",           "Ping", "Pong", "Hello", "AcceptConnection",
                                                 "RejectConnection"};
 
-constexpr inline auto getMessageTypeNane(MessageType type) -> const char* {
+constexpr inline auto getMessageTypeName(MessageType type) -> const char* {
   return messageTypeNames.at(static_cast<uint32_t>(type));
 }
 
