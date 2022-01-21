@@ -101,7 +101,7 @@ void MessageReceiver::readData() {
       payload = repackMap.at(header->messageType)(*socket, header->dataSize);
     } catch (const std::out_of_range& /*e*/) {
       BOOST_LOG_SEV(m_slg, Utilities::severity::error)
-          << "Unable to process " << getMessageTypeNane(header->messageType) << " message. Skipping message.";
+          << "Unable to process " << getMessageTypeName(header->messageType) << " message. Skipping message.";
 
       // send ERROR as response?
       return;

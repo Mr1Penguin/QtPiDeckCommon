@@ -29,6 +29,15 @@ CT_BOOST_AUTO_TEST_CASE(shouldBeSerializedAndDeserialized) {
   CT_BOOST_TEST(outMessageHeader == messageHeader);
 }
 
+CT_BOOST_AUTO_TEST_CASE(shouldGetNameForKnownMessageType) {
+  constexpr auto v = getMessageTypeName(MessageType::Dummy);
+  CT_BOOST_TEST(v != nullptr);
+}
+
+CT_BOOST_AUTO_TEST_CASE(shouldThrowForUnknownMessageType) {
+  CT_BOOST_CHECK_THROW(getMessageTypeName(MessageType::Reserved), std::out_of_range);
+}
+
 CT_BOOST_AUTO_TEST_SUITE_END()
 
 //#include "MessageHeaderTests.moc"
