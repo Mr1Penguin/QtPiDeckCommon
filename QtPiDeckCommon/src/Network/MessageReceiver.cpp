@@ -10,14 +10,10 @@
 #include "Utilities/Traits.hpp"
 
 namespace QtPiDeck::Network {
-MessageReceiver::MessageReceiver(std::shared_ptr<Services::ISocketHolder> holder,
-                                 std::shared_ptr<Services::IMessageBus> bus,
-                                 std::shared_ptr<Services::IDeckMessageToBusMessageMapper> messageTypeMapper) {
+MessageReceiver::MessageReceiver(dependency_list dependencies) {
   Utilities::initLogger(m_slg, "MessageReceiver");
-  connect(holder->socket(), &QTcpSocket::readyRead, this, &MessageReceiver::readData);
-  setService(std::move(holder));
-  setService(std::move(bus));
-  setService(std::move(messageTypeMapper));
+  connect(service<Services::ISocketHolder>(dependencies)->socket(), &QTcpSocket::readyRead, this, &MessageReceiver::readData);
+  setServices(std::move(dependencies));
 }
 
 namespace {

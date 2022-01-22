@@ -35,7 +35,7 @@ private:
 };
 
 CT_BOOST_AUTO_TEST_CASE(ShouldCreateObject) {
-  const auto receiver = MessageReceiver{std::make_shared<SocketHolder>(), nullptr, nullptr};
+  const auto receiver = MessageReceiver{{std::make_shared<SocketHolder>(), nullptr, nullptr}};
 }
 
 CT_BOOST_AUTO_TEST_SUITE_END()
