@@ -67,7 +67,7 @@ CT_BOOST_AUTO_TEST_CASE(shouldHandleEmptyData) {
 class ReadableDeviceHeaderPart : public ReadableDevice {
 public:
   // QIODevice
-  auto readData(char* data, qint64 maxlen) -> qint64 final {
+  auto readData(char* data, qint64 /*maxlen*/) -> qint64 final {
     static auto state = State::DATA_SIZE;
     switch (state) {
     case State::DATA_SIZE: {
@@ -76,9 +76,9 @@ public:
       state          = State::END;
       return sizeof(*dataSize);
     }
+    default:
+      return 0;
     }
-
-    return 0;
   }
 
 private:
