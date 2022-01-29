@@ -1,6 +1,10 @@
 #include "BoostUnitTest.hpp"
 
+#include <QBuffer>
+
+#include "Network/DeckDataStream.hpp"
 #include "Network/MessageReceiver.hpp"
+#include "QStringLiteral.hpp"
 #include "Services/ISocketHolder.hpp"
 
 CT_BOOST_AUTO_TEST_SUITE(MessageReceiverTests)
@@ -67,26 +71,63 @@ CT_BOOST_AUTO_TEST_CASE(shouldHandleEmptyData) {
 class ReadableDeviceHeaderPart : public ReadableDevice {
 public:
   // QIODevice
-  auto readData(char* data, qint64 /*maxlen*/) -> qint64 final {
-    static auto state = State::DATA_SIZE;
-    switch (state) {
-    case State::DATA_SIZE: {
-      auto* dataSize = reinterpret_cast<uint64_t*>(data);
-      *dataSize      = 36;
-      state          = State::END;
-      return sizeof(*dataSize);
+  auto readData(char* data, qint64 maxlen) -> qint64 final {
+    static auto state = State::DATA;
+    if (state == State::DATA) {
+      constexpr auto value = uint64_t{36};
+      auto buffer                           = QByteArray{};
+      buffer.reserve(maxlen);
+      auto stream = QDataStream{&buffer, QIODevice::WriteOnly};
+      stream << value;
+      auto* src            = buffer.data();
+      constexpr auto bytes = sizeof(uint64_t);
+      memcpy(data, src, bytes);
+      state = State::END;
+      return bytes;
     }
-    default:
-      return 0;
-    }
+
+    return 0;
   }
 
 private:
-  enum class State { DATA_SIZE, END };
+  enum class State { DATA, END };
 };
 
 CT_BOOST_AUTO_TEST_CASE(shouldHandleHeaderPart) {
   auto holder         = std::make_shared<ReadableSocketHolder<ReadableDeviceHeaderPart>>();
+  const auto receiver = MessageReceiver{{holder, nullptr, nullptr}};
+  auto* device        = qobject_cast<ReadableDevice*>(holder->socket());
+
+  device->emitReadyRead();
+}
+
+class ReadableDeviceHeader : public ReadableDevice {
+public:
+  // QIODevice
+  auto readData(char* data, qint64 maxlen) -> qint64 final {
+    static auto state = State::DATA;
+    if (state == State::DATA) {
+      constexpr auto value = uint64_t{36};
+      auto buffer                           = QByteArray{};
+      buffer.reserve(maxlen);
+      auto stream = QDataStream{&buffer, QIODevice::WriteOnly};
+      stream << value << MessageType::Dummy << CT_QStringLiteral("ID");
+      auto* src            = buffer.data();
+      constexpr auto bytes = sizeof(uint64_t) + sizeof(MessageType) + 4 + 4;
+      memcpy(data, src, bytes);
+      state = State::END;
+      return bytes;
+    }
+
+    return 0;
+  }
+
+private:
+  enum class State { DATA, END };
+};
+
+CT_BOOST_AUTO_TEST_CASE(shouldHandleHeader) {
+  auto holder         = std::make_shared<ReadableSocketHolder<ReadableDeviceHeader>>();
   const auto receiver = MessageReceiver{{holder, nullptr, nullptr}};
   auto* device        = qobject_cast<ReadableDevice*>(holder->socket());
 
