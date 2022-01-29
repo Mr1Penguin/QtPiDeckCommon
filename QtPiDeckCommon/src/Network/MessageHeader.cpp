@@ -1,23 +1,6 @@
 #include "Network/MessageHeader.hpp"
 
 namespace QtPiDeck::Network {
-template<class TNum>
-using addOverload = std::enable_if_t<std::is_same_v<TNum, uint64_t> && !std::is_same_v<quint64, uint64_t>>;
-
-template<class TNum, typename = addOverload<TNum>>
-auto operator<<(QDataStream& str, const TNum& number) noexcept -> QDataStream& {
-  str << static_cast<quint64>(number);
-  return str;
-}
-
-template<class TNum, typename = addOverload<TNum>>
-auto operator>>(QDataStream& str, TNum& number) noexcept -> QDataStream& {
-  quint64 tmp{};
-  str >> tmp;
-  number = static_cast<uint64_t>(tmp);
-  return str;
-}
-
 void MessageHeader::read(QDataStream& stream) {
   stream >> dataSize;
   stream >> messageType;
