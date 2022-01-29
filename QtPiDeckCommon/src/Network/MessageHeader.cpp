@@ -1,5 +1,7 @@
 #include "Network/MessageHeader.hpp"
 
+#include "Network/DeckDataStream.hpp"
+
 namespace QtPiDeck::Network {
 void MessageHeader::read(QDataStream& stream) {
   stream >> dataSize;
