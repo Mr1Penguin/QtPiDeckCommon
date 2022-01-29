@@ -75,9 +75,9 @@ public:
     static auto state = State::DATA;
     if (state == State::DATA) {
       constexpr auto value = uint64_t{36};
-      auto buffer                           = QByteArray{};
+      auto buffer          = QByteArray{};
       buffer.reserve(maxlen);
-      auto stream = QDataStream{&buffer, QIODevice::WriteOnly};
+      auto stream = DeckDataStream{&buffer, QIODevice::WriteOnly};
       stream << value;
       auto* src            = buffer.data();
       constexpr auto bytes = sizeof(uint64_t);
@@ -108,9 +108,9 @@ public:
     static auto state = State::DATA;
     if (state == State::DATA) {
       constexpr auto value = uint64_t{36};
-      auto buffer                           = QByteArray{};
+      auto buffer          = QByteArray{};
       buffer.reserve(maxlen);
-      auto stream = QDataStream{&buffer, QIODevice::WriteOnly};
+      auto stream = DeckDataStream{&buffer, QIODevice::WriteOnly};
       stream << value << MessageType::Dummy << CT_QStringLiteral("ID");
       auto* src            = buffer.data();
       constexpr auto bytes = sizeof(uint64_t) + sizeof(MessageType) + 4 + 4;
