@@ -9,6 +9,7 @@
 
 CT_BOOST_AUTO_TEST_SUITE(MessageReceiverTests)
 
+using namespace QtPiDeck::Bus;
 using namespace QtPiDeck::Network;
 using namespace QtPiDeck::Services;
 
@@ -76,7 +77,7 @@ public:
     if (state == State::DATA) {
       constexpr auto value = uint64_t{36};
       auto buffer          = QByteArray{};
-      buffer.reserve(maxlen);
+      buffer.reserve(static_cast<int>(maxlen));
       auto stream = DeckDataStream{&buffer, QIODevice::WriteOnly};
       stream << value;
       auto* src            = buffer.data();
@@ -101,15 +102,15 @@ CT_BOOST_AUTO_TEST_CASE(shouldHandleHeaderPart) {
   device->emitReadyRead();
 }
 
-class ReadableDeviceHeader : public ReadableDevice {
+class ReadableDeviceHeaderZeroPayload : public ReadableDevice {
 public:
   // QIODevice
   auto readData(char* data, qint64 maxlen) -> qint64 final {
     static auto state = State::DATA;
     if (state == State::DATA) {
-      constexpr auto value = uint64_t{36};
+      constexpr auto value = uint64_t{0};
       auto buffer          = QByteArray{};
-      buffer.reserve(maxlen);
+      buffer.reserve(static_cast<int>(maxlen));
       auto stream = DeckDataStream{&buffer, QIODevice::WriteOnly};
       stream << value << MessageType::Dummy << CT_QStringLiteral("ID");
       auto* src            = buffer.data();
@@ -126,9 +127,17 @@ private:
   enum class State { DATA, END };
 };
 
-CT_BOOST_AUTO_TEST_CASE(shouldHandleHeader) {
-  auto holder         = std::make_shared<ReadableSocketHolder<ReadableDeviceHeader>>();
-  const auto receiver = MessageReceiver{{holder, nullptr, nullptr}};
+class NoMapMapper final : public IDeckMessageToBusMessageMapper {
+public:
+  // IDeckMessageToBusMessageMapper
+  auto getBusMessageType(MessageType) const -> std::optional<decltype(Message::messageType)> final {
+    return std::nullopt;
+  }
+};
+
+CT_BOOST_AUTO_TEST_CASE(shouldHandleHeaderZeroPayloadNoMapped) {
+  auto holder         = std::make_shared<ReadableSocketHolder<ReadableDeviceHeaderZeroPayload>>();
+  const auto receiver = MessageReceiver{{holder, nullptr, std::make_shared<NoMapMapper>()}};
   auto* device        = qobject_cast<ReadableDevice*>(holder->socket());
 
   device->emitReadyRead();
