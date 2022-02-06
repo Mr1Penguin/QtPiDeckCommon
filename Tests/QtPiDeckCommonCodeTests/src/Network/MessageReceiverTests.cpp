@@ -12,6 +12,7 @@ CT_BOOST_AUTO_TEST_SUITE(MessageReceiverTests)
 using namespace QtPiDeck::Bus;
 using namespace QtPiDeck::Network;
 using namespace QtPiDeck::Services;
+using namespace QtPiDeck::Utilities;
 
 class Device : public QIODevice {
   Q_OBJECT // NOLINT
@@ -106,8 +107,7 @@ class ReadableDeviceHeaderZeroPayload : public ReadableDevice {
 public:
   // QIODevice
   auto readData(char* data, qint64 maxlen) -> qint64 final {
-    static auto state = State::DATA;
-    if (state == State::DATA) {
+    if (m_state == State::DATA) {
       constexpr auto value = uint64_t{0};
       auto buffer          = QByteArray{};
       buffer.reserve(static_cast<int>(maxlen));
@@ -116,7 +116,7 @@ public:
       auto* src            = buffer.data();
       constexpr auto bytes = sizeof(uint64_t) + sizeof(MessageType) + 4 + 4;
       memcpy(data, src, bytes);
-      state = State::END;
+      m_state = State::END;
       return bytes;
     }
 
@@ -125,12 +125,14 @@ public:
 
 private:
   enum class State { DATA, END };
+  State m_state = State::DATA;
 };
 
 class NoMapMapper final : public IDeckMessageToBusMessageMapper {
 public:
   // IDeckMessageToBusMessageMapper
-  auto getBusMessageType(MessageType) const -> std::optional<decltype(Message::messageType)> final {
+  [[nodiscard]] auto getBusMessageType(MessageType /*messageType*/) const
+      -> std::optional<decltype(Message::messageType)> final {
     return std::nullopt;
   }
 };
@@ -141,6 +143,51 @@ CT_BOOST_AUTO_TEST_CASE(shouldHandleHeaderZeroPayloadNoMapped) {
   auto* device        = qobject_cast<ReadableDevice*>(holder->socket());
 
   device->emitReadyRead();
+}
+
+class Mapper final : public IDeckMessageToBusMessageMapper {
+public:
+  // IDeckMessageToBusMessageMapper
+  [[nodiscard]] auto getBusMessageType(MessageType /*messageType*/) const
+      -> std::optional<decltype(Message::messageType)> final {
+    return expectedType;
+  }
+
+  static constexpr decltype(Message::messageType) expectedType = 10;
+};
+
+class MessageBus final : public IMessageBus {
+public:
+  // IMessageBus
+  [[nodiscard]] auto subscribe(QObject* context, const std::function<void(const Message&)>& method) noexcept
+      -> Connection final {
+    return {};
+  }
+  [[nodiscard]] auto subscribe(QObject* context, const std::function<void(const Message&)>& method,
+                               uint64_t messageType) noexcept -> Connection final {
+    return {};
+  }
+  void unsubscribe(Connection&) noexcept final {}
+  void sendMessage(Message message) noexcept final { m_lastMessage = message; }
+
+  [[nodiscard]] auto getLastMessage() -> Message const { return m_lastMessage; }
+
+private:
+  Message m_lastMessage;
+};
+
+CT_BOOST_AUTO_TEST_CASE(shouldHandleHeaderZeroPayloadMapped) {
+  auto holder         = std::make_shared<ReadableSocketHolder<ReadableDeviceHeaderZeroPayload>>();
+  auto bus            = std::make_shared<MessageBus>();
+  const auto receiver = MessageReceiver{{holder, bus, std::make_shared<Mapper>()}};
+  auto* device        = qobject_cast<ReadableDevice*>(holder->socket());
+
+  device->emitReadyRead();
+
+  const auto lastMessage = bus->getLastMessage();
+
+  CT_BOOST_TEST(lastMessage.payload.isEmpty());
+  CT_BOOST_TEST(lastMessage.messageType == Mapper::expectedType);
 }
 
 CT_BOOST_AUTO_TEST_SUITE_END()

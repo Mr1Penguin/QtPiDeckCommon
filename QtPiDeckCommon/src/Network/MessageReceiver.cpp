@@ -12,7 +12,8 @@
 namespace QtPiDeck::Network {
 MessageReceiver::MessageReceiver(dependency_list dependencies) {
   Utilities::initLogger(m_slg, "MessageReceiver");
-  connect(service<Services::ISocketHolder>(dependencies)->socket(), &QTcpSocket::readyRead, this, &MessageReceiver::readData);
+  connect(service<Services::ISocketHolder>(dependencies)->socket(), &QTcpSocket::readyRead, this,
+          &MessageReceiver::readData);
   setServices(std::move(dependencies));
 }
 
@@ -110,8 +111,8 @@ void MessageReceiver::readData() {
     return;
   }
 
-  const auto busMessage = hasPayload ? Bus::createMessage(*busMessageType, header->messageType, payload)
-                                     : Bus::createMessage(*busMessageType, header->messageType);
+  const auto busMessage =
+      hasPayload ? Bus::createMessage(*busMessageType, payload) : Bus::createMessage(*busMessageType);
 
   service<Services::IMessageBus>()->sendMessage(busMessage);
 }
