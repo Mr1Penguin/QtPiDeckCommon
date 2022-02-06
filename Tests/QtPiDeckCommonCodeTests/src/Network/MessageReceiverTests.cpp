@@ -159,15 +159,15 @@ public:
 class MessageBus final : public IMessageBus {
 public:
   // IMessageBus
-  [[nodiscard]] auto subscribe(QObject* context, const std::function<void(const Message&)>& method) noexcept
+  [[nodiscard]] auto subscribe(QObject* /*context*/, const std::function<void(const Message&)>& /*method*/) noexcept
       -> Connection final {
     return {};
   }
-  [[nodiscard]] auto subscribe(QObject* context, const std::function<void(const Message&)>& method,
-                               uint64_t messageType) noexcept -> Connection final {
+  [[nodiscard]] auto subscribe(QObject* /*context*/, const std::function<void(const Message&)>& /*method*/,
+                               uint64_t /*messageType*/) noexcept -> Connection final {
     return {};
   }
-  void unsubscribe(Connection&) noexcept final {}
+  void unsubscribe(Connection& /*connection*/) noexcept final {}
   void sendMessage(Message message) noexcept final { m_lastMessage = message; }
 
   [[nodiscard]] auto getLastMessage() -> Message const { return m_lastMessage; }
