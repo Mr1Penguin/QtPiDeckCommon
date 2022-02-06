@@ -84,7 +84,9 @@ void MessageReceiver::readData() {
   const auto hasPayload = header->dataSize > 0;
 
   if (hasPayload) {
-    if (socket->bytesAvailable() < qint64{0} || static_cast<quint64>(socket->bytesAvailable()) < header->dataSize) {
+
+    if (const auto bytesAvaliable = socket->bytesAvailable();
+        bytesAvaliable < qint64{0} || static_cast<quint64>(bytesAvaliable) < header->dataSize) {
       if (!m_savedHeader.has_value()) {
         m_savedHeader = header;
       }

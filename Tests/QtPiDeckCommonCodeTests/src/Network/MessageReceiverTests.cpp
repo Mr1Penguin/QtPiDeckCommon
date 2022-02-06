@@ -4,6 +4,7 @@
 
 #include "Network/DeckDataStream.hpp"
 #include "Network/MessageReceiver.hpp"
+#include "Network/Messages/HelloMessage.hpp"
 #include "QStringLiteral.hpp"
 #include "Services/ISocketHolder.hpp"
 
@@ -62,12 +63,36 @@ private:
   TDevice m_device;
 };
 
+class MessageBus final : public IMessageBus {
+public:
+  // IMessageBus
+  [[nodiscard]] auto subscribe(QObject* /*context*/,
+                               const std::function<void(const QtPiDeck::Bus::Message&)>& /*method*/) noexcept
+      -> Connection final {
+    return {};
+  }
+  [[nodiscard]] auto subscribe(QObject* /*context*/,
+                               const std::function<void(const QtPiDeck::Bus::Message&)>& /*method*/,
+                               uint64_t /*messageType*/) noexcept -> Connection final {
+    return {};
+  }
+  void unsubscribe(Connection& /*connection*/) noexcept final {}
+  void sendMessage(QtPiDeck::Bus::Message message) noexcept final { m_lastMessage = message; }
+
+  [[nodiscard]] auto getLastMessage() const -> std::optional<QtPiDeck::Bus::Message> { return m_lastMessage; }
+
+private:
+  std::optional<QtPiDeck::Bus::Message> m_lastMessage;
+};
+
 CT_BOOST_AUTO_TEST_CASE(shouldHandleEmptyData) {
   auto holder         = std::make_shared<ReadableSocketHolder<ReadableDevice>>();
-  const auto receiver = MessageReceiver{{holder, nullptr, nullptr}};
+  auto bus            = std::make_shared<MessageBus>();
+  const auto receiver = MessageReceiver{{holder, bus, nullptr}};
   auto* device        = qobject_cast<ReadableDevice*>(holder->socket());
 
   device->emitReadyRead();
+  CT_BOOST_TEST(!bus->getLastMessage().has_value());
 }
 
 class ReadableDeviceHeaderPart : public ReadableDevice {
@@ -97,10 +122,12 @@ private:
 
 CT_BOOST_AUTO_TEST_CASE(shouldHandleHeaderPart) {
   auto holder         = std::make_shared<ReadableSocketHolder<ReadableDeviceHeaderPart>>();
-  const auto receiver = MessageReceiver{{holder, nullptr, nullptr}};
+  auto bus            = std::make_shared<MessageBus>();
+  const auto receiver = MessageReceiver{{holder, bus, nullptr}};
   auto* device        = qobject_cast<ReadableDevice*>(holder->socket());
 
   device->emitReadyRead();
+  CT_BOOST_TEST(!bus->getLastMessage().has_value());
 }
 
 class ReadableDeviceHeaderZeroPayload : public ReadableDevice {
@@ -132,48 +159,30 @@ class NoMapMapper final : public IDeckMessageToBusMessageMapper {
 public:
   // IDeckMessageToBusMessageMapper
   [[nodiscard]] auto getBusMessageType(MessageType /*messageType*/) const
-      -> std::optional<decltype(Message::messageType)> final {
+      -> std::optional<decltype(QtPiDeck::Bus::Message::messageType)> final {
     return std::nullopt;
   }
 };
 
 CT_BOOST_AUTO_TEST_CASE(shouldHandleHeaderZeroPayloadNoMapped) {
   auto holder         = std::make_shared<ReadableSocketHolder<ReadableDeviceHeaderZeroPayload>>();
-  const auto receiver = MessageReceiver{{holder, nullptr, std::make_shared<NoMapMapper>()}};
+  auto bus            = std::make_shared<MessageBus>();
+  const auto receiver = MessageReceiver{{holder, bus, std::make_shared<NoMapMapper>()}};
   auto* device        = qobject_cast<ReadableDevice*>(holder->socket());
 
   device->emitReadyRead();
+  CT_BOOST_TEST(!bus->getLastMessage().has_value());
 }
 
 class Mapper final : public IDeckMessageToBusMessageMapper {
 public:
   // IDeckMessageToBusMessageMapper
   [[nodiscard]] auto getBusMessageType(MessageType /*messageType*/) const
-      -> std::optional<decltype(Message::messageType)> final {
+      -> std::optional<decltype(QtPiDeck::Bus::Message::messageType)> final {
     return expectedType;
   }
 
-  static constexpr decltype(Message::messageType) expectedType = 10;
-};
-
-class MessageBus final : public IMessageBus {
-public:
-  // IMessageBus
-  [[nodiscard]] auto subscribe(QObject* /*context*/, const std::function<void(const Message&)>& /*method*/) noexcept
-      -> Connection final {
-    return {};
-  }
-  [[nodiscard]] auto subscribe(QObject* /*context*/, const std::function<void(const Message&)>& /*method*/,
-                               uint64_t /*messageType*/) noexcept -> Connection final {
-    return {};
-  }
-  void unsubscribe(Connection& /*connection*/) noexcept final {}
-  void sendMessage(Message message) noexcept final { m_lastMessage = message; }
-
-  [[nodiscard]] auto getLastMessage() -> Message const { return m_lastMessage; }
-
-private:
-  Message m_lastMessage;
+  static constexpr decltype(QtPiDeck::Bus::Message::messageType) expectedType = 10;
 };
 
 CT_BOOST_AUTO_TEST_CASE(shouldHandleHeaderZeroPayloadMapped) {
@@ -186,8 +195,99 @@ CT_BOOST_AUTO_TEST_CASE(shouldHandleHeaderZeroPayloadMapped) {
 
   const auto lastMessage = bus->getLastMessage();
 
-  CT_BOOST_TEST(lastMessage.payload.isEmpty());
-  CT_BOOST_TEST(lastMessage.messageType == Mapper::expectedType);
+  CT_BOOST_TEST(lastMessage.has_value());
+  CT_BOOST_TEST(lastMessage.value().payload.isEmpty());
+  CT_BOOST_TEST(lastMessage.value().messageType == Mapper::expectedType);
+}
+
+class ReadableDeviceHeaderWithIncompletePayload final : public ReadableDevice {
+public:
+  // QIODevice
+  auto readData(char* data, qint64 maxlen) -> qint64 final {
+    if (m_state == State::DATA) {
+      constexpr auto value = uint64_t{32};
+      auto buffer          = QByteArray{};
+      buffer.reserve(static_cast<int>(maxlen));
+      auto stream = DeckDataStream{&buffer, QIODevice::WriteOnly};
+      stream << value << MessageType::Dummy << CT_QStringLiteral("ID");
+      auto* src            = buffer.data();
+      constexpr auto bytes = sizeof(uint64_t) + sizeof(MessageType) + 4 + 4;
+      memcpy(data, src, bytes);
+      m_state = State::END;
+      return bytes;
+    }
+
+    return 0;
+  }
+
+  auto bytesAvailable() const -> qint64 final { return 10; }
+
+private:
+  enum class State { DATA, END };
+  State m_state = State::DATA;
+};
+
+CT_BOOST_AUTO_TEST_CASE(shouldHandleHeaderIncompletePayloadMapped) {
+  auto holder         = std::make_shared<ReadableSocketHolder<ReadableDeviceHeaderWithIncompletePayload>>();
+  auto bus            = std::make_shared<MessageBus>();
+  const auto receiver = MessageReceiver{{holder, bus, std::make_shared<Mapper>()}};
+  auto* device        = qobject_cast<ReadableDevice*>(holder->socket());
+
+  device->emitReadyRead();
+
+  const auto lastMessage = bus->getLastMessage();
+  CT_BOOST_TEST(!lastMessage.has_value());
+}
+
+class ReadableDeviceHeaderWithFullPayload final : public ReadableDevice {
+public:
+  // QIODevice
+  auto readData(char* data, qint64 maxlen) -> qint64 final {
+    if (m_state == State::DATA) {
+      auto buffer          = QByteArray{};
+      buffer.reserve(static_cast<int>(maxlen));
+      auto stream = DeckDataStream{&buffer, QIODevice::WriteOnly};
+      m_message.messageHeader(CT_QStringLiteral("ID")).write(stream);
+      auto* src = buffer.data();
+      memcpy(data, src, buffer.size());
+      m_state = State::PAYLOAD;
+      return buffer.size();
+    }
+
+    if (m_state == State::PAYLOAD) {
+      auto buffer = QByteArray{};
+      buffer.reserve(static_cast<int>(maxlen));
+      auto stream = DeckDataStream{&buffer, QIODevice::WriteOnly};
+      m_message.write(stream);
+      auto* src = buffer.data();
+      memcpy(data, src, buffer.size());
+      m_state = State::END;
+      return buffer.size();
+    }
+
+    return 0;
+  }
+
+  auto bytesAvailable() const -> qint64 final { return m_message.messageSize(); }
+
+private:
+  enum class State { DATA, PAYLOAD, END };
+  State m_state{State::DATA};
+  Hello m_message{};
+};
+
+CT_BOOST_AUTO_TEST_CASE(shouldHandleHeaderFullPayloadMapped) {
+  auto holder         = std::make_shared<ReadableSocketHolder<ReadableDeviceHeaderWithFullPayload>>();
+  auto bus            = std::make_shared<MessageBus>();
+  const auto receiver = MessageReceiver{{holder, bus, std::make_shared<Mapper>()}};
+  auto* device        = qobject_cast<ReadableDevice*>(holder->socket());
+
+  device->emitReadyRead();
+
+  const auto lastMessage = bus->getLastMessage();
+  CT_BOOST_TEST(lastMessage.has_value());
+  CT_BOOST_TEST(lastMessage.value().messageType == Mapper::expectedType);
+  CT_BOOST_TEST(lastMessage.value().payload.size() = Hello{}.messageSize());
 }
 
 CT_BOOST_AUTO_TEST_SUITE_END()
