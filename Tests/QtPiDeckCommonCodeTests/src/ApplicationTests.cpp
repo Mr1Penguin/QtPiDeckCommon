@@ -145,7 +145,7 @@ CT_BOOST_AUTO_TEST_CASE(startShouldCallDerivedAppCreated) {
   char arg0[]     = "TEST"; // NOLINT
   std::array argv = {arg0}; // NOLINT
   CustomTestApplication app;
-  app.start(argv.size(), argv.data());
+  app.start(static_cast<int>(argv.size()), argv.data());
   CT_BOOST_TEST(app.initialPreparationsCalls() == 1);
 }
 
@@ -153,7 +153,7 @@ CT_BOOST_AUTO_TEST_CASE(startShouldCallDerivedInitialPreparations) {
   char arg0[]     = "TEST"; // NOLINT
   std::array argv = {arg0}; // NOLINT
   CustomTestApplication app;
-  app.start(argv.size(), argv.data());
+  app.start(static_cast<int>(argv.size()), argv.data());
   CT_BOOST_TEST(app.appCreatedCalls() == 1);
 }
 
@@ -161,7 +161,7 @@ CT_BOOST_AUTO_TEST_CASE(startShouldCallDerivedEngineCreated) {
   char arg0[]     = "TEST"; // NOLINT
   std::array argv = {arg0}; // NOLINT
   CustomTestApplication app;
-  app.start(argv.size(), argv.data());
+  app.start(static_cast<int>(argv.size()), argv.data());
   CT_BOOST_TEST(app.engineCreatedCalls() == 1);
 }
 
@@ -169,7 +169,7 @@ CT_BOOST_AUTO_TEST_CASE(startShouldCallGuiApplicationExec) {
   char arg0[]     = "TEST"; // NOLINT
   std::array argv = {arg0}; // NOLINT
   CustomTestApplication app;
-  app.start(argv.size(), argv.data());
+  app.start(static_cast<int>(argv.size()), argv.data());
   CT_BOOST_TEST(TestGuiApplication::execCalled());
 }
 
@@ -177,7 +177,7 @@ CT_BOOST_AUTO_TEST_CASE(startShouldCallApplicationEngineLoad) {
   char arg0[]     = "TEST"; // NOLINT
   std::array argv = {arg0}; // NOLINT
   CustomTestApplication app;
-  app.start(argv.size(), argv.data());
+  app.start(static_cast<int>(argv.size()), argv.data());
   const auto res = g_last.loadCalled();
   CT_BOOST_TEST(res == true);
 }
@@ -186,7 +186,7 @@ CT_BOOST_AUTO_TEST_CASE(startShouldAddQmlHelper) {
   char arg0[]     = "TEST"; // NOLINT
   std::array argv = {arg0}; // NOLINT
   [[maybe_unused]] CustomTestApplication app;
-  app.start(argv.size(), argv.data());
+  app.start(static_cast<int>(argv.size()), argv.data());
   const auto props    = g_last.rootContext()->contextProperties();
   const auto key      = "qh"s;
   const auto it       = props.find(key);
