@@ -31,15 +31,15 @@ public:
     } else {
       throw std::runtime_error("Provided socket is not QTcpSocket(or inherited from it)");
     }
-    service<IMessageBus>()->sendMessage(Bus::createMessage(Bus::SocketChanged));
+    service<IMessageBus>()->sendMessage({Bus::SocketChanged, {}});
   }
 
 signals:
   void writeRequested(QByteArray data);
 
 private:
-  QTcpSocket* m_socket;
+  QTcpSocket* m_socket{};
 
-  void write(QByteArray data) { m_socket->write(data); }
+  void write(const QByteArray& data) { m_socket->write(data); }
 };
 }

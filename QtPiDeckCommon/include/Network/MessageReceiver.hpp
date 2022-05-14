@@ -20,8 +20,7 @@ class QTPIDECKCOMMON_EXPORT MessageReceiver
                                    Services::IDeckMessageToBusMessageMapper> {
   Q_OBJECT // NOLINT
 public:
-  MessageReceiver(std::shared_ptr<Services::ISocketHolder> holder, std::shared_ptr<Services::IMessageBus> bus,
-                  std::shared_ptr<Services::IDeckMessageToBusMessageMapper> messageTypeMapper);
+  MessageReceiver(dependency_list dependencies);
 
 private:
   void readData();

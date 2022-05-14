@@ -1,5 +1,8 @@
 #pragma once
 
+#include <QMetaObject>
+#include <QObject>
+
 #include <optional>
 
 namespace QtPiDeck::Utilities {
@@ -8,8 +11,7 @@ public:
   Connection() = default;
   explicit Connection(QMetaObject::Connection connection) : m_connection(connection) {}
   Connection(const Connection&) = delete;
-  Connection(Connection&& other) noexcept {
-    m_connection = std::move(other.m_connection);
+  Connection(Connection&& other) noexcept : m_connection(std::move(other.m_connection)) {
     other.m_connection.reset();
   }
   auto operator=(const Connection&) -> Connection& = delete;
