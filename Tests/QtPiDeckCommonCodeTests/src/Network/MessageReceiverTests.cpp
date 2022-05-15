@@ -3,7 +3,7 @@
 #include "Network/MessageReceiver.hpp"
 #include "Services/ISocketHolder.hpp"
 
-CT_BOOST_AUTO_TEST_SUITE(MessageReceiverTests)
+BOOST_AUTO_TEST_SUITE(MessageReceiverTests) // NOLINT
 
 using namespace QtPiDeck::Network;
 using namespace QtPiDeck::Services;
@@ -34,10 +34,9 @@ private:
   Device m_device;
 };
 
-CT_BOOST_AUTO_TEST_CASE(ShouldCreateObject) {
-  const auto receiver = MessageReceiver{std::make_shared<SocketHolder>(), nullptr, nullptr};
-}
+BOOST_AUTO_TEST_CASE(ShouldCreateObject) // NOLINT
+{ const auto receiver = MessageReceiver{{std::make_shared<SocketHolder>(), nullptr, nullptr}}; }
 
-CT_BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // NOLINT
 
 #include "MessageReceiverTests.moc"

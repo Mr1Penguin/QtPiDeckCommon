@@ -77,3 +77,6 @@ CMakeLists.txt.user
 .vs
 out
 CMakeSettings.json
+.cache
+build
+compile_commands.json
