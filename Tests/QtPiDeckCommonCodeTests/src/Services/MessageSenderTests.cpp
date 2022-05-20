@@ -44,10 +44,10 @@ struct TestMessage final : public ISerializable, public Messages::Message {
   [[nodiscard]] auto messageSize() const -> uint64_t final { return uint64_t{2}; }
   [[nodiscard]] auto messageHeader(const QString& requestId) const -> MessageHeader final {
 
-    auto header        = MessageHeader{};
-    header.dataSize    = 1;
-    header.messageType = MessageType::Dummy;
-    header.requestId   = requestId;
+    auto header = MessageHeader{};
+    header.dataSize(1);
+    header.messageType(MessageType::Dummy);
+    header.requestId(requestId);
     return header;
   }
   // ISerializable
@@ -57,7 +57,7 @@ struct TestMessage final : public ISerializable, public Messages::Message {
 
 struct Fixture {
 public:
-  Fixture() : m_messageSender() {
+  Fixture() {
     m_ioc.registerSingleton<ISocketHolder>(std::make_shared<SocketHolder>());
     m_messageSender = m_ioc.make<MessageSender, CreationType::UniquePointer>();
   }
@@ -74,25 +74,27 @@ private:
 };
 }
 
-CT_BOOST_FIXTURE_TEST_SUITE(IocTests, Fixture)
-CT_BOOST_AUTO_TEST_CASE(shouldRequestWriteOfHeader) {
+BOOST_FIXTURE_TEST_SUITE(IocTests, Fixture)      // NOLINT
+BOOST_AUTO_TEST_CASE(shouldRequestWriteOfHeader) // NOLINT
+{
   const auto header         = MessageHeader::make(0, MessageType::Dummy, CT_QStringLiteral("."));
   constexpr auto headerSize = size_t{18};
   Fixture::messageSender().send(header);
   const auto& requestedWrites = Fixture::socketHolder().requestedWrites();
-  CT_BOOST_TEST(requestedWrites.size() == 1);
-  CT_BOOST_TEST(requestedWrites.front() == headerSize);
+  BOOST_TEST(requestedWrites.size() == 1);           // NOLINT
+  BOOST_TEST(requestedWrites.front() == headerSize); // NOLINT
 }
 
-CT_BOOST_AUTO_TEST_CASE(shouldRequestWriteOfMessage) {
+BOOST_AUTO_TEST_CASE(shouldRequestWriteOfMessage) // NOLINT
+{
   const auto message        = TestMessage{};
   constexpr auto headerSize = size_t{20};
   Fixture::messageSender().send(message, CT_QStringLiteral("."));
   const auto& requestedWrites = Fixture::socketHolder().requestedWrites();
-  CT_BOOST_TEST(requestedWrites.size() == 1);
-  CT_BOOST_TEST(requestedWrites.front() == headerSize);
+  BOOST_TEST(requestedWrites.size() == 1);           // NOLINT
+  BOOST_TEST(requestedWrites.front() == headerSize); // NOLINT
 }
 
-CT_BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // NOLINT
 
 #include "MessageSenderTests.moc"

@@ -4,22 +4,24 @@
 
 #include "printers.hpp"
 
-CT_BOOST_AUTO_TEST_SUITE(DeckMessageToBusMessageMapperTests)
+BOOST_AUTO_TEST_SUITE(DeckMessageToBusMessageMapperTests) // NOLINT
 
 using namespace QtPiDeck::Bus;
 using namespace QtPiDeck::Services;
 using namespace QtPiDeck::Network;
 
-CT_BOOST_AUTO_TEST_CASE(returnNulloptForUnknownType) {
+BOOST_AUTO_TEST_CASE(returnNulloptForUnknownType) // NOLINT
+{
   const auto mapper   = DeckMessageToBusMessageMapper{};
   constexpr auto type = MessageType::Reserved;
-  CT_BOOST_TEST(mapper.getBusMessageType(type) == std::nullopt);
+  BOOST_TEST(mapper.getBusMessageType(type) == std::nullopt); // NOLINT
 }
 
-CT_BOOST_AUTO_TEST_CASE(returnValueForKnownType) {
+BOOST_AUTO_TEST_CASE(returnValueForKnownType) // NOLINT
+{
   const auto mapper   = DeckMessageToBusMessageMapper{};
   constexpr auto type = MessageType::Dummy;
-  CT_BOOST_TEST(mapper.getBusMessageType(type) == Dummy::DummyId);
+  BOOST_TEST(mapper.getBusMessageType(type) == Dummy::DummyId); // NOLINT
 }
 
 template<bool hasValue>
@@ -35,22 +37,25 @@ protected:
   }
 };
 
-CT_BOOST_AUTO_TEST_CASE(returnNulloptForUnknownTypeDerived) {
+BOOST_AUTO_TEST_CASE(returnNulloptForUnknownTypeDerived) // NOLINT
+{
   const auto mapper   = derived<false>{};
   constexpr auto type = MessageType::Reserved;
-  CT_BOOST_TEST(mapper.getBusMessageType(type) == std::nullopt);
+  BOOST_TEST(mapper.getBusMessageType(type) == std::nullopt); // NOLINT
 }
 
-CT_BOOST_AUTO_TEST_CASE(returnValueForKnownTypeByParent) {
+BOOST_AUTO_TEST_CASE(returnValueForKnownTypeByParent) // NOLINT
+{
   const auto mapper   = derived<false>{};
   constexpr auto type = MessageType::Dummy;
-  CT_BOOST_TEST(mapper.getBusMessageType(type) == Dummy::DummyId);
+  BOOST_TEST(mapper.getBusMessageType(type) == Dummy::DummyId); // NOLINT
 }
 
-CT_BOOST_AUTO_TEST_CASE(returnValueForKnownTypeDerived) {
+BOOST_AUTO_TEST_CASE(returnValueForKnownTypeDerived) // NOLINT
+{
   const auto mapper   = derived<true>{};
   constexpr auto type = MessageType::Reserved;
-  CT_BOOST_TEST(mapper.getBusMessageType(type) == uint64_t{1});
+  BOOST_TEST(mapper.getBusMessageType(type) == uint64_t{1}); // NOLINT
 }
 
-CT_BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // NOLINT

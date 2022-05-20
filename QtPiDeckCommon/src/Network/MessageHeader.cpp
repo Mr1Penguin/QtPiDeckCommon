@@ -19,22 +19,22 @@ auto operator>>(QDataStream& str, TNum& number) noexcept -> QDataStream& {
 }
 
 void MessageHeader::read(QDataStream& stream) {
-  stream >> dataSize;
-  stream >> messageType;
-  stream >> requestId;
+  stream >> m_dataSize;
+  stream >> m_messageType;
+  stream >> m_requestId;
 }
 
 void MessageHeader::write(QDataStream& stream) const {
-  stream << dataSize;
-  stream << messageType;
-  stream << requestId;
+  stream << m_dataSize;
+  stream << m_messageType;
+  stream << m_requestId;
 }
 
 auto MessageHeader::make(uint64_t dataSize, MessageType messageType, QString requestId) -> MessageHeader {
   auto header        = MessageHeader{};
-  header.dataSize    = dataSize;
-  header.messageType = messageType;
-  header.requestId   = std::move(requestId);
+  header.m_dataSize    = dataSize;
+  header.m_messageType = messageType;
+  header.m_requestId   = std::move(requestId);
   return header;
 }
 

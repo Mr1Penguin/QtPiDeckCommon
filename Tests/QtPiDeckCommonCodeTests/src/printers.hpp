@@ -29,8 +29,8 @@ inline auto operator<<(std::ostream& ostr, const MessageType& right) -> std::ost
 }
 
 inline auto operator<<(std::ostream& ostr, const MessageHeader& right) -> std::ostream& {
-  ostr << "MessageHeader{ dataSize: " << right.dataSize << ", messageType: " << right.messageType
-       << ", RequestId: " << right.requestId.toStdString().c_str() << " }";
+  ostr << "MessageHeader{ dataSize: " << right.dataSize() << ", messageType: " << right.messageType()
+       << ", RequestId: " << right.requestId().toStdString().c_str() << " }";
   return ostr;
 }
 
