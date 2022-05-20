@@ -10,15 +10,16 @@ namespace {
 auto headerSize(const Network::MessageHeader& header) -> std::size_t {
   constexpr auto qstringHeaderSize = std::size_t{4};
   constexpr auto charSize          = std::size_t{sizeof(decltype(std::declval<QChar>().unicode()))};
-  return sizeof(Network::MessageHeader::dataSize) + sizeof(Network::MessageHeader::messageType) +
-         header.requestId.size() * charSize + qstringHeaderSize;
+  return sizeof(decltype(std::declval<Network::MessageHeader>().dataSize())) +
+         sizeof(decltype(std::declval<Network::MessageHeader>().messageType())) + header.requestId().size() * charSize +
+         qstringHeaderSize;
 }
 }
 
 void MessageSender::send(const Network::Messages::Message& message, const QString& id) {
   const auto& asSerializable = dynamic_cast<const Utilities::ISerializable&>(message);
   const auto header          = message.messageHeader(id);
-  const auto size            = headerSize(header) + header.dataSize;
+  const auto size            = headerSize(header) + header.dataSize();
   QByteArray buffer;
 #if QT_VERSION_MAJOR == 5
   using argType = int;

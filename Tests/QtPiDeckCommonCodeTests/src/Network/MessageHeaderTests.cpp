@@ -11,14 +11,16 @@
 
 namespace QtPiDeck::Network {
 auto operator==(const QtPiDeck::Network::MessageHeader& left, const QtPiDeck::Network::MessageHeader& right) -> bool {
-  return left.dataSize == right.dataSize && left.messageType == right.messageType && left.requestId == right.requestId;
+  return left.dataSize() == right.dataSize() && left.messageType() == right.messageType() &&
+         left.requestId() == right.requestId();
 }
 }
 
-CT_BOOST_AUTO_TEST_SUITE(MessageHeaderTests)
+BOOST_AUTO_TEST_SUITE(MessageHeaderTests) // NOLINT
 using namespace QtPiDeck::Network;
 
-CT_BOOST_AUTO_TEST_CASE(shouldBeSerializedAndDeserialized) {
+BOOST_AUTO_TEST_CASE(shouldBeSerializedAndDeserialized) // NOLINT
+{
   const auto messageHeader = MessageHeader::make(0, MessageType::Pong, CT_QStringLiteral("a-random-id"));
   QByteArray qba;
   QDataStream in{&qba, DeckDataStream::OpenModeFlag::WriteOnly};
@@ -26,18 +28,20 @@ CT_BOOST_AUTO_TEST_CASE(shouldBeSerializedAndDeserialized) {
   QDataStream out{&qba, DeckDataStream::OpenModeFlag::ReadOnly};
   MessageHeader outMessageHeader{};
   outMessageHeader.read(out);
-  CT_BOOST_TEST(outMessageHeader == messageHeader);
+  BOOST_TEST(outMessageHeader == messageHeader); // NOLINT
 }
 
-CT_BOOST_AUTO_TEST_CASE(shouldGetNameForKnownMessageType) {
+BOOST_AUTO_TEST_CASE(shouldGetNameForKnownMessageType) // NOLINT
+{
   constexpr auto v = getMessageTypeName(MessageType::Dummy);
-  CT_BOOST_TEST(v != nullptr);
+  BOOST_TEST(v != nullptr); // NOLINT
 }
 
-CT_BOOST_AUTO_TEST_CASE(shouldThrowForUnknownMessageType) {
-  CT_BOOST_CHECK_THROW(getMessageTypeName(MessageType::Reserved), std::out_of_range);
+BOOST_AUTO_TEST_CASE(shouldThrowForUnknownMessageType) // NOLINT
+{
+  BOOST_CHECK_THROW(getMessageTypeName(MessageType::Reserved), std::out_of_range); // NOLINT
 }
 
-CT_BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // NOLINT
 
 //#include "MessageHeaderTests.moc"

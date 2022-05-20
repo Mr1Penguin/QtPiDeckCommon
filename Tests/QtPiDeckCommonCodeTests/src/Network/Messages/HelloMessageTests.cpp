@@ -17,10 +17,11 @@ auto operator==(const QtPiDeck::Network::Hello& left, const QtPiDeck::Network::H
 }
 }
 
-CT_BOOST_AUTO_TEST_SUITE(HelloMessageTests)
+BOOST_AUTO_TEST_SUITE(HelloMessageTests) // NOLINT
 using namespace QtPiDeck::Network;
 
-CT_BOOST_AUTO_TEST_CASE(shouldBeSerializedAndDeserialized) {
+BOOST_AUTO_TEST_CASE(shouldBeSerializedAndDeserialized) // NOLINT
+{
   const auto helloMessage = Messages::Hello{};
   auto qba                = QByteArray{};
   auto in                 = QDataStream{&qba, DeckDataStream::OpenModeFlag::WriteOnly};
@@ -30,16 +31,17 @@ CT_BOOST_AUTO_TEST_CASE(shouldBeSerializedAndDeserialized) {
   outMessage.interfaceVersion = 0;
   outMessage.qcharSize        = 0;
   out >> outMessage;
-  CT_BOOST_TEST(outMessage == helloMessage);
+  BOOST_TEST(outMessage == helloMessage); // NOLINT
 }
 
-CT_BOOST_AUTO_TEST_CASE(getAppropiateHeader) {
+BOOST_AUTO_TEST_CASE(getAppropiateHeader) // NOLINT
+{
   const auto helloMessage = Messages::Hello{};
   const auto requestId    = CT_QStringLiteral("request");
   const auto header       = helloMessage.messageHeader(requestId);
-  CT_BOOST_TEST(header.dataSize == helloMessage.messageSize());
-  CT_BOOST_TEST(header.messageType == MessageType::Hello);
-  CT_BOOST_TEST(header.requestId == requestId);
+  BOOST_TEST(header.dataSize() == helloMessage.messageSize()); // NOLINT
+  BOOST_TEST(header.messageType() == MessageType::Hello);      // NOLINT
+  BOOST_TEST(header.requestId() == requestId);                 // NOLINT
 }
 
-CT_BOOST_AUTO_TEST_SUITE_END()
+BOOST_AUTO_TEST_SUITE_END() // NOLINT
