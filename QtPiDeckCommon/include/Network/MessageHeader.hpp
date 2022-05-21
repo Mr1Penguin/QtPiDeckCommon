@@ -27,7 +27,7 @@ constexpr inline auto getMessageTypeName(MessageType type) -> const char* {
   return messageTypeNames.at(static_cast<uint32_t>(type));
 }
 
-struct MessageHeader {
+struct QTPIDECKCOMMON_EXPORT MessageHeader {
   uint64_t dataSize;
   MessageType messageType;
   QString requestId;
