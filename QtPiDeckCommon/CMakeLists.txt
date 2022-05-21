@@ -7,7 +7,7 @@ add_library(QtPiDeckCommon SHARED
   src/Application.cpp
   src/QtPiDeckCommon.cpp
   src/Network/MessageHeader.cpp
-  src/Network/Messages/HelloMessage.cpp
+  src/Network/Messages/HelloMessageSerialization.cpp
   src/Services/Ioc.cpp
   src/Services/MessageBus.cpp
   src/Services/ServiceInterface.cpp
@@ -36,7 +36,6 @@ add_library(QtPiDeckCommon SHARED
   include/Services/MessageSender.hpp
   include/Services/UseServices.hpp
   include/Services/SocketHolder.hpp
-  include/Network/Messages/Message.hpp
   include/Network/Messages.hpp
   include/Utilities/ISerializable.hpp
   include/Utilities/Logging.hpp
@@ -44,6 +43,7 @@ add_library(QtPiDeckCommon SHARED
   include/Utilities/Connection.hpp
   include/Utilities/OnExit.hpp
   include/Network/MessageReceiver.hpp
+  include/Utilities/QStringUtils.hpp
   include/Utilities/QmlHelper.hpp
   include/Utilities/QmlHelperDetail.hpp
   include/Utilities/Traits.hpp

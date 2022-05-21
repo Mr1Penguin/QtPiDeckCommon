@@ -18,37 +18,39 @@ auto operator>>(QDataStream& str, TNum& number) noexcept -> QDataStream& {
   return str;
 }
 
-void MessageHeader::read(QDataStream& stream) {
-  stream >> m_dataSize;
-  stream >> m_messageType;
-  stream >> m_requestId;
+QTPIDECKCOMMON_EXPORT auto operator<<(QDataStream& stream, const MessageHeader& header) -> QDataStream& {
+  stream << header.dataSize;
+  stream << header.messageType;
+  stream << header.requestId;
+  return stream;
 }
 
-void MessageHeader::write(QDataStream& stream) const {
-  stream << m_dataSize;
-  stream << m_messageType;
-  stream << m_requestId;
+QTPIDECKCOMMON_EXPORT auto operator>>(QDataStream& stream, MessageHeader& header) -> QDataStream& {
+  stream >> header.dataSize;
+  stream >> header.messageType;
+  stream >> header.requestId;
+  return stream;
 }
 
 auto MessageHeader::make(uint64_t dataSize, MessageType messageType, QString requestId) -> MessageHeader {
   auto header        = MessageHeader{};
-  header.m_dataSize    = dataSize;
-  header.m_messageType = messageType;
-  header.m_requestId   = std::move(requestId);
+  header.dataSize    = dataSize;
+  header.messageType = messageType;
+  header.requestId   = std::move(requestId);
   return header;
 }
 
 #if (QT_VERSION == QTPI4_VERSION)
-auto operator>>(QDataStream& str, MessageType& messageType) noexcept -> QDataStream& {
+auto operator>>(QDataStream& stream, MessageType& messageType) noexcept -> QDataStream& {
   auto v = uint32_t{};
-  str >> v;
+  stream >> v;
   messageType = static_cast<MessageType>(v);
-  return str;
+  return stream;
 }
 
-auto operator<<(QDataStream& str, const MessageType& messageType) noexcept -> QDataStream& {
-  str << static_cast<uint32_t>(messageType);
-  return str;
+auto operator<<(QDataStream& stream, const MessageType& messageType) noexcept -> QDataStream& {
+  stream << static_cast<uint32_t>(messageType);
+  return stream;
 }
 #endif
 }

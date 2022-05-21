@@ -8,7 +8,7 @@
 namespace QtPiDeck::Services {
 class QTPIDECKCOMMON_EXPORT MessageSender final : public IMessageSender, public UseServices<ISocketHolder> {
 public:
-  void send(const Network::Messages::Message& message, const QString& id) final;
+  void send(const Network::MessageHeader& header, const QString& payload) final;
   void send(const Network::MessageHeader& header) final;
 
 private:
