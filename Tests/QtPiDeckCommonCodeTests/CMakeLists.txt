@@ -8,7 +8,6 @@ add_executable(QtPiDeckCommonCodeTests
     src/Network/DeckDataStreamTests.cpp
     src/Network/MessageHeaderTests.cpp
     src/Network/MessageReceiverTests.cpp
-    src/Network/Messages/HelloMessageTests.cpp
     src/Services/DeckMessageToBusMessageMapperTests.cpp
     src/Services/IocTests.cpp
     src/Services/MessageBusTests.cpp

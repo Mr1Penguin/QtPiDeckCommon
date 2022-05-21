@@ -4,23 +4,17 @@
 
 #include "Network/DeckDataStream.hpp"
 #include "Utilities/ISerializable.hpp"
+#include "Utilities/QStringUtils.hpp"
 
 namespace QtPiDeck::Services {
 namespace {
 auto headerSize(const Network::MessageHeader& header) -> std::size_t {
-  constexpr auto qstringHeaderSize = std::size_t{4};
-  constexpr auto charSize          = std::size_t{sizeof(decltype(std::declval<QChar>().unicode()))};
-  return sizeof(decltype(std::declval<Network::MessageHeader>().dataSize())) +
-         sizeof(decltype(std::declval<Network::MessageHeader>().messageType())) + header.requestId().size() * charSize +
-         qstringHeaderSize;
-}
+  return sizeof(Network::MessageHeader::dataSize) + sizeof(Network::MessageHeader::messageType) +
+         Utilities::qstringRawSize(header.requestId);
 }
 
-void MessageSender::send(const Network::Messages::Message& message, const QString& id) {
-  const auto& asSerializable = dynamic_cast<const Utilities::ISerializable&>(message);
-  const auto header          = message.messageHeader(id);
-  const auto size            = headerSize(header) + header.dataSize();
-  QByteArray buffer;
+auto prepareBuffer(std::size_t size) -> QByteArray {
+  auto buffer = QByteArray{};
 #if QT_VERSION_MAJOR == 5
   using argType = int;
 #else
@@ -28,26 +22,27 @@ void MessageSender::send(const Network::Messages::Message& message, const QStrin
 #endif
   assert(size < static_cast<std::size_t>(std::numeric_limits<argType>::max())); // NOLINT
   buffer.reserve(static_cast<argType>(size));
-  Network::DeckDataStream outStream{&buffer, QIODevice::WriteOnly};
-  header.write(outStream);
-  asSerializable.write(outStream);
-  send(buffer);
+  return buffer;
 }
 
-void MessageSender::send(const Network::MessageHeader& header) {
-  const auto size = headerSize(header);
-  QByteArray buffer;
-#if QT_VERSION_MAJOR == 5
-  using argType = int;
-#else
-  using argType = qsizetype;
-#endif
-  assert(size < static_cast<std::size_t>(std::numeric_limits<argType>::max())); // NOLINT
-  buffer.reserve(static_cast<argType>(size));
+template<class... T>
+auto createBuffer(std::size_t size, T... args) -> QByteArray {
+  auto buffer = prepareBuffer(size);
   Network::DeckDataStream outStream{&buffer, QIODevice::WriteOnly};
-  header.write(outStream);
-  send(buffer);
+  (outStream << ... << args);
+  return buffer;
 }
+
+auto totalPayloadSize(const Network::MessageHeader& header) -> std::size_t {
+  return headerSize(header) + header.dataSize;
+}
+}
+
+void MessageSender::send(const Network::MessageHeader& header, const QString& payload) {
+  send(createBuffer(totalPayloadSize(header), header, payload));
+}
+
+void MessageSender::send(const Network::MessageHeader& header) { send(createBuffer(totalPayloadSize(header), header)); }
 
 void MessageSender::send(const QByteArray& data) { service<ISocketHolder>()->requestWrite(data); }
 }

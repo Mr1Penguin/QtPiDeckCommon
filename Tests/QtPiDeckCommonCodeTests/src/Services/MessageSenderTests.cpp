@@ -1,12 +1,11 @@
 #include "BoostUnitTest.hpp"
 
 #include "Network/MessageHeader.hpp"
-#include "Network/Messages/Message.hpp"
 #include "QStringLiteral.hpp"
 #include "Services/ISocketHolder.hpp"
 #include "Services/Ioc.hpp"
 #include "Services/MessageSender.hpp"
-#include "Utilities/ISerializable.hpp"
+#include "Utilities/QStringUtils.hpp"
 
 using namespace QtPiDeck::Services;
 using namespace QtPiDeck::Network;
@@ -37,22 +36,6 @@ public:
 private:
   Socket m_socket;
   std::vector<decltype(std::declval<QByteArray>().size())> m_requestedWrites;
-};
-
-struct TestMessage final : public ISerializable, public Messages::Message {
-  // Message
-  [[nodiscard]] auto messageSize() const -> uint64_t final { return uint64_t{2}; }
-  [[nodiscard]] auto messageHeader(const QString& requestId) const -> MessageHeader final {
-
-    auto header = MessageHeader{};
-    header.dataSize(1);
-    header.messageType(MessageType::Dummy);
-    header.requestId(requestId);
-    return header;
-  }
-  // ISerializable
-  void read(QDataStream& /*stream*/) final { throw std::logic_error("The method or operation is not implemented."); }
-  void write(QDataStream& stream) const final { stream << QChar{';'}; }
 };
 
 struct Fixture {
@@ -87,12 +70,14 @@ BOOST_AUTO_TEST_CASE(shouldRequestWriteOfHeader) // NOLINT
 
 BOOST_AUTO_TEST_CASE(shouldRequestWriteOfMessage) // NOLINT
 {
-  const auto message        = TestMessage{};
-  constexpr auto headerSize = size_t{20};
-  Fixture::messageSender().send(message, CT_QStringLiteral("."));
+  const auto json        = CT_QStringLiteral("{}");
+  const auto jsonRawSize = qstringRawSize(json);
+  const auto header      = MessageHeader::make(jsonRawSize, MessageType::Dummy, CT_QStringLiteral("."));
+  const auto totalSize   = size_t{18} + jsonRawSize;
+  Fixture::messageSender().send(header, json);
   const auto& requestedWrites = Fixture::socketHolder().requestedWrites();
-  BOOST_TEST(requestedWrites.size() == 1);           // NOLINT
-  BOOST_TEST(requestedWrites.front() == headerSize); // NOLINT
+  BOOST_TEST(requestedWrites.size() == 1);          // NOLINT
+  BOOST_TEST(requestedWrites.front() == totalSize); // NOLINT
 }
 
 BOOST_AUTO_TEST_SUITE_END() // NOLINT

@@ -2,9 +2,7 @@
 
 #include <cstdint>
 
-#include "Message.hpp"
-#include "Network/MessageHeader.hpp"
-#include "Utilities/ISerializable.hpp"
+#include <QChar>
 
 namespace QtPiDeck::Network {
 inline namespace Messages {
@@ -14,25 +12,16 @@ inline namespace Messages {
  * If not: RejectConnection
  * If there is already connected client: RejectConnection
  */
-struct QTPIDECKCOMMON_EXPORT Hello final : public Utilities::ISerializable, public Message {
+struct Hello {
   uint32_t interfaceVersion{s_currentInterfaceVersion};
   uint32_t qcharSize{s_qcharSize};
 
-  // Message
-  auto messageSize() const -> uint64_t final { return sizeof(interfaceVersion) + sizeof(qcharSize); }
-  auto messageHeader(const QString& requestId) const -> MessageHeader final {
-    return MessageHeader::make(messageSize(), MessageType::Hello, requestId);
-  }
-
-  // ISerializable
-  void read(QDataStream& stream) final;
-  void write(QDataStream& stream) const final;
-
-  static inline uint32_t s_currentInterfaceVersion{20211202};
-  static inline uint32_t s_qcharSize{sizeof(decltype(std::declval<QChar>().unicode()))};
+  static inline constexpr uint32_t s_currentInterfaceVersion{20211202};
+  static inline constexpr uint32_t s_qcharSize{sizeof(decltype(std::declval<QChar>().unicode()))};
 };
+}
+}
 
-auto QTPIDECKCOMMON_EXPORT operator<<(QDataStream& stream, const Hello& message) -> QDataStream&;
-auto QTPIDECKCOMMON_EXPORT operator>>(QDataStream& stream, Hello& message) -> QDataStream&;
-}
-}
+
+// prepareHeader(Message) -> MessageHeader
+// convertMessage(Message) -> json

@@ -11,8 +11,8 @@
 
 namespace QtPiDeck::Network {
 auto operator==(const QtPiDeck::Network::MessageHeader& left, const QtPiDeck::Network::MessageHeader& right) -> bool {
-  return left.dataSize() == right.dataSize() && left.messageType() == right.messageType() &&
-         left.requestId() == right.requestId();
+  return left.dataSize == right.dataSize && left.messageType == right.messageType &&
+         left.requestId == right.requestId;
 }
 }
 
@@ -24,10 +24,10 @@ BOOST_AUTO_TEST_CASE(shouldBeSerializedAndDeserialized) // NOLINT
   const auto messageHeader = MessageHeader::make(0, MessageType::Pong, CT_QStringLiteral("a-random-id"));
   QByteArray qba;
   QDataStream in{&qba, DeckDataStream::OpenModeFlag::WriteOnly};
-  messageHeader.write(in);
+  in << messageHeader;
   QDataStream out{&qba, DeckDataStream::OpenModeFlag::ReadOnly};
   MessageHeader outMessageHeader{};
-  outMessageHeader.read(out);
+  out >> outMessageHeader;
   BOOST_TEST(outMessageHeader == messageHeader); // NOLINT
 }
 

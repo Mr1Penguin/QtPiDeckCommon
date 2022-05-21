@@ -21,16 +21,15 @@ inline auto operator<<(std::ostream& ostr, const std::nullopt_t& /*right*/) -> s
 }
 }
 
-namespace QtPiDeck {
-namespace Network {
+namespace QtPiDeck::Network {
 inline auto operator<<(std::ostream& ostr, const MessageType& right) -> std::ostream& {
   ostr << static_cast<uint32_t>(right);
   return ostr;
 }
 
 inline auto operator<<(std::ostream& ostr, const MessageHeader& right) -> std::ostream& {
-  ostr << "MessageHeader{ dataSize: " << right.dataSize() << ", messageType: " << right.messageType()
-       << ", RequestId: " << right.requestId().toStdString().c_str() << " }";
+  ostr << "MessageHeader{ dataSize: " << right.dataSize << ", messageType: " << right.messageType
+       << ", RequestId: " << right.requestId.toStdString().c_str() << " }";
   return ostr;
 }
 
@@ -38,7 +37,6 @@ inline namespace Messages {
 inline auto operator<<(std::ostream& ostr, const Hello& right) -> std::ostream& {
   ostr << "Hello{ interfaceVersion: " << right.interfaceVersion << ", qcharSize: " << right.qcharSize << " }";
   return ostr;
-}
 }
 }
 }
