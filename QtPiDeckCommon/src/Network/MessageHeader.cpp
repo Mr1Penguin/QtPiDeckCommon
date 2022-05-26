@@ -1,5 +1,8 @@
 #include "Network/MessageHeader.hpp"
 
+#include <iostream>
+#include <qendian.h>
+
 namespace QtPiDeck::Network {
 template<class TNum>
 using addOverload = std::enable_if_t<std::is_same_v<TNum, uint64_t> && !std::is_same_v<quint64, uint64_t>>;

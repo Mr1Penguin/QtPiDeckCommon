@@ -1,7 +1,10 @@
 #include "Network/MessageReceiver.hpp"
 
+#include <iostream>
+
 #include <QJsonDocument>
 #include <cassert>
+#include <qendian.h>
 #include <qjsondocument.h>
 #include <unordered_map>
 
@@ -42,10 +45,15 @@ void MessageReceiver::readData() {
     return;
   }
 
-  auto payload = QJsonDocument{};
+  auto payload          = QJsonDocument{};
   const auto hasPayload = header->dataSize > 0;
   if (hasPayload) {
-    if (socket->bytesAvailable() < qint64{0} || static_cast<quint64>(socket->bytesAvailable()) < header->dataSize) {
+    auto json     = QString{};
+    auto inStream = Network::DeckDataStream{socket};
+
+    inStream.startTransaction();
+    inStream >> json;
+    if (!inStream.commitTransaction()) {
       if (!m_savedHeader.has_value()) {
         m_savedHeader = header;
       }
@@ -53,11 +61,8 @@ void MessageReceiver::readData() {
       return;
     }
 
-    auto inStream = Network::DeckDataStream{socket};
-    auto json = QString {};
-    inStream >> json;
     payload = QJsonDocument::fromJson(json.toUtf8());
-    
+
     m_savedHeader.reset();
   }
 
