@@ -89,7 +89,6 @@ private:
 
 BOOST_AUTO_TEST_CASE(shouldHandleEmptyData) // NOLINT
 {
-  return;
   auto holder         = std::make_shared<ReadableSocketHolder<ReadableDevice>>();
   auto bus            = std::make_shared<MessageBus>();
   const auto receiver = MessageReceiver{{holder, bus, nullptr}};
@@ -226,8 +225,6 @@ public:
 
     return 0;
   }
-
-  [[nodiscard]] auto bytesAvailable() const -> qint64 final { return 10; }
 
 private:
   enum class State { DATA, END };
