@@ -7,7 +7,7 @@
 
 namespace QtPiDeck::Bus {
 struct Message {
-    const uint64_t messageType{};
-    const QJsonDocument payload{};
+  uint64_t messageType{};
+  QJsonDocument payload{};
 };
 }

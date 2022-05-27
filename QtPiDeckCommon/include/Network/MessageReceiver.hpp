@@ -4,6 +4,7 @@
 
 #include <optional>
 
+#include "Network/DeckDataStream.hpp"
 #include "Network/MessageHeader.hpp"
 #include "Services/IDeckMessageToBusMessageMapper.hpp"
 #include "Services/IMessageBus.hpp"
