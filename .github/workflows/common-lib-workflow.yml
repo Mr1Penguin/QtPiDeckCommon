@@ -278,6 +278,7 @@ jobs:
           LD_LIBRARY_PATH: ./QtPiDeckCommon
 
   code-checks-generator:
+    needs: [ubuntu-test]
     runs-on: ubuntu-latest
     outputs:
       job-matrix: ${{ steps.set-matrix.outputs.job-matrix }}
@@ -290,7 +291,7 @@ jobs:
           uq6: '{"os":"ubuntu","qt":"${{ env.QT6 }}"}'
 
   code-coverage:
-    needs: [code-checks-generator, ubuntu-test]
+    needs: [code-checks-generator]
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{fromJSON(needs.code-checks-generator.outputs.job-matrix)}}
@@ -396,7 +397,7 @@ jobs:
 
   clang-tidy:
     if: github.event_name == 'pull_request'
-    needs: [code-checks-generator, ubuntu-test]
+    needs: [code-checks-generator]
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{fromJSON(needs.code-checks-generator.outputs.job-matrix)}}
