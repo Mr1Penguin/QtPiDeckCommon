@@ -124,7 +124,7 @@ jobs:
         env:
           LD_LIBRARY_PATH: ./QtPiDeckCommon
 
-  win-mac-test:
+  win-test:
     needs: [win-jobs-generator]
     runs-on: windows-latest
     strategy:
