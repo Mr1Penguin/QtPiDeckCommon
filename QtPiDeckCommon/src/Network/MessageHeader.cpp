@@ -14,7 +14,8 @@ template<class TNum, typename = addOverload<TNum>>
 auto operator>>(QDataStream& str, TNum& number) noexcept -> QDataStream& {
   quint64 tmp{};
   str >> tmp;
-  number = static_cast<uint64_t>(tmp);
+  number =
+    static_cast<uint64_t>(tmp);
   return str;
 }
 
