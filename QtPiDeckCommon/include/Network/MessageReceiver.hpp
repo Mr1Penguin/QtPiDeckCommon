@@ -10,6 +10,7 @@
 #include "Services/IMessageBus.hpp"
 #include "Services/ISocketHolder.hpp"
 #include "Services/UseServices.hpp"
+#include "Utilities/Connection.hpp"
 #include "Utilities/Logging.hpp"
 
 #include "QtPiDeckCommon_global.hpp"
@@ -25,8 +26,10 @@ public:
 
 private:
   void readData();
+  void updateSocketConnection();
 
   std::optional<Network::MessageHeader> m_savedHeader;
+  Utilities::Connection m_socketUpdateConnection;
   mutable boost::log::sources::severity_logger<boost::log::trivial::severity_level> m_slg;
 };
 }

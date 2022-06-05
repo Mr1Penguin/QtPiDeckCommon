@@ -8,9 +8,11 @@
 #include <qjsondocument.h>
 #include <unordered_map>
 
+#include "Bus/CommonMessageIds.hpp"
 #include "Bus/Message.hpp"
 #include "Network/DeckDataStream.hpp"
 #include "Network/Messages.hpp"
+#include "Services/IMessageBus.hpp"
 #include "Services/ISocketHolder.hpp"
 #include "Utilities/ISerializable.hpp"
 #include "Utilities/OnExit.hpp"
@@ -20,7 +22,13 @@ namespace QtPiDeck::Network {
 MessageReceiver::MessageReceiver(dependency_list dependencies) {
   Utilities::initLogger(m_slg, "MessageReceiver");
   setServices(std::move(dependencies));
-  connect(service<Services::ISocketHolder>()->socket(), &QTcpSocket::readyRead, this, &MessageReceiver::readData);
+  updateSocketConnection();
+
+  if (auto bus = service<Services::IMessageBus>(); bus) {
+    m_socketUpdateConnection = bus->subscribe(
+        this, [this](const Bus::Message& /*message*/) { updateSocketConnection(); },
+        Bus::SocketMessages::SocketChanged);
+  }
 }
 
 namespace {
@@ -45,9 +53,8 @@ void MessageReceiver::readData() {
     return;
   }
 
-  auto payload          = QJsonDocument{};
-  const auto hasPayload = header->dataSize > 0;
-  if (hasPayload) {
+  auto payload = QJsonDocument{};
+  if (header->dataSize > 0) {
     auto json     = QString{};
     auto inStream = Network::DeckDataStream{socket};
 
@@ -73,5 +80,9 @@ void MessageReceiver::readData() {
   }
 
   service<Services::IMessageBus>()->sendMessage({*busMessageType, payload});
+}
+
+void MessageReceiver::updateSocketConnection() {
+  connect(service<Services::ISocketHolder>()->socket(), &QTcpSocket::readyRead, this, &MessageReceiver::readData);
 }
 }

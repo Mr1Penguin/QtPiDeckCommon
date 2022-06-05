@@ -80,3 +80,4 @@ CMakeSettings.json
 .cache
 build
 compile_commands.json
+*.log

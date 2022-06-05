@@ -101,13 +101,12 @@ BOOST_AUTO_TEST_CASE(shouldHandleEmptyData) // NOLINT
 class ReadableDeviceHeaderPart : public ReadableDevice {
 public:
   // QIODevice
-  auto readData(char* data, qint64 maxlen) -> qint64 final {
+  auto readData(char* data, qint64 /*maxlen*/) -> qint64 final {
     static auto state = State::DATA;
     if (state == State::DATA) {
       constexpr auto value = uint64_t{36};
       auto buffer          = QByteArray{};
-      buffer.reserve(static_cast<int>(maxlen));
-      auto stream = DeckDataStream{&buffer, QIODevice::WriteOnly};
+      auto stream          = DeckDataStream{&buffer, QIODevice::WriteOnly};
       stream << static_cast<quint64>(value);
       auto* src            = buffer.data();
       constexpr auto bytes = sizeof(uint64_t);
@@ -142,13 +141,15 @@ public:
       constexpr auto value = uint64_t{0};
       auto buffer          = QByteArray{};
       buffer.reserve(static_cast<int>(maxlen));
-      auto stream = DeckDataStream{&buffer, QIODevice::WriteOnly};
-      stream << static_cast<quint64>(value) << MessageType::Dummy << CT_QStringLiteral("ID");
+      auto stream   = DeckDataStream{&buffer, QIODevice::WriteOnly};
+      const auto id = CT_QStringLiteral("ID");
+      stream << static_cast<quint64>(value) << MessageType::Dummy << id;
       auto* src            = buffer.data();
-      constexpr auto bytes = sizeof(uint64_t) + sizeof(MessageType) + 4 + 4 + 1;
+      const auto rawStrLen = 4 + id.size() * 2;
+      const auto bytes     = sizeof(uint64_t) + sizeof(MessageType) + rawStrLen;
       memcpy(data, src, bytes);
       m_state = State::END;
-      return bytes;
+      return static_cast<qint64>(bytes);
     }
 
     return 0;
@@ -214,13 +215,15 @@ public:
       constexpr auto value = uint64_t{32};
       auto buffer          = QByteArray{};
       buffer.reserve(static_cast<int>(maxlen));
-      auto stream = DeckDataStream{&buffer, QIODevice::WriteOnly};
-      stream << static_cast<quint64>(value) << MessageType::Dummy << CT_QStringLiteral("ID");
+      auto stream   = DeckDataStream{&buffer, QIODevice::WriteOnly};
+      const auto id = CT_QStringLiteral("ID");
+      stream << static_cast<quint64>(value) << MessageType::Dummy << id;
       auto* src            = buffer.data();
-      constexpr auto bytes = sizeof(uint64_t) + sizeof(MessageType) + 4 + 4 + 1;
+      const auto rawStrLen = 4 + id.size() * 2;
+      const auto bytes     = sizeof(uint64_t) + sizeof(MessageType) + rawStrLen;
       memcpy(data, src, bytes);
       m_state = State::END;
-      return bytes;
+      return static_cast<qint64>(bytes);
     }
 
     return 0;
