@@ -22,11 +22,15 @@ jobs:
           fetch-depth: '0'
           submodules: 'recursive'
 
+      - run: clang-format --version
+        
+      - run: clang-format -h
+
       - name: Run clang-format
         run: |
           git diff --name-only $(git merge-base origin/master HEAD) HEAD |
           grep -E '\.((c|h)pp|inl)$' |
-          xargs clang-format -style="file:.clang-format" -i
+          xargs clang-format -style="file:.clang-format" -i --verbose
 
       - run: git diff > gitdiff
 
