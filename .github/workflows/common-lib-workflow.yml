@@ -59,7 +59,7 @@ jobs:
     name: Qt${{ matrix.cfg.qt }} - ${{ matrix.cfg.cc }}[${{ matrix.cfg.os }}]
 
     steps:
-      - uses: lukka/get-cmake@latest
+      - uses: ./.github/actions/common-setup.yml # lukka/get-cmake@latest
 
       - name: Cache Qt
         id: cache-qt

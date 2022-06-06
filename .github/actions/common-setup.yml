@@ -1,0 +1,7 @@
+name: 'Common setup'
+description: 'Setup common deps and tools'
+
+runs:
+  using: "composite"
+  steps:
+    - run: lukka/get-cmake@latest
