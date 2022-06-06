@@ -64,36 +64,11 @@ jobs:
           fetch-depth: '0'
           submodules: 'recursive'
 
-      - uses: ./.github/actions/common-setup # lukka/get-cmake@latest
-
-      - name: Cache Qt
-        id: cache-qt
-        uses: actions/cache@v1
+      - uses: .github/actions/common-setup
         with:
-          path: ../Qt
-          key: ${{ matrix.cfg.os }}-QtCache-${{ matrix.cfg.qt }}
-      
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v2
-        with:
-          aqtversion: ==2.0.0
-          version: '${{ matrix.cfg.qt }}'
-          cached: ${{ steps.cache-qt.outputs.cache-hit }}
-
-      - name: Set outputs
-        run: |
-          echo "::set-output name=dependencies::$(python3 ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ matrix.cfg.qt }} ${{ matrix.cfg.os }}-latest)"
-          echo "::set-output name=cacheKey::$(python3 ${{ github.workspace }}/scripts/vcpkgCacheKey.py qt${{ matrix.cfg.qt }} ${{ matrix.cfg.os }}-latest)"
-        id: set-outputs
-
-      - uses: lukka/run-vcpkg@v7.3
-        with:
-          vcpkgDirectory: ${{ github.workspace }}/ext/vcpkg
-          appendedCacheKey: ${{ steps.set-outputs.outputs.cacheKey }}
-          vcpkgTriplet: ${{ matrix.cfg.triplet }}
-          vcpkgArguments: ${{ steps.set-outputs.outputs.dependencies }}
-          doNotUpdateVcpkg: true
-        if: steps.set-outputs.outputs.dependencies != 'nil'
+          os: ${{ matrix.cfg.os }}
+          qt: ${{ matrix.cfg.qt }}
+          triplet: ${{ matrix.cfg.triplet }}
 
       - name: Install gcc 8
         run: sudo apt-get install g++-8 -y
