@@ -64,7 +64,7 @@ jobs:
           fetch-depth: '0'
           submodules: 'recursive'
 
-      - uses: ./.github/actions/common-setup.yml # lukka/get-cmake@latest
+      - uses: ./.github/actions/common-setup # lukka/get-cmake@latest
 
       - name: Cache Qt
         id: cache-qt
