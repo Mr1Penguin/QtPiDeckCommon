@@ -46,7 +46,10 @@ jobs:
 
       - uses: thollander/actions-comment-pull-request@v1
         with:
-          message: 'clang-format check result\n\npassed\n'
+          message: |
+            clang-format check result
+
+            passed
           comment_includes: 'clang-format check result'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: steps.git-diff-check.outputs.gitdiffsize == 0
