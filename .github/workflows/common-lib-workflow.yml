@@ -39,7 +39,7 @@ jobs:
 
       - uses: thollander/actions-comment-pull-request@v1
         with:
-          message: steps.git-diff-text.outputs.message
+          message: ${{ steps.git-diff-text.outputs.message }}
           comment_includes: 'clang-format check result'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: steps.git-diff-check.outputs.gitdiffsize != 0
