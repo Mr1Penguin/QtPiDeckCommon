@@ -32,6 +32,7 @@ runs:
         echo "::set-output name=dependencies::$(python3 ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ input.qt }} ${{ input.os }}-latest)"
         echo "::set-output name=cacheKey::$(python3 ${{ github.workspace }}/scripts/vcpkgCacheKey.py qt${{ input.qt }} ${{ input.os }}-latest)"
       id: set-outputs
+      shell: bash
         
     - uses: lukka/run-vcpkg@v7.3
       with:
