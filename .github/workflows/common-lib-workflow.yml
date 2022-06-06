@@ -64,7 +64,7 @@ jobs:
           fetch-depth: '0'
           submodules: 'recursive'
 
-      - uses: .github/actions/common-setup
+      - uses: ./.github/actions/common-setup
         with:
           os: ${{ matrix.cfg.os }}
           qt: ${{ matrix.cfg.qt }}
