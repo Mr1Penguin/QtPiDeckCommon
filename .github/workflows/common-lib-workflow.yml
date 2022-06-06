@@ -108,42 +108,17 @@ jobs:
     name: Qt${{ matrix.cfg.qt }} - msvc[windows]
 
     steps:
-      - uses: lukka/get-cmake@latest
-
-      - name: Cache Qt
-        id: cache-qt
-        uses: actions/cache@v1
-        with:
-          path: ../Qt
-          key: ${{ matrix.cfg.os }}-QtCache-${{ matrix.cfg.qt }}
-      
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v2
-        with:
-          aqtversion: ==2.0.0
-          version: '${{ matrix.cfg.qt }}'
-          cached: ${{ steps.cache-qt.outputs.cache-hit }}
-
       - uses: actions/checkout@v2
         with:
           fetch-depth: '0'
           submodules: 'recursive'
 
-      - name: Set outputs
-        run: |
-          echo "::set-output name=dependencies::$(python3 ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ matrix.cfg.qt }} windows-latest)"
-          echo "::set-output name=cacheKey::$(python3 ${{ github.workspace }}/scripts/vcpkgCacheKey.py qt${{ matrix.cfg.qt }} windows-latest)"
-        id: set-outputs
-
-      - uses: lukka/run-vcpkg@v7.3
+      - uses: ./.github/actions/common-setup
         with:
-          vcpkgDirectory: ${{ github.workspace }}/ext/vcpkg
-          appendedCacheKey: ${{ steps.set-outputs.outputs.cacheKey }}
-          vcpkgTriplet: ${{ matrix.cfg.triplet }}
-          vcpkgArguments: ${{ steps.set-outputs.outputs.dependencies }}
-          doNotUpdateVcpkg: true
-        if: steps.set-outputs.outputs.dependencies != 'nil'
-
+          os: ${{ matrix.cfg.os }}
+          qt: ${{ matrix.cfg.qt }}
+          triplet: ${{ matrix.cfg.triplet }}
+          
       - name: Cache Vulkan
         id: cache-vulkan
         uses: actions/cache@v1
@@ -195,41 +170,16 @@ jobs:
     name: Qt${{ matrix.cfg.qt }} - clang[macos]
 
     steps:
-      - uses: lukka/get-cmake@latest
-
-      - name: Cache Qt
-        id: cache-qt
-        uses: actions/cache@v1
-        with:
-          path: ../Qt
-          key: macos-QtCache-${{ matrix.cfg.qt }}
-      
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v2
-        with:
-          aqtversion: ==2.0.0
-          version: '${{ matrix.cfg.qt }}'
-          cached: ${{ steps.cache-qt.outputs.cache-hit }}
-
       - uses: actions/checkout@v2
         with:
           fetch-depth: '0'
           submodules: 'recursive'
 
-      - name: Set outputs
-        run: |
-          echo "::set-output name=dependencies::$(python3 ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ matrix.cfg.qt }} macos-latest)"
-          echo "::set-output name=cacheKey::$(python3 ${{ github.workspace }}/scripts/vcpkgCacheKey.py qt${{ matrix.cfg.qt }} macos-latest)"
-        id: set-outputs
-
-      - uses: lukka/run-vcpkg@v7.3
+      - uses: ./.github/actions/common-setup
         with:
-          vcpkgDirectory: ${{ github.workspace }}/ext/vcpkg
-          appendedCacheKey: ${{ steps.set-outputs.outputs.cacheKey }}
-          vcpkgTriplet: ${{ matrix.cfg.triplet }}
-          vcpkgArguments: ${{ steps.set-outputs.outputs.dependencies }}
-          doNotUpdateVcpkg: true
-        if: steps.set-outputs.outputs.dependencies != 'nil'
+          os: ${{ matrix.cfg.os }}
+          qt: ${{ matrix.cfg.qt }}
+          triplet: ${{ matrix.cfg.triplet }}
 
       - name: Update llvm-clang
         run: |
@@ -276,39 +226,16 @@ jobs:
       triplet: "x64-linux"
 
     steps:
-      - name: Cache Qt
-        id: cache-qt
-        uses: actions/cache@v1
-        with:
-          path: ../Qt
-          key: ubuntu-QtCache-${{ matrix.cfg.qt }}
-      
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v2
-        with:
-          aqtversion: ==2.0.0
-          version: '${{ matrix.cfg.qt }}'
-          cached: ${{ steps.cache-qt.outputs.cache-hit }}
-
       - uses: actions/checkout@v2
         with:
           fetch-depth: '0'
           submodules: 'recursive'
 
-      - name: Set outputs
-        run: |
-          echo "::set-output name=dependencies::$(python3 ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ matrix.cfg.qt }} ${{ matrix.cfg.os }}-latest)"
-          echo "::set-output name=cacheKey::$(python3 ${{ github.workspace }}/scripts/vcpkgCacheKey.py qt${{ matrix.cfg.qt }} ${{ matrix.cfg.os }}-latest)"
-        id: set-outputs
-
-      - uses: lukka/run-vcpkg@v7.3
+      - uses: ./.github/actions/common-setup
         with:
-          vcpkgDirectory: ${{ github.workspace }}/ext/vcpkg
-          appendedCacheKey: ${{ steps.set-outputs.outputs.cacheKey }}
-          vcpkgTriplet: ${{ env.triplet }}
-          vcpkgArguments: ${{ steps.set-outputs.outputs.dependencies }}
-          doNotUpdateVcpkg: true
-        if: steps.set-outputs.outputs.dependencies != 'nil'
+          os: ${{ matrix.cfg.os }}
+          qt: ${{ matrix.cfg.qt }}
+          triplet: ${{ matrix.cfg.triplet }}
 
       - name: Install additional Qt6 dependencies
         run: |
@@ -325,8 +252,6 @@ jobs:
           chmod +x llvm.sh
           sudo ./llvm.sh 12
           sudo apt-get install -y llvm-12 binutils-gold
-
-      - uses: lukka/get-cmake@latest
 
       - name: Create build directory
         run: cmake -E make_directory "build"
@@ -382,40 +307,16 @@ jobs:
       clangtidy: "clang-tidy-12"
       triplet: "x64-linux"
     steps:
-      - name: Cache Qt
-        id: cache-qt
-        uses: actions/cache@v1
-        with:
-          path: ../Qt
-          key: ubuntu-QtCache-${{ matrix.cfg.qt }}
-      
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v2
-        with:
-          aqtversion: ==2.0.0
-          modules: ${{ matrix.cfg.qt == env.QT6 && 'qtwebsockets' || '' }}
-          version: '${{ matrix.cfg.qt }}'
-          cached: ${{ steps.cache-qt.outputs.cache-hit }}
-
       - uses: actions/checkout@v2
         with:
           fetch-depth: '0'
           submodules: 'recursive'
 
-      - name: Set outputs
-        run: |
-          echo "::set-output name=dependencies::$(python3 ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ matrix.cfg.qt }} ${{ matrix.cfg.os }}-latest)"
-          echo "::set-output name=cacheKey::$(python3 ${{ github.workspace }}/scripts/vcpkgCacheKey.py qt${{ matrix.cfg.qt }} ${{ matrix.cfg.os }}-latest)"
-        id: set-outputs
-
-      - uses: lukka/run-vcpkg@v7.3
+      - uses: ./.github/actions/common-setup
         with:
-          vcpkgDirectory: ${{ github.workspace }}/ext/vcpkg
-          appendedCacheKey: ${{ steps.set-outputs.outputs.cacheKey }}
-          vcpkgTriplet: ${{ env.triplet }}
-          vcpkgArguments: ${{ steps.set-outputs.outputs.dependencies }}
-          doNotUpdateVcpkg: true
-        if: steps.set-outputs.outputs.dependencies != 'nil'
+          os: ${{ matrix.cfg.os }}
+          qt: ${{ matrix.cfg.qt }}
+          triplet: ${{ matrix.cfg.triplet }}
 
       - name: Install additional Qt6 dependencies
         run: |
@@ -425,8 +326,6 @@ jobs:
           sudo apt install
           sudo apt install vulkan-sdk libxkbcommon-dev -y
         if: matrix.cfg.qt == env.QT6
-
-      - uses: lukka/get-cmake@latest
 
       - run: sudo apt-get install -y ${clang} ${clangtidy}
 
