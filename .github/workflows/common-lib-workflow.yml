@@ -59,6 +59,11 @@ jobs:
     name: Qt${{ matrix.cfg.qt }} - ${{ matrix.cfg.cc }}[${{ matrix.cfg.os }}]
 
     steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+          submodules: 'recursive'
+
       - uses: ./.github/actions/common-setup.yml # lukka/get-cmake@latest
 
       - name: Cache Qt
@@ -74,11 +79,6 @@ jobs:
           aqtversion: ==2.0.0
           version: '${{ matrix.cfg.qt }}'
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
-
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: '0'
-          submodules: 'recursive'
 
       - name: Set outputs
         run: |
