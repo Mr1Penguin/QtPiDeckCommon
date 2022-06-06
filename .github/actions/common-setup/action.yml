@@ -4,4 +4,4 @@ description: 'Setup common deps and tools'
 runs:
   using: "composite"
   steps:
-    - run: lukka/get-cmake@latest
+    - uses: lukka/get-cmake@latest
