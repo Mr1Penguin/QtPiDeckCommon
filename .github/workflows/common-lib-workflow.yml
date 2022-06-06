@@ -14,7 +14,52 @@ env:
   VULKAN_VER_FULL: 1.2.189.0
 
 jobs:
+  clang-format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+          submodules: 'recursive'
+
+      - name: Run clang-format
+        run: |
+          git diff --name-only $(git merge-base origin/master HEAD) HEAD |
+          grep -E '\.((c|h)pp|inl)$' |
+          clang-format -style=file:.clang-format -i
+
+      - run: git diff > gitdiff
+
+      - run: echo ::set-output name=gitdiffsize::$(stat gitdiff --format '%s')
+        id: git-diff-check
+
+      - run: echo ::set-output name=message::"clang-format check result\n\njob failed\n```diff\n$(cat git-diff-check)\n```\n"
+        id: git-diff-text
+        if: steps.git-diff-check.outputs.gitdiffsize != 0
+
+      - uses: thollander/actions-comment-pull-request@v1
+        with:
+          message: steps.git-diff-text.outputs.message
+          comment_includes: 'clang-format check result'
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: steps.git-diff-check.outputs.gitdiffsize != 0
+
+      - uses: thollander/actions-comment-pull-request@v1
+        with:
+          message: 'clang-format check result\n\npassed\n'
+          comment_includes: 'clang-format check result'
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: steps.git-diff-check.outputs.gitdiffsize == 0
+
+      - name: Fail if there are changes
+        uses: actions/github-script@v3
+        with:
+          script: |
+            core.setFailed('clang-format job failed')
+        if: steps.git-diff-check.outputs.gitdiffsize != 0
+        
   ubuntu-jobs-generator:
+    needs: [clang-format]
     runs-on: ubuntu-latest
     outputs:
       job-matrix: ${{ steps.set-matrix.outputs.job-matrix }}
@@ -29,6 +74,7 @@ jobs:
           uq6g8: '{"qt":"${{ env.QT6 }}","cc":"gcc-10","cxx":"g++-10","triplet":"x64-linux"}'
 
   win-jobs-generator:
+    needs: [clang-format]
     runs-on: ubuntu-latest
     outputs:
       job-matrix: ${{ steps.set-matrix.outputs.job-matrix }}
@@ -40,6 +86,7 @@ jobs:
           wq6cl: '{"qt":"${{ env.QT6 }}","triplet":"x64-windows"}'
 
   mac-jobs-generator:
+    needs: [clang-format]
     runs-on: ubuntu-latest
     outputs:
       job-matrix: ${{ steps.set-matrix.outputs.job-matrix }}
