@@ -29,8 +29,8 @@ runs:
 
     - name: Set outputs
       run: |
-        echo "::set-output name=dependencies::$(python3 ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ input.qt }} ${{ input.os }}-latest)"
-        echo "::set-output name=cacheKey::$(python3 ${{ github.workspace }}/scripts/vcpkgCacheKey.py qt${{ input.qt }} ${{ input.os }}-latest)"
+        echo "::set-output name=dependencies::$(python3 ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ inputs.qt }} ${{ inputs.os }}-latest)"
+        echo "::set-output name=cacheKey::$(python3 ${{ github.workspace }}/scripts/vcpkgCacheKey.py qt${{ inputs.qt }} ${{ inputs.os }}-latest)"
       id: set-outputs
       shell: bash
         
@@ -38,7 +38,7 @@ runs:
       with:
         vcpkgDirectory: ${{ github.workspace }}/ext/vcpkg
         appendedCacheKey: ${{ steps.set-outputs.outputs.cacheKey }}
-        vcpkgTriplet: ${{ input.triplet }}
+        vcpkgTriplet: ${{ inputs.triplet }}
         vcpkgArguments: ${{ steps.set-outputs.outputs.dependencies }}
         doNotUpdateVcpkg: true
       if: steps.set-outputs.outputs.dependencies != 'nil'
