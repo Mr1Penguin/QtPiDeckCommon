@@ -30,6 +30,8 @@ jobs:
 
       - run: git diff > gitdiff
 
+      - run: ls -lh
+
       - run: echo ::set-output name=gitdiffsize::$(stat gitdiff --format '%s')
         id: git-diff-check
 
