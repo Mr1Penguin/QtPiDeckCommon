@@ -26,7 +26,7 @@ jobs:
         run: |
           git diff --name-only $(git merge-base origin/master HEAD) HEAD |
           grep -E '\.((c|h)pp|inl)$' |
-          xargs clang-format -style=file:.clang-format -i
+          xargs clang-format -style="file:.clang-format" -i
 
       - run: git diff > gitdiff
 
