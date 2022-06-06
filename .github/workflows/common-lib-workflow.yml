@@ -26,11 +26,9 @@ jobs:
         run: |
           git diff --name-only $(git merge-base origin/master HEAD) HEAD |
           grep -E '\.((c|h)pp|inl)$' |
-          clang-format -style=file:.clang-format -i
+          xargs clang-format -style=file:.clang-format -i
 
       - run: git diff > gitdiff
-
-      - run: ls -lh
 
       - run: echo ::set-output name=gitdiffsize::$(stat gitdiff --format '%s')
         id: git-diff-check
