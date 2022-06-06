@@ -33,7 +33,7 @@ jobs:
       - run: echo ::set-output name=gitdiffsize::$(stat gitdiff --format '%s')
         id: git-diff-check
 
-      - run: echo ::set-output name=message::$(echo "clang-format check result%0A%0Ajob failed%0A\`\`\`diff%0A$(cat gitdiff)%0A\`\`\`\n")
+      - run: echo ::set-output name=message::$(echo "clang-format check result%0A%0Ajob failed%0A\`\`\`diff%0A$(cat gitdiff | sed -e 's/\n/%0A/g')%0A\`\`\`%0A")
         id: git-diff-text
         if: steps.git-diff-check.outputs.gitdiffsize != 0
 
