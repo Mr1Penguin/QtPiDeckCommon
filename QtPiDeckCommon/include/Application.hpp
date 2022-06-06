@@ -17,10 +17,10 @@ public:
   Application();
   Application(const Application&) = delete;
   Application(Application&&)      = delete;
-  virtual ~Application()          = default;
+  virtual  ~Application()          = default;
 
   auto operator=(const Application&) -> Application& = delete;
-  auto operator=(Application&&) -> Application& = delete;
+  auto operator=(Application&&) -> Application&      = delete;
 
   auto start(int argc, char** argv) -> int;
 

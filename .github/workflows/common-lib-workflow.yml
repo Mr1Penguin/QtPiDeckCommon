@@ -14,7 +14,57 @@ env:
   VULKAN_VER_FULL: 1.2.189.0
 
 jobs:
+  clang-format:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+          submodules: 'recursive'
+
+      - name: Run clang-format
+        run: |
+          git diff --name-only $(git merge-base origin/master HEAD) HEAD |
+          grep -E '\.((c|h)pp|inl)$' |
+          xargs clang-format -style=file -i --verbose
+
+      - run: git diff > gitdiff
+
+      - run: echo ::set-output name=gitdiffsize::$(stat gitdiff --format '%s')
+        id: git-diff-check
+
+      - run: echo ::set-output name=message::$(echo "clang-format check result%0A%0Ajob failed%0A\`\`\`diff%0A$(cat gitdiff | sed -ze 's/\n/%0A/g')%0A\`\`\`%0A")
+        id: git-diff-text
+        if: steps.git-diff-check.outputs.gitdiffsize != 0
+
+      - uses: thollander/actions-comment-pull-request@v1
+        with:
+          message: ${{ steps.git-diff-text.outputs.message }}
+          comment_includes: 'clang-format check result'
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: steps.git-diff-check.outputs.gitdiffsize != 0
+
+      - uses: thollander/actions-comment-pull-request@v1
+        with:
+          message: |
+            clang-format check result
+
+            passed
+          comment_includes: 'clang-format check result'
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: steps.git-diff-check.outputs.gitdiffsize == 0
+
+      - name: Fail if there are changes
+        uses: actions/github-script@v3
+        with:
+          script: |
+            core.setFailed('clang-format job failed')
+        if: steps.git-diff-check.outputs.gitdiffsize != 0
+        
   ubuntu-jobs-generator:
+    if: ${{ always() }}
+    needs: [clang-format]
     runs-on: ubuntu-latest
     outputs:
       job-matrix: ${{ steps.set-matrix.outputs.job-matrix }}
@@ -22,13 +72,15 @@ jobs:
       - id: set-matrix
         run: echo "::set-output name=job-matrix::{\"cfg\":[${uqpig8}, ${uqpig10}, ${uq5g8}, ${uq5g10}, ${uq6g8}]}"
         env:
-          uqpig8: '{"os":"ubuntu","qt":"${{ env.QTPI }}","cc":"gcc-8","cxx":"g++-8","triplet":"x64-linux"}'
-          uqpig10: '{"os":"ubuntu","qt":"${{ env.QTPI }}","cc":"gcc-10","cxx":"g++-10","triplet":"x64-linux"}'
-          uq5g8: '{"os":"ubuntu","qt":"${{ env.QT5 }}","cc":"gcc-8","cxx":"g++-8","triplet":"x64-linux"}'
-          uq5g10: '{"os":"ubuntu","qt":"${{ env.QT5 }}","cc":"gcc-10","cxx":"g++-10","triplet":"x64-linux"}'
-          uq6g8: '{"os":"ubuntu","qt":"${{ env.QT6 }}","cc":"gcc-10","cxx":"g++-10","triplet":"x64-linux"}'
+          uqpig8: '{"qt":"${{ env.QTPI }}","cc":"gcc-8","cxx":"g++-8","triplet":"x64-linux"}'
+          uqpig10: '{"qt":"${{ env.QTPI }}","cc":"gcc-10","cxx":"g++-10","triplet":"x64-linux"}'
+          uq5g8: '{"qt":"${{ env.QT5 }}","cc":"gcc-8","cxx":"g++-8","triplet":"x64-linux"}'
+          uq5g10: '{"qt":"${{ env.QT5 }}","cc":"gcc-10","cxx":"g++-10","triplet":"x64-linux"}'
+          uq6g8: '{"qt":"${{ env.QT6 }}","cc":"gcc-10","cxx":"g++-10","triplet":"x64-linux"}'
 
   win-jobs-generator:
+    if: ${{ always() }}
+    needs: [clang-format]
     runs-on: ubuntu-latest
     outputs:
       job-matrix: ${{ steps.set-matrix.outputs.job-matrix }}
@@ -36,10 +88,12 @@ jobs:
       - id: set-matrix
         run: echo "::set-output name=job-matrix::{\"cfg\":[${wq5cl}, ${wq6cl}]}"
         env:
-          wq5cl: '{"os":"windows","qt":"${{ env.QT5 }}","cc":"cl","cxx":"cl","triplet":"x64-windows"}'
-          wq6cl: '{"os":"windows","qt":"${{ env.QT6 }}","cc":"cl","cxx":"cl","triplet":"x64-windows"}'
+          wq5cl: '{"qt":"${{ env.QT5 }}","triplet":"x64-windows"}'
+          wq6cl: '{"qt":"${{ env.QT6 }}","triplet":"x64-windows"}'
 
   mac-jobs-generator:
+    if: ${{ always() }}
+    needs: [clang-format]
     runs-on: ubuntu-latest
     outputs:
       job-matrix: ${{ steps.set-matrix.outputs.job-matrix }}
@@ -47,16 +101,16 @@ jobs:
       - id: set-matrix
         run: echo "::set-output name=job-matrix::{\"cfg\":[${mq5clang}, ${mq6clang}]}"
         env:
-          mq5clang: '{"os":"macos","qt":"${{ env.QT5 }}","cc":"/usr/local/opt/llvm/bin/clang","cxx":"/usr/local/opt/llvm/bin/clang++","triplet":"x64-osx"}'
-          mq6clang: '{"os":"macos","qt":"${{ env.QT6 }}","cc":"/usr/local/opt/llvm/bin/clang","cxx":"/usr/local/opt/llvm/bin/clang++","triplet":"x64-osx"}'
+          mq5clang: '{"qt":"${{ env.QT5 }}","triplet":"x64-osx"}'
+          mq6clang: '{"qt":"${{ env.QT6 }}","triplet":"x64-osx"}'
 
   ubuntu-test:
     needs: [ubuntu-jobs-generator]
-    runs-on: ${{ format('{0}-latest', matrix.cfg.os) }}
+    runs-on: ubuntu-latest
     strategy:
       matrix: ${{fromJSON(needs.ubuntu-jobs-generator.outputs.job-matrix)}}
     
-    name: Qt${{ matrix.cfg.qt }} - ${{ matrix.cfg.cc }}[${{ matrix.cfg.os }}]
+    name: Qt${{ matrix.cfg.qt }} - ${{ matrix.cfg.cc }}[ubuntu]
 
     steps:
       - uses: lukka/get-cmake@latest
@@ -66,7 +120,7 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ../Qt
-          key: ${{ matrix.cfg.os }}-QtCache-${{ matrix.cfg.qt }}
+          key: ubuntu-QtCache-${{ matrix.cfg.qt }}
       
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
@@ -82,8 +136,8 @@ jobs:
 
       - name: Set outputs
         run: |
-          echo "::set-output name=dependencies::$(python3 ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ matrix.cfg.qt }} ${{ matrix.cfg.os }}-latest)"
-          echo "::set-output name=cacheKey::$(python3 ${{ github.workspace }}/scripts/vcpkgCacheKey.py qt${{ matrix.cfg.qt }} ${{ matrix.cfg.os }}-latest)"
+          echo "::set-output name=dependencies::$(python3 ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ matrix.cfg.qt }} ubuntu-latest)"
+          echo "::set-output name=cacheKey::$(python3 ${{ github.workspace }}/scripts/vcpkgCacheKey.py qt${{ matrix.cfg.qt }} ubuntu-latest)"
         id: set-outputs
 
       - uses: lukka/run-vcpkg@v7.3
@@ -106,7 +160,7 @@ jobs:
           sudo apt update
           sudo apt install
           sudo apt install vulkan-sdk libxkbcommon-dev -y
-        if: matrix.cfg.os == 'ubuntu' && matrix.cfg.qt == env.QT6
+        if: matrix.cfg.qt == env.QT6
 
       - name: Create build directory
         run: cmake -E make_directory "build"
@@ -140,7 +194,7 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ../Qt
-          key: ${{ matrix.cfg.os }}-QtCache-${{ matrix.cfg.qt }}
+          key: windows-QtCache-${{ matrix.cfg.qt }}
       
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
@@ -186,18 +240,17 @@ jobs:
 
       - name: Set vulkan sdk variable(windows)
         run: echo "VULKAN_SDK=C:\VulkanSDK\${env:VULKAN_VER_FULL}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-        if: matrix.cfg.os == 'windows' && matrix.cfg.qt == env.QT6
+        if: matrix.cfg.qt == env.QT6
 
       - uses: ilammy/msvc-dev-cmd@v1
-        if: matrix.cfg.os == 'windows'
 
       - name: Create build directory
         run: cmake -E make_directory "build"
 
       - run: cmake -S . -B build -G Ninja -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/ext/vcpkg/scripts/buildsystems/vcpkg.cmake
         env:
-          CC: ${{ matrix.cfg.cc }}
-          CXX: ${{ matrix.cfg.cxx }}
+          CC: cl
+          CXX: cl
 
       - run: cmake --build build
 
@@ -266,8 +319,8 @@ jobs:
 
       - run: cmake -S . -B build -G Ninja -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/ext/vcpkg/scripts/buildsystems/vcpkg.cmake
         env:
-          CC: ${{ matrix.cfg.cc }}
-          CXX: ${{ matrix.cfg.cxx }}
+          CC: /usr/local/opt/llvm/bin/clang
+          CXX: /usr/local/opt/llvm/bin/clang++
 
       - run: cmake --build build
 
@@ -322,8 +375,8 @@ jobs:
 
       - name: Set outputs
         run: |
-          echo "::set-output name=dependencies::$(python3 ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ matrix.cfg.qt }} ${{ matrix.cfg.os }}-latest)"
-          echo "::set-output name=cacheKey::$(python3 ${{ github.workspace }}/scripts/vcpkgCacheKey.py qt${{ matrix.cfg.qt }} ${{ matrix.cfg.os }}-latest)"
+          echo "::set-output name=dependencies::$(python3 ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ matrix.cfg.qt }} ubuntu-latest)"
+          echo "::set-output name=cacheKey::$(python3 ${{ github.workspace }}/scripts/vcpkgCacheKey.py qt${{ matrix.cfg.qt }} ubuntu-latest)"
         id: set-outputs
 
       - uses: lukka/run-vcpkg@v7.3
@@ -429,8 +482,8 @@ jobs:
 
       - name: Set outputs
         run: |
-          echo "::set-output name=dependencies::$(python3 ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ matrix.cfg.qt }} ${{ matrix.cfg.os }}-latest)"
-          echo "::set-output name=cacheKey::$(python3 ${{ github.workspace }}/scripts/vcpkgCacheKey.py qt${{ matrix.cfg.qt }} ${{ matrix.cfg.os }}-latest)"
+          echo "::set-output name=dependencies::$(python3 ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ matrix.cfg.qt }} ubuntu-latest)"
+          echo "::set-output name=cacheKey::$(python3 ${{ github.workspace }}/scripts/vcpkgCacheKey.py qt${{ matrix.cfg.qt }} ubuntu-latest)"
         id: set-outputs
 
       - uses: lukka/run-vcpkg@v7.3
