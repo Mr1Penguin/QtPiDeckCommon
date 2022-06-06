@@ -15,7 +15,6 @@ env:
 
 jobs:
   clang-format:
-    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -63,6 +62,7 @@ jobs:
         if: steps.git-diff-check.outputs.gitdiffsize != 0
         
   ubuntu-jobs-generator:
+    if: ${{ always() }}
     needs: [clang-format]
     runs-on: ubuntu-latest
     outputs:
@@ -78,6 +78,7 @@ jobs:
           uq6g8: '{"qt":"${{ env.QT6 }}","cc":"gcc-10","cxx":"g++-10","triplet":"x64-linux"}'
 
   win-jobs-generator:
+    if: ${{ always() }}
     needs: [clang-format]
     runs-on: ubuntu-latest
     outputs:
@@ -90,6 +91,7 @@ jobs:
           wq6cl: '{"qt":"${{ env.QT6 }}","triplet":"x64-windows"}'
 
   mac-jobs-generator:
+    if: ${{ always() }}
     needs: [clang-format]
     runs-on: ubuntu-latest
     outputs:
