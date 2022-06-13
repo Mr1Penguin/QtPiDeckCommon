@@ -29,6 +29,7 @@ runs:
 
     - name: Set outputs
       run: |
+        echo ${{ github.workspace }}
         if [ "windows" == "${{ inputs.os }}" ]
         then
           echo "::set-output name=dependencies::$(python3 ${{ github.workspace }}\\scripts\\vcpkgPackages.py qt${{ inputs.qt }} ${{ inputs.os }}-latest)"
