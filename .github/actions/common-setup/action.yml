@@ -29,8 +29,14 @@ runs:
 
     - name: Set outputs
       run: |
-        echo "::set-output name=dependencies::$(python3 ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ inputs.qt }} ${{ inputs.os }}-latest)"
-        echo "::set-output name=cacheKey::$(python3 ${{ github.workspace }}/scripts/vcpkgCacheKey.py qt${{ inputs.qt }} ${{ inputs.os }}-latest)"
+        if [ "windows" == "${{ inputs.os }}" ]
+        then
+          echo "::set-output name=dependencies::$(python3 ${{ github.workspace }}\scripts\vcpkgPackages.py qt${{ inputs.qt }} ${{ inputs.os }}-latest)"
+          echo "::set-output name=cacheKey::$(python3 ${{ github.workspace }}\scripts\vcpkgCacheKey.py qt${{ inputs.qt }} ${{ inputs.os }}-latest)"
+        else
+          echo "::set-output name=dependencies::$(python3 ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ inputs.qt }} ${{ inputs.os }}-latest)"
+          echo "::set-output name=cacheKey::$(python3 ${{ github.workspace }}/scripts/vcpkgCacheKey.py qt${{ inputs.qt }} ${{ inputs.os }}-latest)"
+        fi
       id: set-outputs
       shell: bash
         
