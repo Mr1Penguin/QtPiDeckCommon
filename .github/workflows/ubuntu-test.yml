@@ -27,6 +27,6 @@ jobs:
       matrix: ${{fromJSON(needs.jobs-generator.outputs.job-matrix)}}
     name: Qt${{ matrix.cfg.qt }}/${{ matrix.cfg.cc }}[Ubuntu]
     steps:
-      - uses: ./.github/actions/test.yml
+      - uses: ./.github/actions/test
         with:
           qt_version ${{ matrix.cfg.qt }}
