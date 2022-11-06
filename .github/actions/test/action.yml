@@ -10,14 +10,13 @@ runs:
   steps:
     - uses: lukka/get-cmake@latest
     - name: Cache Qt
-        id: cache-qt
-        uses: actions/cache@v1
-        with:
-          path: ../Qt
-          key: macos-QtCache-${{ matrix.cfg.qt }}
+      id: cache-qt
+      uses: actions/cache@v1
+      with:
+        path: ../Qt
+        key: macos-QtCache-${{ matrix.cfg.qt }}
     - name: Install Qt
-        uses: jurplel/install-qt-action@v2
-        with:
-          #aqtversion: ==2.0.0
-          version: '${{ inputs.qt_version }}'
-          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+      uses: jurplel/install-qt-action@v2
+      with:
+        version: '${{ inputs.qt_version }}'
+        cached: ${{ steps.cache-qt.outputs.cache-hit }}
