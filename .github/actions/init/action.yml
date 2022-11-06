@@ -18,13 +18,14 @@ runs:
     - uses: lukka/get-cmake@latest
     - name: Cache Qt
       id: cache-qt
-      uses: actions/cache@v1
+      uses: actions/cache@v3
       with:
-        path: ../Qt
+        path: ${{ github.workspace }}/Qt
         key: ${{ inputs.os }}-QtCache-${{ inputs.qt }}
     - name: Install Qt
-      uses: jurplel/install-qt-action@v2
+      uses: jurplel/install-qt-action@v3
       with:
+        dir: ${{ github.workspace }}/Qt
         version: '${{ inputs.qt_version }}'
         cached: ${{ steps.cache-qt.outputs.cache-hit }}
     - run: ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ inputs.qt-version }} ${{ inputs.os }}
