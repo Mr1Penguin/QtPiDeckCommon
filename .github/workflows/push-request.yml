@@ -6,7 +6,7 @@ on:
 
 jobs:
   get-env:
-    uses: ./.github/workflow/set-variables.yml
+    uses: ./.github/workflows/set-variables.yml
   print-env:
     needs: [get-env]
     runs-on: ubuntu-latest
