@@ -1,0 +1,14 @@
+name: Check pull request
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  ubuntu-test:
+    uses: ./.github/workflows/ubuntu-test.yml
+  done:
+    runs-on: ubuntu-latest
+    needs: [ubuntu-test]
+    steps:
+      - run: echo "DONE"

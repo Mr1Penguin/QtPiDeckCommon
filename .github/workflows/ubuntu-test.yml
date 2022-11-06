@@ -1,0 +1,30 @@
+name: Build test code on Ubuntu
+
+on:
+  workflow_call:
+
+jobs:
+  get-env:
+    uses: ./.github/workflows/set-variables.yml
+  jobs-generator:
+    runs-on: ubuntu-latest
+    needs: [get-env]
+    outputs:
+      job-matrix: ${{ steps.set-matrix.outputs.job-matrix }}
+    steps:
+      - id: set-matrix
+        run: echo "::set-output name=job-matrix::{\"cfg\":[${uqpig8}, ${uqpig11}, ${uq5g8}, ${uq5g11}, ${uq6g8}]}"
+        env:
+          uqpig8: '{"qt":"${{ needs.get-env.outputs.QTPI }}","cc":"gcc-8","cxx":"g++-8"}'
+          uqpig11: '{"qt":"${{ needs.get-env.outputs.QTPI }}","cc":"gcc-11","cxx":"g++-11"}'
+          uq5g8: '{"qt":"${{ needs.get-env.outputs.QT5 }}","cc":"gcc-8","cxx":"g++-8"}'
+          uq5g11: '{"qt":"${{ needs.get-env.outputs.QT5 }}","cc":"gcc-11","cxx":"g++-11"}'
+          uq6g8: '{"qt":"${{ needs.get-env.outputs.QT6 }}","cc":"gcc-11","cxx":"g++-11"}'
+  build-and-test:
+    needs: [jobs-generator]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{fromJSON(needs.ubuntu-jobs-generator.outputs.job-matrix)}}
+    name: Qt${{ matrix.cfg.qt }} - ${{ matrix.cfg.cc }}[Ubuntu]
+    steps:
+      - uses: lukka/get-cmake@latest
