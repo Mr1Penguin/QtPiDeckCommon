@@ -8,14 +8,15 @@ jobs:
     uses: ./.github/workflows/set-variables.yml
   jobs-generator:
     runs-on: ubuntu-latest
+    needs: [get-env]
     outputs:
       job-matrix: ${{ steps.set-matrix.outputs.job-matrix }}
     steps:
       - id: set-matrix
         run: echo "job-matrix={\"cfg\":[${wq5cl}, ${wq6cl}]}" >> ${GITHUB_OUTPUT}
         env:
-          wq5cl: '{"qt":"${{ env.QT5 }}"}'
-          wq6cl: '{"qt":"${{ env.QT6 }}"}'
+          wq5cl: '{"qt":"${{ needs.get-env.outputs.QT5 }}"}'
+          wq6cl: '{"qt":"${{ needs.get-env.outputs.QT6 }}"}'
 
   build-and-test:
     needs: [jobs-generator]
