@@ -24,7 +24,7 @@ jobs:
     needs: [jobs-generator]
     runs-on: ubuntu-latest
     strategy:
-      matrix: ${{fromJSON(needs.ubuntu-jobs-generator.outputs.job-matrix)}}
+      matrix: ${{fromJSON(needs.jobs-generator.outputs.job-matrix)}}
     name: Qt${{ matrix.cfg.qt }} - ${{ matrix.cfg.cc }}[Ubuntu]
     steps:
       - uses: lukka/get-cmake@latest
