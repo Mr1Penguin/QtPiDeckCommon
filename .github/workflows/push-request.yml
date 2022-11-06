@@ -1,0 +1,22 @@
+name: Check push request
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  get-env:
+    uses: ./.github/workflow/set-variables.yml
+  print-env:
+    needs: [get-env]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "QTPI=${{ needs.get-env.outputs.QTPI }}"
+      - run: echo "QT5=${{ needs.get-env.outputs.QT5 }}"
+      - run: echo "QT6=${{ needs.get-env.outputs.QT6 }}"
+      - run: echo "VULKAN_VER=${{ needs.get-env.outputs.VULKAN_VER }}"
+      - run: echo "VULKAN_VER_FULL=${{ needs.get-env.outputs.VULKAN_VER_FULL }}"
+  done:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "DONE"

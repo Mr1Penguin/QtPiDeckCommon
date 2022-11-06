@@ -1,9 +1,7 @@
-name: Common lib workflow
+name: Check after pushing to master
 
 on:
   push:
-    branches: [ master ]
-  pull_request:
     branches: [ master ]
 
 env:
@@ -15,7 +13,6 @@ env:
 
 jobs:
   done:
-    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - run: echo "DONE"
