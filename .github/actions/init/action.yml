@@ -22,8 +22,8 @@ runs:
         dir: ${{ github.workspace }}/Qt
         version: '${{ inputs.qt-version }}'
         cache: true
-        cache-key-prefix: ${{ inputs.os }}-QtCache-${{ inputs.qt-version }}w
-    - run: ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ inputs.qt-version }} ${{ inputs.os }}
-      shell: python
-    - run: ${{ github.workspace }}/scripts/vcpkgCacheKey.py qt${{ inputs.qt-version }} ${{ inputs.os }}
-      shell: python
+        cache-key-prefix: ${{ inputs.os }}-QtCache-${{ inputs.qt-version }}
+    - run: python3 ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ inputs.qt-version }} ${{ inputs.os }}
+      shell: pwsh
+    - run: python3 ${{ github.workspace }}/scripts/vcpkgCacheKey.py qt${{ inputs.qt-version }} ${{ inputs.os }}
+      shell: pwsh
