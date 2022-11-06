@@ -27,6 +27,10 @@ jobs:
       matrix: ${{fromJSON(needs.jobs-generator.outputs.job-matrix)}}
     name: Qt${{ matrix.cfg.qt }}/${{ matrix.cfg.cc }}[Ubuntu]
     steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+          submodules: 'recursive'
       - uses: ./.github/actions/test
         with:
           qt_version ${{ matrix.cfg.qt }}
