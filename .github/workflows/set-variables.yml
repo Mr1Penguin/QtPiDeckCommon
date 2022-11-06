@@ -4,19 +4,19 @@ on:
   workflow_call:
     outputs:
       QTPI:
-        desription: "QT version on default Raspberry Pi 4"
+        description: "QT version on default Raspberry Pi 4"
         value: ${{ jobs.generator.outputs.QTPI }}
       QT5:
-        desription: "QT5 version"
+        description: "QT5 version"
         value: ${{ jobs.generator.outputs.QT5 }}
       QT6:
-        desription: "QT6 version"
+        description: "QT6 version"
         value: ${{ jobs.generator.outputs.QT6 }}
       VULKAN_VER:
-        desription: "Vulkan versions string"
+        description: "Vulkan versions string"
         value: ${{ jobs.generator.outputs.VULKAN_VER }}
       VULKAN_VER_FULL:
-        desription: "Full Vulkan versions string"
+        description: "Full Vulkan versions string"
         value: ${{ jobs.generator.outputs.VULKAN_VER_FULL }}
 
 env:
