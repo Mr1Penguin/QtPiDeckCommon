@@ -33,4 +33,4 @@ jobs:
           submodules: 'recursive'
       - uses: ./.github/actions/test
         with:
-          qt_version ${{ matrix.cfg.qt }}
+          qt_version: ${{ matrix.cfg.qt }}
