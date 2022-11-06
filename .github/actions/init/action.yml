@@ -1,0 +1,33 @@
+name: Test
+
+inputs:
+  os:
+    description: "OS name"
+    required: true
+  qt-version:
+    description: "Qt version to install"
+    required: true
+outputs:
+  vcpkg-packages:
+    description: "Packages to install via vcpkg"
+    value: ${{ steps.vcpkg-package.outputs.packages }}
+
+runs:
+  using: "composite"
+  steps:
+    - uses: lukka/get-cmake@latest
+    - name: Cache Qt
+      id: cache-qt
+      uses: actions/cache@v1
+      with:
+        path: ../Qt
+        key: ${{ inputs.os }}-QtCache-${{ inputs.qt }}
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v2
+      with:
+        version: '${{ inputs.qt_version }}'
+        cached: ${{ steps.cache-qt.outputs.cache-hit }}
+    - run: ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ inputs.qt-version }} ${{ inputs.os }}
+      shell: python
+    - run: ${{ github.workspace }}/scripts/vcpkgCacheKey.py qt${{ inputs.qt-version }} ${{ inputs.os }}
+      shell: python

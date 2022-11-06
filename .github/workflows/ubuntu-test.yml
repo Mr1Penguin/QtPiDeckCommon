@@ -31,6 +31,7 @@ jobs:
         with:
           fetch-depth: '0'
           submodules: 'recursive'
-      - uses: ./.github/actions/test
+      - uses: ./.github/actions/init
         with:
-          qt_version: ${{ matrix.cfg.qt }}
+          qt-version: ${{ matrix.cfg.qt }}
+          os: ubuntu-latest
