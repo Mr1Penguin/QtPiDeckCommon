@@ -1,0 +1,28 @@
+name: Build test code on Ubuntu
+
+on:
+  workflow_call:
+
+jobs:
+  get-env:
+    uses: ./.github/workflows/set-variables.yml
+  jobs-generator:
+    runs-on: ubuntu-latest
+    outputs:
+      job-matrix: ${{ steps.set-matrix.outputs.job-matrix }}
+    steps:
+      - id: set-matrix
+        run: echo "job-matrix={\"cfg\":[${wq5cl}, ${wq6cl}]}" >> ${GITHUB_OUTPUT}
+        env:
+          wq5cl: '{"qt":"${{ env.QT5 }}"}'
+          wq6cl: '{"qt":"${{ env.QT6 }}"}'
+
+  build-and-test
+    needs: [jobs-generator]
+    runs-on: windows-latest
+    strategy:
+      matrix: ${{fromJSON(needs.jobs-generator.outputs.job-matrix)}}
+    name: Qt${{ matrix.cfg.qt }}/msvc[Windows]
+    steps:
+      - uses: lukka/get-cmake@latest
+

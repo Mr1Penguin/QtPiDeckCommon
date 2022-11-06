@@ -7,8 +7,10 @@ on:
 jobs:
   ubuntu-test:
     uses: ./.github/workflows/ubuntu-test.yml
+  windows-test:
+    uses: ./.github/workflows/windows-test.yml
   done:
     runs-on: ubuntu-latest
-    needs: [ubuntu-test]
+    needs: [ubuntu-test, windows-test]
     steps:
       - run: echo "DONE"
