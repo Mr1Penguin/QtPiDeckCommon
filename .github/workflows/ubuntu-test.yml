@@ -13,7 +13,7 @@ jobs:
       job-matrix: ${{ steps.set-matrix.outputs.job-matrix }}
     steps:
       - id: set-matrix
-        run: echo "::set-output name=job-matrix::{\"cfg\":[${uqpig8}, ${uqpig11}, ${uq5g8}, ${uq5g11}, ${uq6g8}]}"
+        run: echo "job-matrix={\"cfg\":[${uqpig8}, ${uqpig11}, ${uq5g8}, ${uq5g11}, ${uq6g8}]}" >> ${GITHUB_OUTPUT}
         env:
           uqpig8: '{"qt":"${{ needs.get-env.outputs.QTPI }}","cc":"gcc-8","cxx":"g++-8"}'
           uqpig11: '{"qt":"${{ needs.get-env.outputs.QTPI }}","cc":"gcc-11","cxx":"g++-11"}'
