@@ -1,4 +1,4 @@
-name: Build test code on Mac
+name: Build test code on Macos
 
 on:
   workflow_call:
