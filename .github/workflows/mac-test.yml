@@ -1,4 +1,4 @@
-name: Build test code on Windows
+name: Build test code on Mac
 
 on:
   workflow_call:
@@ -13,17 +13,17 @@ jobs:
       job-matrix: ${{ steps.set-matrix.outputs.job-matrix }}
     steps:
       - id: set-matrix
-        run: echo "job-matrix={\"cfg\":[${wq5cl}, ${wq6cl}]}" >> ${GITHUB_OUTPUT}
+        run: echo "job-matrix={\"cfg\":[${mq5}, ${mq6}]}" >> ${GITHUB_OUTPUT}
         env:
-          wq5cl: '{"qt":"${{ needs.get-env.outputs.QT5 }}"}'
-          wq6cl: '{"qt":"${{ needs.get-env.outputs.QT6 }}"}'
+          mq5: '{"qt":"${{ needs.get-env.outputs.QT5 }}"}'
+          mq6: '{"qt":"${{ needs.get-env.outputs.QT6 }}"}'
 
   build-and-test:
     needs: [jobs-generator]
-    runs-on: windows-latest
+    runs-on: macos-latest
     strategy:
       matrix: ${{fromJSON(needs.jobs-generator.outputs.job-matrix)}}
-    name: Qt${{ matrix.cfg.qt }}/msvc[Windows]
+    name: Qt${{ matrix.cfg.qt }}/clang[Macos]
     steps:
       - uses: lukka/get-cmake@latest
 
