@@ -21,7 +21,7 @@ on:
 
 env:
   QTPI: 5.11.3
-  QT5: 5.15.5
+  QT5: 5.15.2
   QT6: 6.4.0
   VULKAN_VER: 1.3.224
   VULKAN_VER_FULL: 1.3.224.0
