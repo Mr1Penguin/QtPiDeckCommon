@@ -44,11 +44,6 @@ jobs:
         env:
           VULKAN_VER: ${{ needs.get-env.outputs.VULKAN_VER }}
         if: matrix.cfg.qt == needs.get-env.outputs.QT6
-      - id: vcpkg-vars
-        uses: ./.github/actions/vcpkg-vars
-        with:
-          qt-version: ${{ matrix.cfg.qt }}
-          os: ubuntu-latest
       - id: vcpkg-commit
         run: echo "commit=$(git rev-parse --short HEAD)" >> ${GITHUB_OUTPUT}
         working-directory: ext/vcpkg
