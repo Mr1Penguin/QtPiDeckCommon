@@ -56,7 +56,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: vcpkg_installed
-          key: ${{ matrix.cfg.os }}-vcpkg-${{ hashFiles(vcpkg_manifests/base/vcpkg.json) }}-${{ steps.vcpkg-commit-outputs.commit }}
+          key: ${{ matrix.cfg.os }}-vcpkg-${{ hashFiles('vcpkg_manifests/base/vcpkg.json') }}-${{ steps.vcpkg-commit-outputs.commit }}
       - uses: ./.github/actions/init
         with:
           qt-version: ${{ matrix.cfg.qt }}
