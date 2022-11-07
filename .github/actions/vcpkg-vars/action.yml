@@ -19,8 +19,8 @@ runs:
   using: "composite"
   steps:
     - id: vcpkg-packages
-      run: echo "value=$(python3 ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ inputs.qt-version }} ${{ inputs.os }})" >> ${GITHUB_OUTPUT}
+      run: echo "value=$(python3 ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ inputs.qt-version }} ${{ inputs.os }})" # >> ${GITHUB_OUTPUT}
       shell: pwsh
     - id: vcpkg-cachekey
-      run: echo "value=$(python3 ${{ github.workspace }}/scripts/vcpkgCacheKey.py qt${{ inputs.qt-version }} ${{ inputs.os }})" >> ${GITHUB_OUTPUT}
+      run: echo "value=$(python3 ${{ github.workspace }}/scripts/vcpkgCacheKey.py qt${{ inputs.qt-version }} ${{ inputs.os }})" # >> ${GITHUB_OUTPUT}
       shell: pwsh
