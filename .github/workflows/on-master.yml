@@ -1,0 +1,9 @@
+name: Check after pushing to master
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  ubuntu-test:
+    uses: ./.github/workflows/ubuntu-test.yml

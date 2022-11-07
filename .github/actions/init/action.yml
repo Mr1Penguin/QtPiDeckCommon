@@ -1,0 +1,26 @@
+name: Install dependencies and configure project
+
+inputs:
+  os:
+    description: "OS name"
+    required: true
+  qt-version:
+    description: "Qt version to install"
+    required: true
+  preset:
+    description: "CMake preset"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - uses: lukka/get-cmake@latest
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v3
+      with:
+        dir: ${{ github.workspace }}/Qt
+        version: '${{ inputs.qt-version }}'
+        cache: true
+        cache-key-prefix: ${{ inputs.os }}-QtCache-${{ inputs.qt-version }}
+    - run: cmake --preset ${{ inputs.preset }}
+      shell: pwsh

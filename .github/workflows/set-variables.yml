@@ -1,0 +1,49 @@
+name: Get env variables
+
+on:
+  workflow_call:
+    outputs:
+      QTPI:
+        description: "QT version on default Raspberry Pi 4"
+        value: ${{ jobs.generator.outputs.QTPI }}
+      QT5:
+        description: "QT5 version"
+        value: ${{ jobs.generator.outputs.QT5 }}
+      QT6:
+        description: "QT6 version"
+        value: ${{ jobs.generator.outputs.QT6 }}
+      VULKAN_VER:
+        description: "Vulkan versions string"
+        value: ${{ jobs.generator.outputs.VULKAN_VER }}
+      VULKAN_VER_FULL:
+        description: "Full Vulkan versions string"
+        value: ${{ jobs.generator.outputs.VULKAN_VER_FULL }}
+
+env:
+  QTPI: 5.11.3
+  QT5: 5.15.2
+  QT6: 6.4.0
+  VULKAN_VER: 1.3.224
+  VULKAN_VER_FULL: 1.3.224.0
+
+jobs:
+  generator:
+    name: "Env generator"
+    runs-on: ubuntu-latest
+    outputs:
+      QTPI: ${{ steps.step1.outputs.output }}
+      QT5: ${{ steps.step2.outputs.output }}
+      QT6: ${{ steps.step3.outputs.output }}
+      VULKAN_VER: ${{ steps.step4.outputs.output }}
+      VULKAN_VER_FULL: ${{ steps.step5.outputs.output }}
+    steps:
+      - id: step1
+        run: echo "output=${QTPI}" >> ${GITHUB_OUTPUT}
+      - id: step2
+        run: echo "output=${QT5}" >> ${GITHUB_OUTPUT}
+      - id: step3
+        run: echo "output=${QT6}" >> ${GITHUB_OUTPUT}
+      - id: step4
+        run: echo "output=${VULKAN_VER}" >> ${GITHUB_OUTPUT}
+      - id: step5
+        run: echo "output=${VULKAN_VER_FULL}" >> ${GITHUB_OUTPUT}

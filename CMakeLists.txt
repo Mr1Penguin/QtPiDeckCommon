@@ -49,3 +49,6 @@ if (BUILD_GUIAPP)
     message(STATUS "GuiApp compilation enabled")
     add_subdirectory(GuiApp)
 endif()
+
+
+# cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_TOOLCHAIN_FILE=./ext/vcpkg/scripts/buildsystems/vcpkg.cmake -G Ninja -DCMAKE_CXX_COMPILER_LAUNCHER="distcc" -DCMAKE_C_COMPILER_LAUNCHER="distcc" -DENABLE_CPPCHECK=OFF -DVCPKG_TARGET_TRIPLET=x64-linux -DVCPKG_MANIFEST_DIR=vcpkg_manifests/qt5_linux

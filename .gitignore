@@ -81,3 +81,5 @@ CMakeSettings.json
 build
 compile_commands.json
 *.log
+/Testing/
+/vcpkg_installed/

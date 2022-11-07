@@ -3,6 +3,9 @@
 #include "QtPiDeckCommon_global.hpp"
 
 #include <QObject>
+#if QT_VERSION_MAJOR == 6
+#include <QObjectBindableProperty>
+#endif
 
 #include "Utilities/Traits.hpp"
 

@@ -1,0 +1,5 @@
+{
+    "name": "qtpideckcommon",
+    "version-string": "0.0.1",
+    "dependencies": ["boost-test", "boost-log"]
+}

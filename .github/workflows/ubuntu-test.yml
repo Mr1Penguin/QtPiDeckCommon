@@ -1,0 +1,61 @@
+name: Build test code on Ubuntu
+
+on:
+  workflow_call:
+
+jobs:
+  get-env:
+    uses: ./.github/workflows/set-variables.yml
+  jobs-generator:
+    runs-on: ubuntu-latest
+    needs: [get-env]
+    outputs:
+      job-matrix: ${{ steps.set-matrix.outputs.job-matrix }}
+    steps:
+      - id: set-matrix
+        run: echo "job-matrix={\"cfg\":[${uqpig8}, ${uqpig11}, ${uq5g8}, ${uq5g11}, ${uq6g8}]}" >> ${GITHUB_OUTPUT}
+        env:
+          uqpig8: '{"qt":"${{ needs.get-env.outputs.QTPI }}","cc":"gcc-8","cxx":"g++-8"}'
+          uqpig11: '{"qt":"${{ needs.get-env.outputs.QTPI }}","cc":"gcc-11","cxx":"g++-11"}'
+          uq5g8: '{"qt":"${{ needs.get-env.outputs.QT5 }}","cc":"gcc-8","cxx":"g++-8"}'
+          uq5g11: '{"qt":"${{ needs.get-env.outputs.QT5 }}","cc":"gcc-11","cxx":"g++-11"}'
+          uq6g8: '{"qt":"${{ needs.get-env.outputs.QT6 }}","cc":"gcc-11","cxx":"g++-11"}'
+  build-and-test:
+    needs: [jobs-generator, get-env]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{fromJSON(needs.jobs-generator.outputs.job-matrix)}}
+    name: Qt${{ matrix.cfg.qt }}/${{ matrix.cfg.cc }}[Ubuntu]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+          submodules: 'recursive'
+      - name: Install gcc 8
+        run: sudo apt-get install g++-8 -y
+        if: matrix.cfg.cc == 'gcc-8'
+      - name: Install additional Qt6 dependencies
+        run: |
+          wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
+          sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-${VULKAN_VER}-focal.list https://packages.lunarg.com/vulkan/${VULKAN_VER}/lunarg-vulkan-${VULKAN_VER}-focal.list
+          sudo apt update
+          sudo apt install
+          sudo apt install vulkan-sdk libxkbcommon-dev -y
+        env:
+          VULKAN_VER: ${{ needs.get-env.outputs.VULKAN_VER }}
+        if: matrix.cfg.qt == needs.get-env.outputs.QT6
+      - id: vcpkg-commit
+        run: echo "commit=$(git rev-parse --short HEAD)" >> ${GITHUB_OUTPUT}
+        working-directory: ext/vcpkg
+      - name: Cache vcpkg packages
+        uses: actions/cache@v3
+        with:
+          path: vcpkg_installed
+          key: ubuntu-latest-vcpkg-${{ hashFiles('vcpkg_manifests/base/vcpkg.json') }}-${{ steps.vcpkg-commit.outputs.commit }}
+      - uses: ./.github/actions/init
+        with:
+          qt-version: ${{ matrix.cfg.qt }}
+          os: ubuntu-latest
+          preset: linux-qt5
+      - run: cmake --build build/linux-qt5 --config Release
+      - run: ctest --test-dir build/linux-qt5 -C Release

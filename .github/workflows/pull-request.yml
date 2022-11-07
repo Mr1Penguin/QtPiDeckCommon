@@ -1,0 +1,19 @@
+name: Check pull request
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  ubuntu-test:
+    uses: ./.github/workflows/ubuntu-test.yml
+  #windows-test:
+  #  uses: ./.github/workflows/windows-test.yml
+  #macos-test:
+  #  uses: ./.github/workflows/macos-test.yml
+  done:
+    runs-on: ubuntu-latest
+    needs: [ubuntu-test]
+    #needs: [ubuntu-test, windows-test, macos-test]
+    steps:
+      - run: echo "DONE"
