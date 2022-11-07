@@ -22,7 +22,7 @@
 	    "name": "linux-qt5",
 	    "displayName": "Linux configuration with Qt5",
 	    "description": "Configure for building on Linux Qt5",
-	    "binaryDir": "${sourceDir}/build/linux",
+	    "binaryDir": "${sourceDir}/build/linux-qt5",
 	    "inherits": "base",
 	    "cacheVariables": {
 		"VCPKG_TARGET_TRIPLET": "x64-linux",

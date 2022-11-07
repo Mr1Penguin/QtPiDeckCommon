@@ -57,3 +57,5 @@ jobs:
           qt-version: ${{ matrix.cfg.qt }}
           os: ubuntu-latest
           preset: linux-qt5
+      - run: cmake --build build/linux-qt5 --config Release
+      - run: ctest --test-dir build/linux-qt5 -C Release
