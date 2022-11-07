@@ -1,4 +1,4 @@
-name: Install dependencies
+name: Install dependencies and configure project
 
 inputs:
   os:
@@ -7,14 +7,8 @@ inputs:
   qt-version:
     description: "Qt version to install"
     required: true
-  vcpkg-packages:
-    description: "Packages to install via vcpkg"
-    required: true
-  vcpkg-cachekey:
-    description: "Cache key for vcpkg"
-    required: true
-  vcpkg-triplet:
-    description: "Triplet for vcpkg"
+  preset:
+    description: "CMake preset"
     required: true
 
 runs:
@@ -28,11 +22,5 @@ runs:
         version: '${{ inputs.qt-version }}'
         cache: true
         cache-key-prefix: ${{ inputs.os }}-QtCache-${{ inputs.qt-version }}
-    - uses: lukka/run-vcpkg@v10
-      with:
-        vcpkgDirectory: ${{ github.workspace }}/ext/vcpkg
-        appendedCacheKey: ${{ inputs.vcpkg-cachekey }}
-        vcpkgTriplet: ${{ inputs.triplet }}
-        vcpkgArguments: ${{ inputs.vcpkg-packages }}
-        doNotUpdateVcpkg: true
-      if: steps.set-outputs.outputs.dependencies != 'nil'
+    - run: cmake --preset ${{ inputs.preset }}
+      shell: pwsh

@@ -21,7 +21,7 @@ jobs:
           uq5g11: '{"qt":"${{ needs.get-env.outputs.QT5 }}","cc":"gcc-11","cxx":"g++-11"}'
           uq6g8: '{"qt":"${{ needs.get-env.outputs.QT6 }}","cc":"gcc-11","cxx":"g++-11"}'
   build-and-test:
-    needs: [jobs-generator]
+    needs: [jobs-generator, get-env]
     runs-on: ubuntu-latest
     strategy:
       matrix: ${{fromJSON(needs.jobs-generator.outputs.job-matrix)}}
@@ -31,15 +31,34 @@ jobs:
         with:
           fetch-depth: '0'
           submodules: 'recursive'
+      - name: Install gcc 8
+        run: sudo apt-get install g++-8 -y
+        if: matrix.cfg.cc == 'gcc-8'
+      - name: Install additional Qt6 dependencies
+        run: |
+          wget -qO - https://packages.lunarg.com/lunarg-signing-key-pub.asc | sudo apt-key add -
+          sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-${VULKAN_VER}-focal.list https://packages.lunarg.com/vulkan/${VULKAN_VER}/lunarg-vulkan-${VULKAN_VER}-focal.list
+          sudo apt update
+          sudo apt install
+          sudo apt install vulkan-sdk libxkbcommon-dev -y
+        env:
+          VULKAN_VER: ${{ needs.get-env.outputs.VULKAN_VER }}
+        if: matrix.cfg.qt == needs.get-env.outputs.QT6
       - id: vcpkg-vars
         uses: ./.github/actions/vcpkg-vars
         with:
           qt-version: ${{ matrix.cfg.qt }}
           os: ubuntu-latest
+      - id: vcpkg-commit
+        run: echo "commit=$(git rev-parse --short HEAD)" >> ${GITHUB_OUTPUT}
+        working-directory: ext/vcpkg
+      - name: Cache vcpkg packages
+        uses: actions/cache@v3
+        with:
+          path: vcpkg_installed
+          key: ${{ matrix.cfg.os }}-vcpkg-${{ hashFiles(vcpkg_manifests/base/vcpkg.json) }}-${{ steps.vcpkg-commit-outputs.commit }}
       - uses: ./.github/actions/init
         with:
           qt-version: ${{ matrix.cfg.qt }}
           os: ubuntu-latest
-          vcpkg-triplet: x64-linux
-          vcpkg-packages: ${{ steps.vcpkg-vars.outputs.vcpkg-packages }}
-          vcpkg-cachekey: ${{ steps.vcpkg-vars.outputs.vcpkg-cachekey }}
+          preset: linux-qt5
