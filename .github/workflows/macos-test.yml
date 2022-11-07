@@ -29,7 +29,15 @@ jobs:
         with:
           fetch-depth: '0'
           submodules: 'recursive'
-      - uses: ./.github/actions/init
+      - id: vcpkg-vars
+        uses: ./.github/actions/vckpg-vars
         with:
           qt-version: ${{ matrix.cfg.qt }}
           os: macos-latest
+      - uses: ./.github/actions/init
+        with:
+          qt-version: ${{ matrix.cfg.qt }}
+          os: macosx-latest
+          vcpkg-triplet: x64-osx
+          vcpkg-packages: ${{ steps.vcpkg-vars.outputs.vcpkg-packages }}
+          vcpkg-cachekey: ${{ steps.vcpkg-vars.outputs.vcpkg-cachekey }}

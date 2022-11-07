@@ -1,4 +1,4 @@
-name: Test
+name: Install dependencies
 
 inputs:
   os:
@@ -7,10 +7,15 @@ inputs:
   qt-version:
     description: "Qt version to install"
     required: true
-outputs:
   vcpkg-packages:
     description: "Packages to install via vcpkg"
-    value: ${{ steps.vcpkg-package.outputs.packages }}
+    required: true
+  vcpkg-cachekey:
+    description: "Cache key for vcpkg"
+    required: true
+  vcpkg-triplet:
+    description: "Triplet for vcpkg"
+    required: true
 
 runs:
   using: "composite"
@@ -23,7 +28,11 @@ runs:
         version: '${{ inputs.qt-version }}'
         cache: true
         cache-key-prefix: ${{ inputs.os }}-QtCache-${{ inputs.qt-version }}
-    - run: python3 ${{ github.workspace }}/scripts/vcpkgPackages.py qt${{ inputs.qt-version }} ${{ inputs.os }}
-      shell: pwsh
-    - run: python3 ${{ github.workspace }}/scripts/vcpkgCacheKey.py qt${{ inputs.qt-version }} ${{ inputs.os }}
-      shell: pwsh
+    - uses: lukka/run-vcpkg@v7.3
+      with:
+        vcpkgDirectory: ${{ github.workspace }}/ext/vcpkg
+        appendedCacheKey: ${{ inputs.vcpkg-cachekey }}
+        vcpkgTriplet: ${{ inputs.triplet }}
+        vcpkgArguments: ${{ inputs.vcpkg-packages }}
+        doNotUpdateVcpkg: true
+      if: steps.set-outputs.outputs.dependencies != 'nil'
