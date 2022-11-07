@@ -30,7 +30,7 @@ jobs:
           fetch-depth: '0'
           submodules: 'recursive'
       - id: vcpkg-vars
-        uses: ./.github/actions/vckpg-vars
+        uses: ./.github/actions/vcpkg-vars
         with:
           qt-version: ${{ matrix.cfg.qt }}
           os: macos-latest
